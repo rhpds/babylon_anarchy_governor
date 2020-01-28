@@ -1,0 +1,14 @@
+---
+- name: Set state provisioning for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    metadata:
+      labels:
+        state: provisioning
+    spec:
+      vars:
+        current_state: provisioning
+    status:
+      towerJobs:
+        provision:
+          deployerJob: '{{ anarchy_action_callback_data.data.id | default(None) }}'
+          deployerTimestamp: '{{ anarchy_run_timestamp }}'

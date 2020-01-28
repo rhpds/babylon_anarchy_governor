@@ -1,0 +1,44 @@
+---
+- name: Sanity checks
+  assert:
+    that: "{{ check.that }}"
+    fail_msg: "{{ check.msg }}"
+    quiet: true
+  loop_control:
+    loop_var: check
+    label: "{{ check.msg }}"
+  loop:
+  - msg: anarchy variables must be defined, are we running in Anarchy?
+    that:
+    - anarchy_governor is defined
+    - anarchy_subject is defined
+    - anarchy_subject_name is defined
+    - anarchy_action_callback_token is defined or anarchy_action_name is not defined
+    - anarchy_action_callback_url is defined or anarchy_action_name is not defined
+    - anarchy_action_name is defined or anarchy_event_name is defined
+    - anarchy_run_timestamp is defined
+  - msg: babylon_tower must be defined and include hostname, user, and password
+    that:
+    - babylon_tower is defined
+    - babylon_tower.hostname is defined
+    - babylon_tower.user is defined
+    - babylon_tower.password is defined
+  - msg: schedule_stop_after_start, schedule_stop_after_provision, and schedule_destroy_after_provision must be a time interval or disabled
+    that:
+    - schedule_stop_after_start is match('(\d+[dhms]?|disabled)$')
+    - schedule_stop_after_provision is match('(\d+[dhms]?|disabled)$')
+    - schedule_destroy_after_provision is match('(\d+[dhms]?|disabled)$')
+
+- name: Handle action or event for {{ anarchy_subject_name }}
+  include_tasks: >-
+    {%- if anarchy_action_name is defined -%}
+    {%-   if anarchy_action_callback_name is defined -%}
+    handle-action-{{ anarchy_action_name }}-{{ anarchy_action_callback_name }}.yaml
+    {%-   else -%}
+    handle-action-{{ anarchy_action_name }}.yaml
+    {%-   endif -%}
+    {%- elif anarchy_event_name is defined -%}
+    handle-event-{{ anarchy_event_name }}.yaml
+    {%- else -%}
+    handle-no-action-or-event.yaml
+    {%- endif -%}

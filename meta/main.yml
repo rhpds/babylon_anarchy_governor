@@ -1,0 +1,10 @@
+galaxy_info:
+  author: Johnathan Kupferer
+  description: Babylon Anarchy governor implementation
+  company: Red Hat
+  issue_tracker_url: https://github.com/redhat-gpte-devopsautomation/babylon_anarchy_governor/issues
+  license: GPL-3.0-only
+  min_ansible_version: 2.9
+  galaxy_tags: []
+
+dependencies: []

@@ -1,0 +1,19 @@
+---
+- name: Set state started for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    metadata:
+      labels:
+        state: started
+    spec:
+      vars:
+        current_state: started
+    status:
+      towerJobs:
+        start:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+
+- when: schedule_stop_after_start != 'disabled'
+  name: Schedule stop {{ anarchy_subject_name }} after {{ schedule_stop_after_start }}
+  anarchy_schedule_action:
+    action: stop
+    after: "{{ schedule_stop_after_start }}"

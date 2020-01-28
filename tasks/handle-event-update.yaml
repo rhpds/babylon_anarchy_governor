@@ -1,0 +1,35 @@
+---
+- when:
+  - current_state == 'stopped'
+  - desired_state == 'started'
+  block:
+  - name: Schedule start {{ anarchy_subject_name }}
+    anarchy_schedule_action:
+      action: start
+
+  - name: Set {{ anarchy_subject_name }} current state to start-pending
+    anarchy_subject_update:
+      metadata:
+        labels:
+          state: start-pending
+      spec:
+        vars:
+          current_state: start-pending
+
+
+- when:
+  - current_state == 'started'
+  - desired_state == 'stopped'
+  block:
+  - name: Schedule stop {{ anarchy_subject_name }}
+    anarchy_schedule_action:
+      action: stop
+
+  - name: Set {{ anarchy_subject_name }} current state to stop-pending
+    anarchy_subject_update:
+      metadata:
+        labels:
+          state: stop-pending
+      spec:
+        vars:
+          current_state: stop-pending

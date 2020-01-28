@@ -1,0 +1,14 @@
+---
+- name: Set state destroying for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    metadata:
+      labels:
+        state: destroying
+    spec:
+      vars:
+        current_state: destroying
+    status:
+      towerJobs:
+        destroy:
+          deployerJob: '{{ anarchy_action_callback_data.data.id | default(None) }}'
+          deployerTimestamp: '{{ anarchy_run_timestamp }}'

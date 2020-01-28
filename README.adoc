@@ -1,0 +1,17 @@
+# Babylon Anarchy Governor
+
+This Ansible role implements the AnarchyGovernor login used within the AnarchyGovernor as part of project babylon.
+
+https://github.com/redhat-cop/babylon
+
+## Usage
+
+This role is designed to be called only from the Anarchy framework with a dynamically generated playbook with variables managed through Anarchy.
+
+## License
+
+GPLv3
+
+## Author Information
+
+Johnathan Kupferer (jkupfere@redhat.com)

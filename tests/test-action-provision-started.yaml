@@ -1,0 +1,67 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    anarchy_governor:
+      vars:
+        job_vars:
+          governor_var: good
+          governor_override_var: good
+    anarchy_subject:
+      vars:
+        job_vars:
+          subject_var: good
+          governor_override_var: bad
+    anarchy_subject_name: test
+    anarchy_action_name: provision
+    anarchy_action_callback_name: started
+    anarchy_action_callback_url: test
+    anarchy_action_callback_token: test
+    anarchy_run_timestamp: "2020-01-01T00:00:00Z"
+    babylon_tower:
+      hostname: test
+      user: test
+      password: test
+
+  pre_tasks:
+  - name: Create test output dir
+    tempfile:
+      state: directory
+    register: r_test_output_dir
+  - name: Set test_output_dir
+    set_fact:
+      test_output_dir: "{{ r_test_output_dir.path }}"
+
+  roles:
+  - role: babylon_anarchy_governor
+
+  post_tasks:
+  - name: Read anarchy_scheduled_actions
+    set_fact:
+      anarchy_subject_updates: >-
+        {{ lookup('file', test_output_dir ~ '/anarchy_subject_updates.yaml') | from_yaml }}
+
+  - debug: var=anarchy_subject_updates
+  - name: Check processing
+    assert:
+      that:
+      - anarchy_subject_updates == expected
+    vars:
+      expected:
+      - metadata:
+          labels:
+            state: provisioning
+        spec:
+          vars:
+            current_state: provisioning
+        status:
+          towerJobs:
+            provision:
+              deployerJob: ''
+              deployerTimestamp: '2020-01-01T00:00:00Z'
+
+  - name: Remove test_output_dir
+    file:
+      path: "{{ test_output_dir }}"
+      state: absent

@@ -1,0 +1,45 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    anarchy_governor: {}
+    anarchy_subject: {}
+    anarchy_subject_name: test
+    anarchy_event_name: update
+    anarchy_run_timestamp: 2020-01-01T00:00:00Z
+    current_state: stopped
+    desired_state: started
+    babylon_tower:
+      hostname: test
+      user: test
+      password: test
+
+  pre_tasks:
+  - name: Create test output dir
+    tempfile:
+      state: directory
+    register: r_test_output_dir
+  - name: Set test_output_dir
+    set_fact:
+      test_output_dir: "{{ r_test_output_dir.path }}"
+
+  roles:
+  - role: babylon_anarchy_governor
+
+  post_tasks:
+  - name: Read anarchy_scheduled_actions
+    set_fact:
+      anarchy_scheduled_actions: >-
+        {{ lookup('file', test_output_dir ~ '/anarchy_scheduled_actions.yaml') | from_yaml }}
+
+  - name: Check that start was scheduled
+    assert:
+      that:
+      - "anarchy_scheduled_actions == [{'action': 'start'}]"
+      msg: No actions should have been scheduled
+
+  - name: Remove test_output_dir
+    file:
+      path: "{{ test_output_dir }}"
+      state: absent

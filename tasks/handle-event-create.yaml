@@ -1,0 +1,13 @@
+---
+- name: Schedule provision {{ anarchy_subject_name }}
+  anarchy_schedule_action:
+    action: provision
+
+- name: Set {{ anarchy_subject_name }} current state to provision-pending
+  anarchy_subject_update:
+    metadata:
+      labels:
+        state: provision-pending
+    spec:
+      vars:
+        current_state: provision-pending

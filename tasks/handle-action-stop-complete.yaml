@@ -1,0 +1,13 @@
+---
+- name: Set state stopped for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    metadata:
+      labels:
+        state: stopped
+    spec:
+      vars:
+        current_state: stopped
+    status:
+      towerJobs:
+        stop:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
