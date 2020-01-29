@@ -1,5 +1,5 @@
 ---
-- name: Call Ansible Tower job-runner to destroy {{ anarchy_subject }}
+- name: Call Ansible Tower job-runner to destroy {{ anarchy_subject_name }}
   uri:
     url: https://{{ babylon_tower.hostname }}/api/v2/job_templates/job-runner/launch/
     url_username: "{{ babylon_tower.user }}"

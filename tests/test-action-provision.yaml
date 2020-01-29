@@ -8,6 +8,7 @@
         job_vars:
           governor_var: good
           governor_override_var: good
+          test_late_eval: "{{ late_eval }}"
     anarchy_subject:
       vars:
         job_vars:
@@ -64,6 +65,7 @@
               governor_override_var: good
               governor_var: good
               subject_var: good
+              test_late_eval: "{% raw %}{{ late_eval }}{% endraw %}"
         body_format: json
         force_basic_auth: true
         method: POST
