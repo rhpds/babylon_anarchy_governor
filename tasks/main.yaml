@@ -10,8 +10,8 @@
   loop:
   - msg: anarchy variables must be defined, are we running in Anarchy?
     that:
-    - anarchy_governor is defined
-    - anarchy_subject is defined
+    - vars.anarchy_governor is defined
+    - vars.anarchy_subject is defined
     - anarchy_subject_name is defined
     - anarchy_action_callback_token is defined or anarchy_action_name is not defined
     - anarchy_action_callback_url is defined or anarchy_action_name is not defined
