@@ -14,7 +14,8 @@
           subject_var: good
           governor_override_var: bad
     anarchy_subject_name: test
-    anarchy_action_name: start
+    anarchy_action_name: test
+    anarchy_action_config_name: start
     anarchy_action_callback_name: started
     anarchy_action_callback_url: test
     anarchy_action_callback_token: test

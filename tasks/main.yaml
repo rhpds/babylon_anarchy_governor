@@ -10,12 +10,25 @@
   loop:
   - msg: anarchy variables must be defined, are we running in Anarchy?
     that:
+    # Check for anarchy_governor and anarchy_subject, but be careful not to trigger template
+    # evaluation. These often will contain variable references that cannot be resolved by
+    # anarchy but will later be resolved within the deployer job.
     - vars.anarchy_governor is defined
     - vars.anarchy_subject is defined
+    # The anarchy_subject_name should always be availble
     - anarchy_subject_name is defined
+    # When processing an action the callback url and token must be defined
     - anarchy_action_callback_token is defined or anarchy_action_name is not defined
     - anarchy_action_callback_url is defined or anarchy_action_name is not defined
-    - anarchy_action_name is defined or anarchy_event_name is defined
+    # The anarchy_action_config_name is the name of the type of action configured in the governor
+    # and must be defined unless processing an event
+    - anarchy_event_name is defined or anarchy_action_config_name is defined
+    # The anarchy_action_name is the name of the type of action resource and must be defined
+    # unless processing an event
+    - anarchy_event_name is defined or anarchy_action_name is defined
+    # The anarchy_run_timestamp is the YYYY-MM-DDTHH:MM:SSZ format timestamp string of the run
+    # start time. This is useful anarchy does not gather facts and so ansible_date_time is not
+    # available.
     - anarchy_run_timestamp is defined
   - msg: babylon_tower must be defined and include hostname, user, and password
     that:
@@ -31,11 +44,11 @@
 
 - name: Handle action or event for {{ anarchy_subject_name }}
   include_tasks: >-
-    {%- if anarchy_action_name is defined -%}
+    {%- if anarchy_action_config_name is defined -%}
     {%-   if anarchy_action_callback_name is defined -%}
-    handle-action-{{ anarchy_action_name }}-{{ anarchy_action_callback_name }}.yaml
+    handle-action-{{ anarchy_action_config_name }}-{{ anarchy_action_callback_name }}.yaml
     {%-   else -%}
-    handle-action-{{ anarchy_action_name }}.yaml
+    handle-action-{{ anarchy_action_config_name }}.yaml
     {%-   endif -%}
     {%- elif anarchy_event_name is defined -%}
     handle-event-{{ anarchy_event_name }}.yaml

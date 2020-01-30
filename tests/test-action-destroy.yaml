@@ -14,7 +14,8 @@
           subject_var: good
           governor_override_var: bad
     anarchy_subject_name: test
-    anarchy_action_name: destroy
+    anarchy_action_name: test
+    anarchy_action_config_name: destroy
     anarchy_action_callback_url: test
     anarchy_action_callback_token: test
     anarchy_run_timestamp: 2020-01-01T00:00:00Z
