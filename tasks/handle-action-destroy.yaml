@@ -19,7 +19,7 @@
                'ACTION': 'destroy',
                '__meta__': {
                  'callback': {'token': anarchy_action_callback_token, 'url': anarchy_action_callback_url},
-                 'deployer': {'entry_point': 'ansible/destroy.yml'},
+                 'deployer': {'entry_point': 'ansible/destroy.yml', 'timeout': 0},
                  'tower': {'action': 'destroy'}
                }
              }, recursive=True)
