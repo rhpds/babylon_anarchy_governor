@@ -1,5 +1,17 @@
 ---
 - name: Call Ansible Tower job-runner to provision {{ anarchy_subject_name }}
+  vars:
+    action_job_vars:
+      ACTION: provision
+      __meta__:
+        callback:
+          token: "{{ anarchy_action_callback_token }}"
+          url: "{{ anarchy_action_callback_url }}"
+        deployer:
+          entry_point: ansible/main.yml
+          timeout: 0
+        tower:
+          action: provision
   uri:
     url: https://{{ babylon_tower.hostname }}/api/v2/job_templates/job-runner/launch/
     url_username: "{{ babylon_tower.user }}"
@@ -15,14 +27,8 @@
         job_vars: >-
           {{ vars.anarchy_subject.vars.job_vars | default({})
            | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
-           | combine({
-               'ACTION': 'provision',
-               '__meta__': {
-                 'callback': {'token': anarchy_action_callback_token, 'url': anarchy_action_callback_url},
-                 'deployer': {'entry_point': 'ansible/main.yml', 'timeout': 0},
-                 'tower': {'action': 'provision'}
-               }
-             }, recursive=True)
+           | combine(dynamic_job_vars, recursive=True)
+           | combine(action_job_vars, recursive=True)
           }}
   register: r_api_response
   # FIXME - Handle API errors
