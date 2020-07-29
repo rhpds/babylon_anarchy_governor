@@ -41,3 +41,8 @@
         provision:
           launchJob: '{{ r_api_response.json.job | default(None) }}'
           launchTimestamp: '{{ anarchy_run_timestamp }}'
+
+- name: Schedule check for {{ anarchy_subject_name }}
+  anarchy_schedule_action:
+    action: check
+    after: "{{ provision_check_interval }}"

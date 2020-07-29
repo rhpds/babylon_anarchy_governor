@@ -7,3 +7,6 @@ current_state: unknown
 desired_state: unknown
 
 dynamic_job_vars: {}
+
+# Default provision check interval
+provision_check_interval: 5m

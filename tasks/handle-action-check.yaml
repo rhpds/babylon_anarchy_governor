@@ -1,0 +1,47 @@
+---
+- when: >-
+    'completeTimestamp' not in anarchy_subject.status.towerJobs.provision
+  block:
+  - name: >-
+      {% if 'deployerJob' in anarchy_subject.status.towerJobs.provision %}
+      Get provision deployer job for {{ anarchy_subject_name }}
+      {% else %}
+      Get provision launch job for {{ anarchy_subject_name }}
+      {% endif %}
+    vars:
+      _job_id: "{{ anarchy_subject.status.towerJobs.provision.deployerJob | default(anarchy_subject.status.towerJobs.provision.launchJob) }}"
+    uri:
+      url: https://{{ babylon_tower.hostname }}/api/v2/jobs/{{ _job_id }}/
+      url_username: "{{ babylon_tower.user }}"
+      url_password: "{{ babylon_tower.password }}"
+      force_basic_auth: true
+      # FIXME - Should validate certs
+      validate_certs: false
+      return_content: true
+    register: r_api_response
+    # FIXME - Handle API errors
+    #ignore_errors: true
+
+  - name: Set failure state for {{ anarchy_subject_name }}
+    vars:
+      _job_status: "{{ r_api_response.json.status }}"
+    when: _job_status in ['cancelled', 'failed']
+    anarchy_subject_update:
+      metadata:
+        labels:
+          state: "{{ _job_status }}"
+      spec:
+        vars:
+          current_state: "{{ _job_status }}"
+      status:
+        towerJobs:
+          provision:
+            completeTimestamp: "{{ anarchy_run_timestamp }}"
+
+  - name: Schedule next check for {{ anarchy_subject_name }}
+    vars:
+      _job_status: "{{ r_api_response.json.status }}"
+    when: _job_status not in ['cancelled', 'failed']
+    anarchy_schedule_action:
+      action: check
+      after: "{{ provision_check_interval }}"
