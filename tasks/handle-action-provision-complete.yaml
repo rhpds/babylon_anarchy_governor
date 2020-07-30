@@ -14,6 +14,11 @@
         provision:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
 
+- name: Cancel provision check
+  anarchy_schedule_action:
+    cancel: ['check']
+    after: "{{ provision_check_interval }}"
+
 - when: schedule_stop_after_provision != 'disabled'
   name: Schedule stop {{ anarchy_subject_name }} after {{ schedule_stop_after_provision }}
   anarchy_schedule_action:
