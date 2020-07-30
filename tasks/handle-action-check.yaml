@@ -29,10 +29,10 @@
     anarchy_subject_update:
       metadata:
         labels:
-          state: "{{ _job_status }}"
+          state: "provision-{{ _job_status }}"
       spec:
         vars:
-          current_state: "{{ _job_status }}"
+          current_state: "provision-{{ _job_status }}"
       status:
         towerJobs:
           provision:
