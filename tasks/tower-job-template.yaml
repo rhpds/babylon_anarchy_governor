@@ -1,0 +1,61 @@
+---
+- name: Get Tower Job Template {{ tower_job_template_name }}
+  uri:
+    url: >-
+      https://{{ babylon_tower.hostname }}/api/v2/job_templates/?name={{ tower_job_template_name | urlencode }}
+    url_username: "{{ babylon_tower.user }}"
+    url_password: "{{ babylon_tower.password }}"
+    force_basic_auth:  true
+    validate_certs: false
+    return_content: true
+  register: r_search_tower_job_template
+  changed_when: false
+
+- name: Create or update job template {{ tower_job_template_name }}
+  when: _create | bool or _update | bool
+  vars:
+    _create: "{{ r_search_tower_job_template.json.count == 0 }}"
+    _current_job_template: "{{ r_search_tower_job_template.json.results[0] if r_search_tower_job_template.json.count > 0 else {} }}"
+    _patched_job_template: "{{ _current_job_template | combine(_body) }}"
+    _update: "{{ _current_job_template != _patched_job_template }}"
+    _body: >-
+      {{ {
+        "name": tower_job_template_name,
+        "description": tower_job_template_description,
+        "inventory": tower_inventory.id,
+        "project": tower_project.id,
+        "playbook": tower_job_template_playbook,
+        "forks": tower_job_template_forks | int,
+        "verbosity": tower_job_template_verbosity | int,
+        "ask_variables_on_launch": true,
+        "custom_virtualenv": None if _tower_job_template_custom_virtualenv == '' else _tower_job_template_custom_virtualenv,
+      } }}
+  uri:
+    url: >-
+      {%- if _create | bool -%}
+      https://{{ babylon_tower.hostname }}/api/v2/job_templates/
+      {%- else -%}
+      https://{{ babylon_tower.hostname }}/api/v2/job_templates/{{ _current_job_template.id }}/
+      {%- endif -%}
+    url_username: "{{ babylon_tower.user }}"
+    url_password: "{{ babylon_tower.password }}"
+    force_basic_auth: true
+    validate_certs: false
+    method: "{{ 'POST' if _create | bool else 'PATCH' }}"
+    return_content: true
+    status_code:
+    - 200
+    - 201
+    body_format: json
+    body: "{{ _body }}"
+  changed_when: true
+  register: r_configure_tower_job_template
+
+- name: Set tower_job_template
+  set_fact:
+    tower_job_template: >-
+      {%- if r_configure_tower_job_template.skipped | default(false) -%}
+      {{ r_search_tower_job_template.json.results[0] }}
+      {%- else -%}
+      {{ r_configure_tower_job_template.json }}
+      {%- endif -%}

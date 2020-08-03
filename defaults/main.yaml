@@ -6,7 +6,52 @@ schedule_stop_after_start: disabled
 current_state: unknown
 desired_state: unknown
 
+# Anarchy Subjects can set dynamic_job_vars to override governor vars
 dynamic_job_vars: {}
 
 # Default provision check interval
 provision_check_interval: 5m
+
+tower_inventory_description: Managed by Babylon
+tower_inventory_name: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.tower.inventory
+   | default('empty-inventory-default') }}
+
+tower_job_template_custom_virtualenv: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.virtualenv | default('') }}
+
+tower_job_template_description: Managed by Babylon
+tower_job_template_forks: 10
+tower_job_template_name: "{{ anarchy_subject_name }}-{{ anarchy_action_config_name }}"
+tower_job_template_playbook: >-
+  {{ tower_job_template_playbook_for_action[anarchy_action_config_name] }}
+tower_job_template_playbook_for_action:
+  provision: ansible/main.yml
+  start: ansible/lifecycle_entry_point.yml
+  stop: ansible/lifecycle_entry_point.yml
+  destroy: ansible/destroy.yml
+tower_job_template_verbosity: 0
+
+tower_organization_description: Managed by Babylon
+tower_organization_name: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.tower.organization
+   | default('Default') }}
+
+tower_project_description: Managed by Babylon
+tower_project_name: >-
+  {{ tower_project_scm_url }} ({{ tower_project_scm_branch }})
+tower_project_scm_branch: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.scm_ref
+   | default('development') }}
+tower_project_scm_type: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.scm_type
+   | default('git') }}
+tower_project_scm_update_cache_timeout: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.scm_update_cache_timeout
+   | default(30) }}
+tower_project_scm_update_on_launch: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.scm_update_on_launch
+   | default(tower_project_scm_branch is not search('\d\.\d')) }}
+tower_project_scm_url: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.scm_url
+   | default('https://github.com/redhat-cop/agnosticd.git') }}

@@ -10,3 +10,10 @@ poolboy_resource_handle_name: >-
   {{ anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-handle-name'] | default('') }}
 poolboy_resource_handle_namespace: >-
   {{ anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-handle-namespace'] | default('') }}
+
+_tower_job_template_custom_virtualenv: >-
+  {%- if tower_job_template_custom_virtualenv is match('/') -%}
+  {{ tower_job_template_custom_virtualenv }}
+  {%- elif tower_job_template_custom_virtualenv != '' -%}
+  /opt/rh/virtualenvs/{{ tower_job_template_custom_virtualenv }}
+  {%- endif -%}

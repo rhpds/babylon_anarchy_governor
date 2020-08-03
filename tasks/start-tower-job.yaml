@@ -1,0 +1,28 @@
+---
+- name: Configure tower organization {{ tower_organization }}
+  include_tasks: tower-organization.yaml
+
+- name: Configure tower project {{ tower_project_name }}
+  include_tasks: tower-project.yaml
+
+- name: Configure tower inventory {{ tower_inventory_name }}
+  include_tasks: tower-inventory.yaml
+
+- name: Configure tower job template {{ job_template_name }}
+  include_tasks: tower-job-template.yaml
+
+- name: Launch tower job {{ job_template_name }}
+  uri:
+    url: https://{{ babylon_tower.hostname }}/api/v2/job_templates/{{ tower_job_template.id }}/launch/
+    url_username: "{{ babylon_tower.user }}"
+    url_password: "{{ babylon_tower.password }}"
+    force_basic_auth: true
+    validate_certs: false
+    method: POST
+    return_content: true
+    status_code:
+    - 201
+    body_format: json
+    body:
+      extra_vars: "{{ tower_job_extra_vars }}"
+  changed_when: true

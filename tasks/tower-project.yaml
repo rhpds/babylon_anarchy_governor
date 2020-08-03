@@ -1,0 +1,59 @@
+---
+- name: Get tower project {{ tower_project_name }}
+  uri:
+    url: >-
+      https://{{ babylon_tower.hostname }}/api/v2/organizations/{{ tower_organization.id }}/projects/?name={{ tower_project_name | urlencode }}
+    url_username: "{{ babylon_tower.user }}"
+    url_password: "{{ babylon_tower.password }}"
+    force_basic_auth: true
+    validate_certs: false
+    method: GET
+    return_content: true
+  register: r_search_tower_project
+
+- name: Create or update tower project {{ tower_project_name }}
+  when: _create | bool or _update | bool
+  vars:
+    _create: "{{ r_search_tower_project.json.count == 0 }}"
+    _current_tower_project: "{{ r_search_tower_project.json.results[0] }}"
+    _patched_tower_project: "{{ _current_tower_project | combine(_body) }}"
+    _update: "{{ _current_tower_project != _patched_tower_project }}"
+    _body: >-
+      {{ {
+        "name": tower_project_name,
+        "description": tower_project_description,
+        "scm_type": tower_project_scm_type,
+        "scm_url": tower_project_scm_url,
+        "scm_branch": tower_project_scm_branch,
+        "scm_update_cache_timeout": tower_project_scm_update_cache_timeout | int,
+        "scm_update_on_launch": tower_project_scm_update_on_launch,
+      } }}
+  uri:
+    url: >-
+      {%- if _create | bool -%}
+      https://{{ babylon_tower.hostname }}/api/v2/organizations/{{ tower_organization.id }}/projects/
+      {%- else -%}
+      https://{{ babylon_tower.hostname }}/api/v2/projects/{{ _current_tower_project.id }}/
+      {%- endif -%}
+    url_username: "{{ babylon_tower.user }}"
+    url_password: "{{ babylon_tower.password }}"
+    force_basic_auth: true
+    validate_certs: false
+    method: "{{ 'POST' if _create | bool else 'PATCH' }}"
+    return_content: true
+    status_code:
+    - 200
+    - 201
+    body_format: json
+    body: "{{ _body }}"
+  changed_when: true
+  register: r_configure_tower_project
+
+- name: Set tower_project
+  set_fact:
+    tower_project: >-
+      {%- if r_configure_tower_project.skipped | default(false) -%}
+      {{ r_search_tower_project.json.results[0] }}
+      {%- else -%}
+      {{ r_configure_tower_project.json }}
+      {%- endif -%}

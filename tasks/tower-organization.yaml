@@ -1,0 +1,40 @@
+---
+- name: Get tower organization {{ tower_organization_name }}
+  uri:
+    url: "https://{{ babylon_tower.hostname }}/api/v2/organizations/{{ tower_organization_name | urlencode }}"
+    url_username: "{{ babylon_tower.user }}"
+    url_password: "{{ babylon_tower.password }}"
+    force_basic_auth: true
+    validate_certs: false
+    method: GET
+    return_content: true
+    status_code:
+    - 200
+    - 404
+  register: r_get_tower_organization
+
+- name: Create tower orginazation {{ tower_organization_name }}
+  when: r_get_tower_organization.status == 404
+  uri:
+    url: "https://{{ babylon_tower.hostname }}/api/v2/organizations/"
+    url_username: "{{ babylon_tower.user }}"
+    url_password: "{{ babylon_tower.password }}"
+    force_basic_auth: true
+    validate_certs: false
+    method: POST
+    return_content: true
+    status_code: 201
+    body_format: json
+    body:
+      name: "{{ tower_organization_name }}"
+      description: "{{ tower_organization_description }}"
+  register: r_create_tower_organization
+
+- name: Set tower_organization
+  set_fact:
+    tower_organization: >-
+      {%- if r_get_tower_organization.status == 200 -%}
+      {{ r_get_tower_organization.json }}
+      {%- else -%}
+      {{ r_create_tower_organization.json }}
+      {%- endif -%}

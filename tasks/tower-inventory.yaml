@@ -1,0 +1,40 @@
+---
+- name: Get tower inventory {{ tower_inventory_name }}
+  uri:
+    url: >-
+      https://{{ babylon_tower.hostname }}/api/v2/organizations/{{ tower_organization.id }}/inventories/?name={{ tower_inventory_name | urlencode }}
+    url_username: "{{ babylon_tower.user }}"
+    url_password: "{{ babylon_tower.password }}"
+    force_basic_auth: true
+    validate_certs: false
+    return_content: true
+  register: r_search_tower_inventory
+
+- name: Create tower inventory {{ tower_inventory_name }}
+  when: r_search_tower_inventory.json.count == 0
+  uri:
+    url: "https://{{ babylon_tower.hostname }}/api/v2/inventories/"
+    url_username: "{{ babylon_tower.user }}"
+    url_password: "{{ babylon_tower.password }}"
+    force_basic_auth: true
+    validate_certs: false
+    method: POST
+    return_content: true
+    status_code:
+    - 201
+    body_format: json
+    body:
+      name: "{{ tower_inventory_name }}"
+      description: "{{ tower_inventory_description }}"
+      organization: "{{ tower_organization.id }}"
+  changed_when: true
+  register: r_create_tower_inventory
+
+- name: Set tower_inventory
+  set_fact:
+    tower_inventory: >-
+      {%- if r_create_tower_inventory.skipped | default(false) -%}
+      {{ r_search_tower_inventory.json.results[0] }}
+      {%- else -%}
+      {{ r_create_tower_inventory.json }}
+      {%- endif -%}
