@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- name: test-event-update-noaction
+  hosts: localhost
   connection: local
   gather_facts: false
   vars:

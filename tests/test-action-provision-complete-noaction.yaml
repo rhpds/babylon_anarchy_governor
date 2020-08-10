@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- name: test-action-provision-complete-noaction
+  hosts: localhost
   connection: local
   gather_facts: false
   vars:
@@ -40,17 +41,30 @@
   post_tasks:
   - name: Read anarchy_subject_updates
     set_fact:
+      anarchy_scheduled_actions: >-
+        {{ lookup('file', test_output_dir ~ '/anarchy_scheduled_actions.yaml') | from_yaml }}
       anarchy_subject_updates: >-
         {{ lookup('file', test_output_dir ~ '/anarchy_subject_updates.yaml') | from_yaml }}
 
-  - debug: var=anarchy_subject_updates
-  - name: Check processing
+  - debug:
+      var: anarchy_scheduled_actions
+  - name: Check anarchy_scheduled_actions
     assert:
       that:
-      - "(test_output_dir ~ '/anarchy_scheduled_actions.yaml') is not exists"
-      - anarchy_subject_updates == expected_subject_updates
+      - anarchy_scheduled_actions == expected
     vars:
-      expected_subject_updates:
+      expected:
+      - cancel:
+        - check
+
+  - debug:
+      var: anarchy_subject_updates
+  - name: Check anarchy_subject_updates
+    assert:
+      that:
+      - anarchy_subject_updates == expected
+    vars:
+      expected:
       - metadata:
           labels:
             state: started

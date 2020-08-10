@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- name: test-action-provision-complete-schedule-destroy
+  hosts: localhost
   connection: local
   gather_facts: false
   vars:
@@ -46,19 +47,27 @@
       anarchy_subject_updates: >-
         {{ lookup('file', test_output_dir ~ '/anarchy_subject_updates.yaml') | from_yaml }}
 
-  - debug: var=anarchy_scheduled_actions
-  - debug: var=anarchy_subject_updates
-  - name: Check processing
+  - debug:
+      var: anarchy_scheduled_actions
+  - name: Check anarchy_scheduled_actions
     assert:
       that:
-      - anarchy_scheduled_actions == expected_scheduled_actions
-      - anarchy_subject_updates == expected_subject_updates
+      - anarchy_scheduled_actions == expected
     vars:
-      expected_scheduled_actions:
+      expected:
+      - cancel:
+        - check
       - action: destroy
         after: 8d
 
-      expected_subject_updates:
+  - debug:
+      var: anarchy_subject_updates
+  - name: Check anarchy_subject_updates
+    assert:
+      that:
+      - anarchy_subject_updates == expected
+    vars:
+      expected:
       - metadata:
           labels:
             state: started

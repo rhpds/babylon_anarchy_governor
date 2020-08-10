@@ -1,11 +1,24 @@
 ---
-- hosts: localhost
+- name: test-action-provision
+  hosts: localhost
   connection: local
   gather_facts: false
   vars:
     anarchy_governor:
+      spec:
+        # Vars in the spec are not yet processed
+        vars:
+          job_vars:
+            aws_region: us-east-1
+            test_late_eval: "{{ late_eval }}"
+        varSecrets:
+        - name: aws
+          namespace: foo
+          var: job_vars
+      # vars at this level are processed vars injected by Anarchy...
       vars:
         job_vars:
+          aws_region: us-east-1
           governor_var: good
           governor_override_var: good
           test_late_eval: "{{ late_eval }}"
@@ -38,12 +51,15 @@
   - role: babylon_anarchy_governor
 
   post_tasks:
-  - name: Read anarchy_scheduled_actions
+  - name: Test output data
     set_fact:
+      anarchy_subject_updates: >-
+        {{ lookup('file', test_output_dir ~ '/anarchy_subject_updates.yaml') | from_yaml }}
       uri_calls: >-
         {{ lookup('file', test_output_dir ~ '/uri-calls.yaml') | from_yaml }}
 
-  - debug: var=uri_calls
+  - debug:
+      var: uri_calls
   - name: Check that provision was scheduled
     assert:
       that:
@@ -61,8 +77,10 @@
                   url: test
                 deployer:
                   entry_point: ansible/main.yml
+                  timeout: 0
                 tower:
                   action: provision
+              aws_region: us-east-1
               governor_override_var: good
               governor_var: good
               subject_var: good
@@ -76,6 +94,29 @@
         url_password: test
         url_username: test
         validate_certs: false
+
+  - debug:
+      var: anarchy_subject_updates
+  - name: Check anarchy_subject_updates
+    assert:
+      that:
+      - anarchy_subject_updates == expected
+      msg: anarchy_subject_update was not called as expected
+    vars:
+      expected:
+      - spec:
+          vars:
+            dynamic_job_vars:
+              aws_region: us-east-1
+          varSecrets:
+          - name: aws
+            namespace: foo
+            var: dynamic_job_vars
+        status:
+          towerJobs:
+            provision:
+              launchJob: ""
+              launchTimestamp: "2020-01-01 00:00:00+00:00"
 
   - name: Remove test_output_dir
     file:

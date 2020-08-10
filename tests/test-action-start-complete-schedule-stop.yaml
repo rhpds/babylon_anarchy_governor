@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- name: test-action-start-complete-schedule-stop
+  hosts: localhost
   connection: local
   gather_facts: false
   vars:

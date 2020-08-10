@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- name: test-action-stop-started
+  hosts: localhost
   connection: local
   gather_facts: false
   vars:

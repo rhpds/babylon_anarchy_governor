@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- name: test-action-stop
+  hosts: localhost
   connection: local
   gather_facts: false
   vars:
@@ -60,6 +61,7 @@
                   url: test
                 deployer:
                   entry_point: ansible/lifecycle_entry_point.yml
+                  timeout: 0
                 tower:
                   action: stop
               governor_override_var: good

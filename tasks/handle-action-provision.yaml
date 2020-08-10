@@ -27,15 +27,20 @@
         job_vars: >-
           {{ vars.anarchy_subject.vars.job_vars | default({})
            | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
-           | combine(dynamic_job_vars, recursive=True)
            | combine(action_job_vars, recursive=True)
           }}
   register: r_api_response
   # FIXME - Handle API errors
   #ignore_errors: true
 
-- name: Set job launch id subject status for provision
+- name: Update AnarchySubject {{ anarchy_subject_name }} for launch job
   anarchy_subject_update:
+    spec:
+      # Save job vars to dynamic_job_vars which otherwise may break start/stop/destroy if changed.
+      # For example, aws region.
+      vars:
+        dynamic_job_vars: "{{ vars.anarchy_governor | filter_job_vars_to_dynamic_job_vars(preserve_job_vars) }}"
+      varSecrets: "{{ vars.anarchy_governor | filter_job_vars_secrets_to_dynamic_job_vars }}"
     status:
       towerJobs:
         provision:

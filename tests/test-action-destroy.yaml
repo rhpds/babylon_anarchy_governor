@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- name: test-action-destroy
+  hosts: localhost
   connection: local
   gather_facts: false
   vars:
@@ -13,6 +14,12 @@
         job_vars:
           subject_var: good
           governor_override_var: bad
+      status:
+        towerJobs:
+          provision:
+            deployerJob: "1"
+            launchJob: "2"
+
     anarchy_subject_name: test
     anarchy_action_name: test
     anarchy_action_config_name: destroy
@@ -42,14 +49,38 @@
       uri_calls: >-
         {{ lookup('file', test_output_dir ~ '/uri-calls.yaml') | from_yaml }}
 
-  - debug: var=uri_calls
-  - name: Check that provision was scheduled
+  - debug:
+      var: uri_calls
+  - name: Check uri_calls
     assert:
       that:
-      - uri_calls == expected
-      msg: Action provision was not scheduled as expected
+      - uri_calls[0] == expected[0]
+      - uri_calls[1] == expected[1]
+      - uri_calls[2] == expected[2]
     vars:
       expected:
+      - force_basic_auth: true
+        method: POST
+        return_content: true
+        status_code:
+        - 202
+        - 404
+        - 405
+        url: https://test/api/v2/jobs/1/cancel/
+        url_password: test
+        url_username: test
+        validate_certs: false
+      - force_basic_auth: true
+        method: POST
+        return_content: true
+        status_code:
+        - 202
+        - 404
+        - 405
+        url: https://test/api/v2/jobs/2/cancel/
+        url_password: test
+        url_username: test
+        validate_certs: false
       - body:
           extra_vars:
             job_vars:
@@ -60,6 +91,7 @@
                   url: test
                 deployer:
                   entry_point: ansible/destroy.yml
+                  timeout: 0
                 tower:
                   action: destroy
               governor_override_var: good
