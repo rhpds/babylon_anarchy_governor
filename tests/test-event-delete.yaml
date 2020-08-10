@@ -1,5 +1,6 @@
 ---
-- hosts: localhost
+- name: test-event-delete
+  hosts: localhost
   connection: local
   gather_facts: false
   vars:

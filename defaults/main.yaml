@@ -8,5 +8,9 @@ desired_state: unknown
 
 dynamic_job_vars: {}
 
+preserve_job_vars:
+- aws_region
+- region
+
 # Default provision check interval
 provision_check_interval: 5m

@@ -13,6 +13,6 @@ class ActionModule(ActionBase):
         result = super(ActionModule, self).run(tmp, task_vars)
         test_output_dir = task_vars.get('test_output_dir', '.')
         fh = open(os.path.join(test_output_dir, 'anarchy_subject_deletes.yaml'), 'a')
-        fh.write('- ' + json.dumps(self._task.args))
+        fh.write('- ' + json.dumps(self._task.args) + '\n')
         result.update(deepcopy(self._task.args))
         return result
