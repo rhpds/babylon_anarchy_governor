@@ -1,12 +1,12 @@
 ---
 # Variables for poolboy integration
 poolboy_resource_index: >-
-  {{ anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-index'] | default('') }}
+  {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-index'] | default('') }}
 poolboy_resource_claim_name: >-
-  {{ anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-claim-name'] | default('') }}
+  {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-claim-name'] | default('') }}
 poolboy_resource_claim_namespace: >-
-  {{ anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-claim-namespace'] | default('') }}
+  {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-claim-namespace'] | default('') }}
 poolboy_resource_handle_name: >-
-  {{ anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-handle-name'] | default('') }}
+  {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-handle-name'] | default('') }}
 poolboy_resource_handle_namespace: >-
-  {{ anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-handle-namespace'] | default('') }}
+  {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-handle-namespace'] | default('') }}
