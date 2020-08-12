@@ -1,7 +1,7 @@
 ---
 - name: Cancel provision tower jobs
   when: >-
-    'completeTimestamp' not in anarchy_subject.status.towerJobs.provision
+    'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision
   # Loop over all provision tower jobs, "*Job" keys from status
   loop: >-
     {{ vars.anarchy_subject.status.towerJobs.provision | dict2items | list
