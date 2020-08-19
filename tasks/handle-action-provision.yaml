@@ -8,7 +8,10 @@
           token: "{{ anarchy_action_callback_token }}"
           url: "{{ anarchy_action_callback_url }}"
         deployer:
-          entry_point: ansible/main.yml
+          entry_point: >-
+            {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.provision
+             | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
+             | default('ansible/main.yml') }}
           timeout: 0
         tower:
           action: provision

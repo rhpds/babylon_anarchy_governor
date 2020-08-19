@@ -8,7 +8,10 @@
           token: "{{ anarchy_action_callback_token }}"
           url: "{{ anarchy_action_callback_url }}"
         deployer:
-          entry_point: ansible/lifecycle_entry_point.yml
+          entry_point: >-
+            {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.start
+             | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
+             | default('ansible/lifecycle_entry_point.yml') }}
           timeout: 0
         tower:
           action: start
