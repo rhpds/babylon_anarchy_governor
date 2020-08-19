@@ -35,7 +35,10 @@
           token: "{{ anarchy_action_callback_token }}"
           url: "{{ anarchy_action_callback_url }}"
         deployer:
-          entry_point: ansible/destroy.yml
+          entry_point: >-
+            {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.destroy
+             | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
+             | default('ansible/destroy.yml') }}
           timeout: 0
         tower:
           action: destroy
