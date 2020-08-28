@@ -9,7 +9,11 @@
       Get provision launch job for {{ anarchy_subject_name }}
       {% endif %}
     vars:
-      _job_id: "{{ anarchy_subject.status.towerJobs.provision.deployerJob | default(anarchy_subject.status.towerJobs.provision.launchJob) }}"
+      # Check the deployer job if present, otherwise check launch job
+      _job_id: >-
+        {{ vars.anarchy_subject.status.towerJobs.provision.deployerJob
+         | default(vars.anarchy_subject.status.towerJobs.provision.launchJob)
+        }}
     uri:
       url: https://{{ babylon_tower.hostname }}/api/v2/jobs/{{ _job_id }}/
       url_username: "{{ babylon_tower.user }}"
