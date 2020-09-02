@@ -30,7 +30,7 @@
         job_vars: >-
           {{ vars.anarchy_subject.vars.job_vars | default({})
            | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
-           | combine(dynamic_job_vars, recursive=True)
+           | combine(vars.dynamic_job_vars, recursive=True)
            | combine(action_job_vars, recursive=True)
           }}
   register: r_api_response
