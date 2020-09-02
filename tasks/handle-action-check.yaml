@@ -1,9 +1,9 @@
 ---
 - when: >-
-    'completeTimestamp' not in anarchy_subject.status.towerJobs.provision
+    'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision
   block:
   - name: >-
-      {% if 'deployerJob' in anarchy_subject.status.towerJobs.provision %}
+      {% if 'deployerJob' in vars.anarchy_subject.status.towerJobs.provision %}
       Get provision deployer job for {{ anarchy_subject_name }}
       {% else %}
       Get provision launch job for {{ anarchy_subject_name }}
