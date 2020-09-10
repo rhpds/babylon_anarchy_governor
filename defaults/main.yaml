@@ -14,3 +14,5 @@ preserve_job_vars:
 
 # Default provision check interval
 provision_check_interval: 5m
+
+babylon_job_template: "{{ vars.anarchy_governor.vars.job_vars.__meta__.tower.job_template | default('job-runner') }}"
