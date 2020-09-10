@@ -15,8 +15,9 @@
           timeout: 0
         tower:
           action: start
+    babylon_job_template: "{{ vars.anarchy_governor.vars.job_vars.__meta__.tower.job_template | default('job-runner') }}"
   uri:
-    url: https://{{ babylon_tower.hostname }}/api/v2/job_templates/job-runner/launch/
+    url: https://{{ babylon_tower.hostname }}/api/v2/job_templates/{{ babylon_job_template }}/launch/
     url_username: "{{ babylon_tower.user }}"
     url_password: "{{ babylon_tower.password }}"
     force_basic_auth: true
