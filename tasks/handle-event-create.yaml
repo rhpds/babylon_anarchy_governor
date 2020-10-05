@@ -1,12 +1,12 @@
 ---
-- name: Set {{ anarchy_subject_name }} current state to provision-pending
+- name: Set {{ anarchy_subject_name }} current state to new
   anarchy_subject_update:
     metadata:
       labels:
-        state: provision-pending
+        state: new
     spec:
       vars:
-        current_state: provision-pending
+        current_state: new
         job_vars:
           uuid: >-
             {{ vars.anarchy_subject.vars.job_vars.uuid | default((2*127) | random | to_uuid) }}
