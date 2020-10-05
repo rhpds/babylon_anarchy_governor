@@ -10,9 +10,12 @@
       {% endif %}
     vars:
       # Check the deployer job if present, otherwise check launch job
+      _provision_tower_jobs: >-
+        {{ vars.anarchy_subject.status.towerJobs.provision | default({}) }}
       _job_id: >-
-        {{ vars.anarchy_subject.status.towerJobs.provision.deployerJob
-         | default(vars.anarchy_subject.status.towerJobs.provision.launchJob)
+        {{ _provision_tower_jobs.deployerJob
+         | default(_provision_tower_jobs.launchJob)
+         | default('')
         }}
     uri:
       url: https://{{ babylon_tower.hostname }}/api/v2/jobs/{{ _job_id }}/

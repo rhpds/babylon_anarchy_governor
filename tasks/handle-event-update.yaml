@@ -1,35 +1,13 @@
 ---
-- when:
-  - current_state == 'stopped'
-  - desired_state == 'started'
-  block:
-  - name: Schedule start {{ anarchy_subject_name }}
-    anarchy_schedule_action:
-      action: start
-
-  - name: Set {{ anarchy_subject_name }} current state to start-pending
-    anarchy_subject_update:
-      metadata:
-        labels:
-          state: start-pending
-      spec:
-        vars:
-          current_state: start-pending
-
-
-- when:
-  - current_state == 'started'
-  - desired_state == 'stopped'
-  block:
-  - name: Schedule stop {{ anarchy_subject_name }}
-    anarchy_schedule_action:
-      action: stop
-
-  - name: Set {{ anarchy_subject_name }} current state to stop-pending
-    anarchy_subject_update:
-      metadata:
-        labels:
-          state: stop-pending
-      spec:
-        vars:
-          current_state: stop-pending
+- name: Schedule {{ _action }} for {{ anarchy_subject_name }}
+  vars:
+    _current_state: "{{ current_state | default('unknown') }}"
+    _desired_state: "{{ desired_state | default('unknown') }}"
+    _action: >-
+      {{ 'provision' if _current_state == 'provision-pending' else
+         'start' if (_current_state == 'stopped' and _desired_state == 'started') else
+         'stop' if (_current_state == 'started' and _desired_state == 'stopped') else
+         'no action' }}
+  when: _action != 'no action'
+  anarchy_schedule_action:
+    action: "{{ _action }}"
