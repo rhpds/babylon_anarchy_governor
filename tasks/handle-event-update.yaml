@@ -1,13 +1,24 @@
 ---
-- name: Schedule {{ _action }} for {{ anarchy_subject_name }}
+- name: Run action based on current_state and desired_state
   vars:
     _current_state: "{{ current_state | default('unknown') }}"
     _desired_state: "{{ desired_state | default('unknown') }}"
     _action: >-
-      {{ 'provision' if _current_state == 'provision-pending' else
+      {{ 'provision' if _current_state == 'new' else
          'start' if (_current_state == 'stopped' and _desired_state == 'started') else
          'stop' if (_current_state == 'started' and _desired_state == 'stopped') else
          'no action' }}
   when: _action != 'no action'
-  anarchy_schedule_action:
-    action: "{{ _action }}"
+  block:
+  - name: Schedule {{ _action }} for {{ anarchy_subject_name }}
+    anarchy_schedule_action:
+      action: "{{ _action }}"
+
+  - name: Set {{ anarchy_subject_name }} current state to {{ _action }}-pending
+    anarchy_subject_update:
+      metadata:
+        labels:
+          state: "{{ _action }}-pending"
+      spec:
+        vars:
+          current_state: "{{ _action }}-pending"
