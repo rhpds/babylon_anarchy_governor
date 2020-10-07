@@ -32,7 +32,9 @@
   - name: Set failure state for {{ anarchy_subject_name }}
     vars:
       _job_status: "{{ r_api_response.json.status }}"
-    when: _job_status in ['canceled', 'failed']
+    when:
+    - _job_status in ['canceled', 'failed']
+    - vars.anarchy_subject.spec.vars.current_state | default('') != 'destroying'
     anarchy_subject_update:
       metadata:
         labels:
