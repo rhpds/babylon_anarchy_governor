@@ -4,7 +4,7 @@
     'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision
   # Loop over all provision tower jobs, "*Job" keys from status
   loop: >-
-    {{ vars.anarchy_subject.status.towerJobs.provision | dict2items | list
+    {{ vars.anarchy_subject.status.towerJobs.provision | default({}) | dict2items | list
      | to_json | from_json
      | json_query("[?ends_with(key, 'Job')]")
     }}
