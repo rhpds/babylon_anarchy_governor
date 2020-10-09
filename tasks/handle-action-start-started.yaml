@@ -1,6 +1,7 @@
 ---
 - name: Set state starting for {{ anarchy_subject_name }}
   anarchy_subject_update:
+    skip_update_processing: true
     metadata:
       labels:
         state: starting

@@ -16,6 +16,7 @@
 
   - name: Set {{ anarchy_subject_name }} current state to {{ _action }}-pending
     anarchy_subject_update:
+      skip_update_processing: true
       metadata:
         labels:
           state: "{{ _action }}-pending"

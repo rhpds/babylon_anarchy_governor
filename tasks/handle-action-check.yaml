@@ -36,6 +36,7 @@
     - _job_status in ['canceled', 'failed']
     - vars.anarchy_subject.spec.vars.current_state | default('') != 'destroying'
     anarchy_subject_update:
+      skip_update_processing: true
       metadata:
         labels:
           state: "provision-{{ _job_status }}"

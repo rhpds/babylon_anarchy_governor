@@ -39,6 +39,7 @@
 
 - name: Update AnarchySubject {{ anarchy_subject_name }} for launch job
   anarchy_subject_update:
+    skip_update_processing: true
     spec:
       # Save job vars to dynamic_job_vars which otherwise may break start/stop/destroy if changed.
       # For example, aws region.
