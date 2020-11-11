@@ -1,0 +1,11 @@
+---
+- name: Set state started for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    spec:
+      vars:
+        status_data: '{{ anarchy_action_callback_data.data | default(omit, true) }}'
+        status_messages: '{{ anarchy_action_callback_data.messages | default(omit, true) }}'
+    status:
+      towerJobs:
+        status:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'

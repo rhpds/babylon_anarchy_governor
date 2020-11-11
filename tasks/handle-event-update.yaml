@@ -23,3 +23,17 @@
       spec:
         vars:
           current_state: "{{ _action }}-pending"
+
+- name: Run action based on current_state and desired_state
+  when: check_status | default(false) | bool
+  block:
+  - name: Schedule status check for {{ anarchy_subject_name }}
+    anarchy_schedule_action:
+      action: status
+
+  - name: Set {{ anarchy_subject_name }} check_status to false
+    anarchy_subject_update:
+      skip_update_processing: true
+      spec:
+        vars:
+          check_status: false
