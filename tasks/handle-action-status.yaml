@@ -1,20 +1,20 @@
 ---
-- name: Call Ansible Tower job-runner to start {{ anarchy_subject_name }}
+- name: Call Ansible Tower job-runner get status for {{ anarchy_subject_name }}
   vars:
     action_job_vars:
-      ACTION: start
+      ACTION: status
       __meta__:
         callback:
           token: "{{ anarchy_action_callback_token }}"
           url: "{{ anarchy_action_callback_url }}"
         deployer:
           entry_point: >-
-            {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.start
+            {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.status
              | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
              | default('ansible/lifecycle_entry_point.yml') }}
           timeout: 0
         tower:
-          action: start
+          action: status
   uri:
     url: https://{{ babylon_tower.hostname }}/api/v2/job_templates/{{ babylon_job_template }}/launch/
     url_username: "{{ babylon_tower.user }}"
@@ -42,6 +42,6 @@
   anarchy_subject_update:
     status:
       towerJobs:
-        start:
+        status:
           launchJob: '{{ r_api_response.json.job | default(None) }}'
           launchTimestamp: '{{ anarchy_run_timestamp }}'
