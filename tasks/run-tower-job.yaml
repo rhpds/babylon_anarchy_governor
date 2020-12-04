@@ -67,11 +67,11 @@
     spec:
       vars:
         current_state: "{{ new_subject_state | default(current_state)  }}"
-    status: >-
-      {{ {
-        "towerJobs": {
+    status:
+      towerJobs: >-
+        {{ {
            anarchy_action_config_name: {
              "deployerJob": r_launch_job.id
            }
-      } }}
+        } }}
 ...
