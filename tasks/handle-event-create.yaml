@@ -9,4 +9,4 @@
         current_state: new
         job_vars:
           uuid: >-
-            {{ vars.anarchy_subject.vars.job_vars.uuid | default((2*127) | random | to_uuid) }}
+            {{ vars.anarchy_subject.vars.job_vars.uuid | default((2**127) | random | to_uuid) }}
