@@ -2,3 +2,4 @@
 - name: Schedule destroy {{ anarchy_subject_name }}
   anarchy_schedule_action:
     action: destroy
+...

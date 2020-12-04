@@ -1,47 +1,24 @@
 ---
-- name: Call Ansible Tower job-runner get status for {{ anarchy_subject_name }}
+- name: Run deployer status {{ anarchy_subject_name }}
   vars:
-    action_job_vars:
-      ACTION: status
-      __meta__:
-        callback:
-          token: "{{ anarchy_action_callback_token }}"
-          url: "{{ anarchy_action_callback_url }}"
-        deployer:
-          entry_point: >-
-            {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.status
-             | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
-             | default('ansible/lifecycle_entry_point.yml') }}
-          timeout: 0
-        tower:
-          action: status
-  uri:
-    url: https://{{ babylon_tower.hostname }}/api/v2/job_templates/{{ babylon_job_template }}/launch/
-    url_username: "{{ babylon_tower.user }}"
-    url_password: "{{ babylon_tower.password }}"
-    force_basic_auth: true
-    # FIXME - should validate certificates
-    validate_certs: false
-    method: POST
-    return_content: true
-    status_code: 201
-    body_format: json
-    body:
-      extra_vars:
-        job_vars: >-
-          {{ vars.anarchy_subject.vars.job_vars | default({})
-           | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
-           | combine(vars.dynamic_job_vars, recursive=True)
-           | combine(action_job_vars, recursive=True)
-          }}
-  register: r_api_response
-  # FIXME - Handle API errors
-  #ignore_errors: true
-
-- name: Set job launch id subject status for start
-  anarchy_subject_update:
-    status:
-      towerJobs:
-        status:
-          launchJob: '{{ r_api_response.json.job | default(None) }}'
-          launchTimestamp: '{{ anarchy_run_timestamp }}'
+    tower_job_template_playbook: >-
+      {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.status
+       | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
+       | default('ansible/lifecycle_entry_point.yml') }}
+    tower_job_extra_vars: >-
+      {{ vars.anarchy_subject.vars.job_vars | default({})
+       | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
+       | combine(vars.dynamic_job_vars, recursive=True)
+       | combine({
+         "ACTION": "status",
+         "__meta__": {
+           "callback": {
+             "token": anarchy_action_callback_token,
+             "url": anarchy_action_callback_url
+           }
+         }
+       }, recursive=True)
+      }}
+  include_tasks:
+    file: run-tower-job.yaml
+...

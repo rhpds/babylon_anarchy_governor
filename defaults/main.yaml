@@ -15,4 +15,18 @@ preserve_job_vars:
 # Default provision check interval
 provision_check_interval: 5m
 
-babylon_job_template: "{{ vars.anarchy_governor.vars.job_vars.__meta__.tower.job_template | default('job-runner') }}"
+# AnarchyGovernor controls __meta__ settings.
+__meta__: "{{ vars.anarchy_governor.vars.job_vars.__meta__ }}"
+
+tower_organization_name: >-
+  {{ __meta__.tower.organization | default('babylon') }}
+tower_inventory_name: >-
+  {{ tower_organization_name }} {{ __meta__.tower.inventory | default('default') }}
+tower_project_name: >-
+  {{ tower_organization_name }} {{ __meta__.deployer.scm_url }} ({{ __meta__.deployer.scm_ref }})
+tower_job_template_name: >-
+  {{ tower_organization_name }} {{ anarchy_action_name }} {{ uuid }}
+tower_job_template_custom_virtualenv: >-
+  {%- if __meta__.deployer.virtualenv | default('') != '' -%}
+  /opt/rh/virtualenvs/{{ __meta__.deployer.virtualenv }}
+  {%- endif -%}

@@ -1,5 +1,5 @@
 ---
-- name: Set state started for {{ anarchy_subject_name }}
+- name: Set status data and messages for {{ anarchy_subject_name }}
   anarchy_subject_update:
     spec:
       vars:
@@ -9,3 +9,4 @@
       towerJobs:
         status:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
+...

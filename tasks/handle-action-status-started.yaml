@@ -1,9 +1,0 @@
----
-- name: Set deployer job info in status for {{ anarchy_subject_name }}
-  anarchy_subject_update:
-    skip_update_processing: true
-    status:
-      towerJobs:
-        status:
-          deployerJob: '{{ anarchy_action_callback_data.data.id | default(None) }}'
-          deployerTimestamp: '{{ anarchy_run_timestamp }}'

@@ -11,3 +11,4 @@
       towerJobs:
         stop:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
+...
