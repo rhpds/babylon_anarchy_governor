@@ -28,5 +28,7 @@ tower_job_template_name: >-
   {{ tower_organization_name }} {{ anarchy_action_name }} {{ uuid }}
 tower_job_template_custom_virtualenv: >-
   {%- if __meta__.deployer.virtualenv | default('') != '' -%}
-  /opt/rh/virtualenvs/{{ __meta__.deployer.virtualenv }}
+  {{ tower_job_template_custom_virtualenv_basedir }}/{{ __meta__.deployer.virtualenv }}
   {%- endif -%}
+
+tower_job_template_custom_virtualenv_basedir: /opt/rh/virtualenvs
