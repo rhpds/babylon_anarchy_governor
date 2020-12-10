@@ -16,8 +16,6 @@
       validate_certs: false
       return_content: true
     register: r_api_response
-    retries: 6
-    delay: 10
 
   - name: Handle failure tower job failed or cancled
     vars:
