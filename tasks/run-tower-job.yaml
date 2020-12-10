@@ -1,0 +1,77 @@
+---
+- name: Tower organization {{ tower_organization_name }}
+  awx.awx.tower_organization:
+    name: "{{ tower_organization_name }}"
+    tower_host: "https://{{ babylon_tower.hostname }}/"
+    tower_username: "{{ babylon_tower.user }}"
+    tower_password: "{{ babylon_tower.password }}"
+    validate_certs: false
+
+- name: Tower inventory {{ tower_inventory_name }}
+  awx.awx.tower_inventory:
+    name: "{{ tower_inventory_name }}"
+    organization: "{{ tower_organization_name }}"
+    tower_host: "https://{{ babylon_tower.hostname }}/"
+    tower_username: "{{ babylon_tower.user }}"
+    tower_password: "{{ babylon_tower.password }}"
+    validate_certs: false
+
+- name: Tower project {{ tower_project_name }}
+  awx.awx.tower_project:
+    name: "{{ tower_project_name }}"
+    scm_type: git
+    scm_url: "{{ __meta__.deployer.scm_url }}"
+    scm_branch: "{{ __meta__.deployer.scm_ref }}"
+    scm_update_on_launch: >-
+      {{ __meta__.deployer.scm_ref is not search('\d\.\d') }}
+    scm_update_cache_timeout: >-
+      {{ __meta__.deployer.scm_update_cache_timeout | default(30) }}
+    organization: "{{ tower_organization_name }}"
+    tower_host: "https://{{ babylon_tower.hostname }}/"
+    tower_username: "{{ babylon_tower.user }}"
+    tower_password: "{{ babylon_tower.password }}"
+    validate_certs: false
+
+- name: Tower Job Template {{ tower_job_template_name }}
+  awx.awx.tower_job_template:
+    name: "{{ tower_job_template_name }}"
+    custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
+    playbook: "{{ tower_job_template_playbook }}"
+    project: "{{ tower_project_name }}"
+    ask_inventory_on_launch: true
+    ask_variables_on_launch: true
+    tower_host: "https://{{ babylon_tower.hostname }}/"
+    tower_username: "{{ babylon_tower.user }}"
+    tower_password: "{{ babylon_tower.password }}"
+    validate_certs: false
+  register: r_tower_job_template
+  failed_when: r_tower_job_template is failed and 'already exists' not in r_tower_job_template.msg
+
+- name: Launch Job {{ tower_job_template_name }}
+  awx.awx.tower_job_launch:
+    name: "{{ tower_job_template_name }}"
+    inventory: "{{ tower_inventory_name }}"
+    extra_vars: "{{ tower_job_extra_vars }}"
+    tower_host: "https://{{ babylon_tower.hostname }}/"
+    tower_username: "{{ babylon_tower.user }}"
+    tower_password: "{{ babylon_tower.password }}"
+    validate_certs: false
+  register: r_launch_job
+
+- name: Set status in {{ anarchy_subject_name }} 
+  anarchy_subject_update:
+    skip_update_processing: true
+    metadata:
+      labels:
+        state: "{{ new_subject_state | default(current_state) }}"
+    spec:
+      vars:
+        current_state: "{{ new_subject_state | default(current_state)  }}"
+    status:
+      towerJobs: >-
+        {{ {
+           anarchy_action_config_name: {
+             "deployerJob": r_launch_job.id
+           }
+        } }}
+...

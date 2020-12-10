@@ -1,73 +1,36 @@
 ---
-- name: Cancel provision tower jobs
-  when: >-
-    'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision
-  # Loop over all provision tower jobs, "*Job" keys from status
-  loop: >-
-    {{ vars.anarchy_subject.status.towerJobs.provision | default({}) | dict2items | list
-     | to_json | from_json
-     | json_query("[?ends_with(key, 'Job')]")
-    }}
-  loop_control:
-    label: "{{ _job.key }}-{{ _job.value }}"
-    loop_var: _job
-  uri:
-    url: https://{{ babylon_tower.hostname }}/api/v2/jobs/{{ _job.value }}/cancel/
-    url_username: "{{ babylon_tower.user }}"
-    url_password: "{{ babylon_tower.password }}"
-    force_basic_auth: true
-    # FIXME - Should validate certs
-    validate_certs: false
-    return_content: true
-    method: POST
-    status_code:
-    - 202
-    - 404
-    - 405
-  register: r_cancel
+- name: Cancel provision tower job
+  when:
+  - "'deployerJob' in vars.anarchy_subject.status.towerJobs.provision"
+  - "'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision"
+  awx.awx.tower_job_cancel:
+    job_id: "{{ vars.anarchy_subject.status.towerJobs.provision.deployerJob }}"
+    fail_if_not_running: false
+    tower_host: "https://{{ babylon_tower.hostname }}/"
+    tower_username: "{{ babylon_tower.user }}"
+    tower_password: "{{ babylon_tower.password }}"
 
-- name: Call Ansible Tower job-runner to destroy {{ anarchy_subject_name }}
+- name: Run deployer destroy {{ anarchy_subject_name }}
   vars:
-    action_job_vars:
-      ACTION: destroy
-      __meta__:
-        callback:
-          token: "{{ anarchy_action_callback_token }}"
-          url: "{{ anarchy_action_callback_url }}"
-        deployer:
-          entry_point: >-
-            {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.destroy
-             | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
-             | default('ansible/destroy.yml') }}
-          timeout: 0
-        tower:
-          action: destroy
-  uri:
-    url: https://{{ babylon_tower.hostname }}/api/v2/job_templates/{{ babylon_job_template }}/launch/
-    url_username: "{{ babylon_tower.user }}"
-    url_password: "{{ babylon_tower.password }}"
-    force_basic_auth: true
-    validate_certs: false
-    method: POST
-    return_content: true
-    status_code: 201
-    body_format: json
-    body:
-      extra_vars:
-        job_vars: >-
-          {{ vars.anarchy_subject.vars.job_vars | default({})
-           | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
-           | combine(vars.dynamic_job_vars, recursive=True)
-           | combine(action_job_vars, recursive=True)
-          }}
-  register: r_api_response
-  # FIXME - Handle API errors
-  #ignore_errors: true
-
-- name: Set job launch id {{ anarchy_subject_name }} status for destroy
-  anarchy_subject_update:
-    status:
-      towerJobs:
-        destroy:
-          launchJob: '{{ r_api_response.json.job | default(None) }}'
-          launchTimestamp: '{{ anarchy_run_timestamp }}'
+    new_subject_state: destroying
+    tower_job_template_playbook: >-
+      {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.destroy
+       | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
+       | default('ansible/destroy.yml') }}
+    tower_job_extra_vars: >-
+      {{ vars.anarchy_subject.vars.job_vars | default({})
+       | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
+       | combine(vars.dynamic_job_vars, recursive=True)
+       | combine({
+         "ACTION": "destroy",
+         "__meta__": {
+           "callback": {
+             "token": anarchy_action_callback_token,
+             "url": anarchy_action_callback_url
+           }
+         }
+       }, recursive=True)
+      }}
+  include_tasks:
+    file: run-tower-job.yaml
+...

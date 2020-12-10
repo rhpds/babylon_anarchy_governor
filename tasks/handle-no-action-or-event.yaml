@@ -5,3 +5,4 @@
       It appears that neither anarchy_action_config_name or anarchy_event_name were defined,
       which should always be passed by Anarchy.
       This ansible role is meant to be called only from within the Anarchy operator framework.
+...
