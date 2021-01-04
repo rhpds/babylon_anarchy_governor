@@ -36,10 +36,10 @@
   awx.awx.tower_job_template:
     name: "{{ tower_job_template_name }}"
     custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
+    extra_vars: "{{ tower_job_extra_vars }}"
     playbook: "{{ tower_job_template_playbook }}"
     project: "{{ tower_project_name }}"
     ask_inventory_on_launch: true
-    ask_variables_on_launch: true
     tower_host: "https://{{ babylon_tower.hostname }}/"
     tower_username: "{{ babylon_tower.user }}"
     tower_password: "{{ babylon_tower.password }}"
@@ -51,7 +51,6 @@
   awx.awx.tower_job_launch:
     name: "{{ tower_job_template_name }}"
     inventory: "{{ tower_inventory_name }}"
-    extra_vars: "{{ tower_job_extra_vars }}"
     tower_host: "https://{{ babylon_tower.hostname }}/"
     tower_username: "{{ babylon_tower.user }}"
     tower_password: "{{ babylon_tower.password }}"
