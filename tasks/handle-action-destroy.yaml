@@ -9,6 +9,7 @@
     tower_host: "https://{{ babylon_tower.hostname }}/"
     tower_username: "{{ babylon_tower.user }}"
     tower_password: "{{ babylon_tower.password }}"
+    validate_certs: false
 
 - name: Run deployer destroy {{ anarchy_subject_name }}
   vars:
