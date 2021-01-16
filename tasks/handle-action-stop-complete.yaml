@@ -11,4 +11,7 @@
       towerJobs:
         stop:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
+
+- name: Mark stop complete
+  anarchy_complete_action: {}
 ...

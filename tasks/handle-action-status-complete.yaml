@@ -9,4 +9,7 @@
       towerJobs:
         status:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
+
+- name: Mark status complete
+  anarchy_complete_action: {}
 ...
