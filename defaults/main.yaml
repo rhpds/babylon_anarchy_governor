@@ -25,7 +25,7 @@ tower_inventory_name: >-
 tower_project_name: >-
   {{ tower_organization_name }} {{ __meta__.deployer.scm_url }} ({{ __meta__.deployer.scm_ref }})
 tower_job_template_name: >-
-  {{ tower_organization_name }} {{ anarchy_action_name }} {{ uuid }}
+  {{ tower_organization_name }} {{ anarchy_action_name }} {{ vars.anarchy_subject.vars.job_vars.uuid }}
 tower_job_template_custom_virtualenv: >-
   {%- if __meta__.deployer.virtualenv | default('') != '' -%}
   {{ tower_job_template_custom_virtualenv_basedir }}/{{ __meta__.deployer.virtualenv }}
