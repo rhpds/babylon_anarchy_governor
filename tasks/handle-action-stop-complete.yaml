@@ -12,6 +12,7 @@
         stop:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
 
-- name: Mark stop complete
-  anarchy_complete_action: {}
+- name: Report action successful
+  anarchy_finish_action:
+    state: successful
 ...

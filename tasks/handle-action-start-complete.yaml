@@ -18,6 +18,7 @@
     action: stop
     after: "{{ schedule_stop_after_start }}"
 
-- name: Mark start complete
-  anarchy_complete_action: {}
+- name: Report action successful
+  anarchy_finish_action:
+    state: successful
 ...

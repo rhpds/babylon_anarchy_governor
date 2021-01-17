@@ -30,6 +30,7 @@
     action: destroy
     after: "{{ schedule_destroy_after_provision }}"
 
-- name: Mark provision complete
-  anarchy_complete_action: {}
+- name: Report action successful
+  anarchy_finish_action:
+    state: successful
 ...
