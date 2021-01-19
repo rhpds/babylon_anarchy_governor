@@ -57,7 +57,7 @@
     validate_certs: false
   register: r_launch_job
 
-- name: Set status in {{ anarchy_subject_name }} 
+- name: Set status in {{ anarchy_subject_name }}
   anarchy_subject_update:
     skip_update_processing: true
     metadata:

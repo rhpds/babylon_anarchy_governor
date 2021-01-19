@@ -1,3 +1,4 @@
+---
 galaxy_info:
   author: Johnathan Kupferer
   description: Babylon Anarchy governor implementation
@@ -8,3 +9,4 @@ galaxy_info:
   galaxy_tags: []
 
 dependencies: []
+...
