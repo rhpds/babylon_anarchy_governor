@@ -1,6 +1,6 @@
 ---
 - name: Provision {{ anarchy_subject_name }}
-  when: current_state == "new"
+  when: current_state == "provision-pending"
   include_tasks: run-provision.yaml
 
 - name: Check provision of {{ anarchy_subject_name }}

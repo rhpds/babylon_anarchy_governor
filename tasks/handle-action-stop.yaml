@@ -1,6 +1,6 @@
 ---
 - name: Stop {{ anarchy_subject_name }}
-  when: current_state == "started"
+  when: current_state == "stop-pending"
   include_tasks: run-stop.yaml
 
 - name: Check stop of {{ anarchy_subject_name }}
