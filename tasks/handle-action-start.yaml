@@ -1,25 +1,12 @@
 ---
-- name: Run deployer start {{ anarchy_subject_name }}
+- name: Start {{ anarchy_subject_name }}
+  when: current_state == "stopped"
+  include_tasks: run-start.yaml
+
+- name: Check start of {{ anarchy_subject_name }}
+  when: current_state == "starting"
   vars:
-    new_subject_state: starting
-    tower_job_template_playbook: >-
-      {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.start
-       | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
-       | default('ansible/lifecycle_entry_point.yml') }}
-    tower_job_extra_vars: >-
-      {{ vars.anarchy_subject.vars.job_vars | default({})
-       | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
-       | combine(vars.dynamic_job_vars, recursive=True)
-       | combine({
-         "ACTION": "start",
-         "__meta__": {
-           "callback": {
-             "token": anarchy_action_callback_token,
-             "url": anarchy_action_callback_url
-           }
-         }
-       }, recursive=True)
-      }}
-  include_tasks:
-    file: run-tower-job.yaml
+    tower_job_action: start
+    tower_job_info: "{{ vars.anarchy_subject.status.tower_jobs.start }}"
+  include_tasks: check-deployer-job.yaml
 ...

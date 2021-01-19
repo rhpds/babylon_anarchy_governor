@@ -1,0 +1,65 @@
+---
+- name: Get deployer job for {{ tower_job_action }} {{ anarchy_subject_name }}
+  # The awx.awx collection does not have a tower_job_info module
+  uri:
+    url: https://{{ babylon_tower.hostname }}/api/v2/jobs/{{ tower_job_info.deployerJob }}/
+    url_username: "{{ babylon_tower.user }}"
+    url_password: "{{ babylon_tower.password }}"
+    force_basic_auth: true
+    # FIXME - Should validate certs
+    validate_certs: false
+    return_content: true
+  register: r_api_response
+
+- name: Handle tower job failed or canceled
+  vars:
+    __job_status: "{{ r_api_response.json.status }}"
+  when: __job_status in ['canceled', 'failed']
+  block:
+  - name: Set unhealthy in resource handle {{ poolboy_resource_handle_name }}
+    when:
+    # All subjects should have handles, but check just in case.
+    - poolboy_resource_handle_name != ''
+    - poolboy_resource_handle_namespace != ''
+    # When destroying the resource handle will already be deleted
+    - vars.anarchy_subject.spec.vars.current_state | default('') != 'destroying'
+    # FIXME - switch to patch with module?
+    command: >-
+      oc patch resourcehandles.poolboy.gpte.redhat.com --type=json
+      -n {{ poolboy_resource_handle_namespace | quote }}
+      {{ poolboy_resource_handle_name | quote }}
+      --patch={{ json_patch | to_json | quote }}
+    vars:
+      json_patch:
+      - op: add
+        path: /spec/resources/{{ poolboy_resource_index }}/template/spec/vars/healthy
+        value: false
+    # This is best-effort, don't fail on task failure
+    ignore_errors: true
+
+  - name: Set failure state for {{ anarchy_subject_name }}
+    anarchy_subject_update:
+      skip_update_processing: true
+      metadata:
+        labels:
+          state: "{{ tower_job_action }}-{{ __job_status }}"
+      spec:
+        vars:
+          current_state: "{{ tower_job_action }}-{{ __job_status }}"
+          healthy: false
+      status:
+        towerJobs: >-
+          {{
+            { tower_job_action: { "completeTimestamp": anarchy_run_timestamp } }
+          }}
+
+# FIXME - How to handle successful deployment where we did not get the
+#         completion callback?
+
+- name: Schedule next check for {{ tower_job_action }} {{ anarchy_subject_name }}
+  vars:
+    __job_status: "{{ r_api_response.json.status }}"
+  when: __job_status not in ['canceled', 'failed', 'successful']
+  anarchy_continue_action:
+    after: "{{ tower_job_check_interval }}"
+...

@@ -12,8 +12,8 @@ preserve_job_vars:
 - aws_region
 - region
 
-# Default provision check interval
-provision_check_interval: 5m
+# Default check interval for tower job status
+tower_job_check_interval: 5m
 
 # AnarchyGovernor controls __meta__ settings.
 __meta__: "{{ vars.anarchy_governor.vars.job_vars.__meta__ }}"
