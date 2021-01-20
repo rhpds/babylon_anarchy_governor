@@ -7,6 +7,6 @@
   when: check_status_state == "running"
   vars:
     tower_job_action: status
-    tower_job_info: "{{ vars.anarchy_subject.status.tower_jobs.status }}"
+    tower_job_info: "{{ vars.anarchy_subject.status.towerJobs.status }}"
   include_tasks: check-deployer-job.yaml
 ...
