@@ -57,13 +57,9 @@
         vars:
           check_status_state: "{{ __job_status }}"
 
-  - name: Set status completeTimestamp for {{ tower_job_action }} of {{ anarchy_subject_name }}
-    anarchy_subject_update:
-      status:
-        towerJobs: >-
-          {{
-            { tower_job_action: { "completeTimestamp": anarchy_run_timestamp } }
-          }}
+  - name: Mark {{ tower_job_action }} as failed for {{ anarchy_subject_name }}
+    anarchy_finish_action:
+      state: failed
 
 # FIXME - How to handle successful deployment where we did not get the
 #         completion callback?
