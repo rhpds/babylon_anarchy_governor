@@ -1,0 +1,29 @@
+---
+- name: Run deployer stop {{ anarchy_subject_name }}
+  vars:
+    new_subject_state: stopping
+    tower_job_template_playbook: >-
+      {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.stop
+       | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
+       | default('ansible/lifecycle_entry_point.yml') }}
+    tower_job_extra_vars: >-
+      {{ vars.anarchy_subject.vars.job_vars | default({})
+       | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
+       | combine(vars.dynamic_job_vars, recursive=True)
+       | combine({
+         "ACTION": "stop",
+         "__meta__": {
+           "callback": {
+             "token": anarchy_action_callback_token,
+             "url": anarchy_action_callback_url
+           }
+         }
+       }, recursive=True)
+      }}
+  include_tasks:
+    file: run-tower-job.yaml
+
+- name: Schedule check for stop of {{ anarchy_subject_name }}
+  anarchy_continue_action:
+    after: "{{ tower_job_check_interval }}"
+...

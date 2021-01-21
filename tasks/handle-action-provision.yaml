@@ -1,30 +1,12 @@
 ---
-- name: Run deployer provision {{ anarchy_subject_name }}
-  vars:
-    new_subject_state: provisioning
-    tower_job_template_playbook: >-
-      {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.provision
-       | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
-       | default('ansible/main.yml') }}
-    tower_job_extra_vars: >-
-      {{ vars.anarchy_subject.vars.job_vars | default({})
-       | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
-       | combine(vars.dynamic_job_vars, recursive=True)
-       | combine({
-         "ACTION": "provision",
-         "__meta__": {
-           "callback": {
-             "token": anarchy_action_callback_token,
-             "url": anarchy_action_callback_url
-           }
-         }
-       }, recursive=True)
-      }}
-  include_tasks:
-    file: run-tower-job.yaml
+- name: Provision {{ anarchy_subject_name }}
+  when: current_state == "provision-pending"
+  include_tasks: run-provision.yaml
 
-- name: Schedule check for {{ anarchy_subject_name }}
-  anarchy_schedule_action:
-    action: check
-    after: "{{ provision_check_interval }}"
+- name: Check provision of {{ anarchy_subject_name }}
+  when: current_state == "provisioning"
+  vars:
+    tower_job_action: provision
+    tower_job_info: "{{ vars.anarchy_subject.status.towerJobs.provision }}"
+  include_tasks: check-deployer-job.yaml
 ...

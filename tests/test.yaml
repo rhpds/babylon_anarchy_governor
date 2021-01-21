@@ -1,4 +1,5 @@
 ---
+# FIXME - These are out of date...
 - import_playbook: test-event-create.yaml
 - import_playbook: test-event-update-noaction.yaml
 - import_playbook: test-event-update-schedule-start.yaml
@@ -18,4 +19,4 @@
 - import_playbook: test-action-stop-complete.yaml
 - import_playbook: test-action-destroy.yaml
 - import_playbook: test-action-destroy-started.yaml
-#- import_playbook: test-action-destroy-complete.yaml
+- import_playbook: test-action-destroy-complete.yaml

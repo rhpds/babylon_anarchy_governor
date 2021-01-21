@@ -57,7 +57,7 @@
     validate_certs: false
   register: r_launch_job
 
-- name: Set status in {{ anarchy_subject_name }} 
+- name: Set status in {{ anarchy_subject_name }}
   anarchy_subject_update:
     skip_update_processing: true
     metadata:
@@ -65,12 +65,15 @@
         state: "{{ new_subject_state | default(current_state) }}"
     spec:
       vars:
-        current_state: "{{ new_subject_state | default(current_state)  }}"
+        current_state: "{{ new_subject_state | default(current_state) }}"
+        check_status_state: "{{ new_check_status_state | default(check_status_state) }}"
     status:
       towerJobs: >-
         {{ {
            anarchy_action_config_name: {
-             "deployerJob": r_launch_job.id
+             "deployerJob": r_launch_job.id,
+             "startTimestamp": anarchy_run_timestamp,
+             "completeTimestamp": None,
            }
         } }}
 ...

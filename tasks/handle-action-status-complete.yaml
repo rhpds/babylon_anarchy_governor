@@ -9,4 +9,8 @@
       towerJobs:
         status:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
+
+- name: Report action successful
+  anarchy_finish_action:
+    state: successful
 ...

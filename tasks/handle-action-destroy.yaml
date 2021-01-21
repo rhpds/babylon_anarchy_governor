@@ -1,37 +1,12 @@
 ---
-- name: Cancel provision tower job
-  when:
-  - "'deployerJob' in vars.anarchy_subject.status.towerJobs.provision"
-  - "'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision"
-  awx.awx.tower_job_cancel:
-    job_id: "{{ vars.anarchy_subject.status.towerJobs.provision.deployerJob }}"
-    fail_if_not_running: false
-    tower_host: "https://{{ babylon_tower.hostname }}/"
-    tower_username: "{{ babylon_tower.user }}"
-    tower_password: "{{ babylon_tower.password }}"
-    validate_certs: false
+- name: Destroying {{ anarchy_subject_name }}
+  when: current_state != "destroying"
+  include_tasks: run-destroy.yaml
 
-- name: Run deployer destroy {{ anarchy_subject_name }}
+- name: Check destroy of {{ anarchy_subject_name }}
+  when: current_state == "destroying"
   vars:
-    new_subject_state: destroying
-    tower_job_template_playbook: >-
-      {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.destroy
-       | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
-       | default('ansible/destroy.yml') }}
-    tower_job_extra_vars: >-
-      {{ vars.anarchy_subject.vars.job_vars | default({})
-       | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
-       | combine(vars.dynamic_job_vars, recursive=True)
-       | combine({
-         "ACTION": "destroy",
-         "__meta__": {
-           "callback": {
-             "token": anarchy_action_callback_token,
-             "url": anarchy_action_callback_url
-           }
-         }
-       }, recursive=True)
-      }}
-  include_tasks:
-    file: run-tower-job.yaml
+    tower_job_action: destroy
+    tower_job_info: "{{ vars.anarchy_subject.status.towerJobs.destroy }}"
+  include_tasks: check-deployer-job.yaml
 ...

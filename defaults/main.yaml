@@ -5,6 +5,7 @@ schedule_stop_after_start: disabled
 
 current_state: unknown
 desired_state: unknown
+check_status_state: null
 
 dynamic_job_vars: {}
 
@@ -12,8 +13,8 @@ preserve_job_vars:
 - aws_region
 - region
 
-# Default provision check interval
-provision_check_interval: 5m
+# Default check interval for tower job status
+tower_job_check_interval: 5m
 
 # AnarchyGovernor controls __meta__ settings.
 __meta__: "{{ vars.anarchy_governor.vars.job_vars.__meta__ }}"
@@ -25,7 +26,7 @@ tower_inventory_name: >-
 tower_project_name: >-
   {{ tower_organization_name }} {{ __meta__.deployer.scm_url }} ({{ __meta__.deployer.scm_ref }})
 tower_job_template_name: >-
-  {{ tower_organization_name }} {{ anarchy_action_name }} {{ uuid }}
+  {{ tower_organization_name }} {{ anarchy_action_name }} {{ vars.anarchy_subject.vars.job_vars.uuid }}
 tower_job_template_custom_virtualenv: >-
   {%- if __meta__.deployer.virtualenv | default('') != '' -%}
   {{ tower_job_template_custom_virtualenv_basedir }}/{{ __meta__.deployer.virtualenv }}
