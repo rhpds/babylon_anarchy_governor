@@ -2,6 +2,7 @@
 schedule_destroy_after_provision: disabled
 schedule_stop_after_provision: disabled
 schedule_stop_after_start: disabled
+delete_on_failure: true
 
 current_state: unknown
 desired_state: unknown
