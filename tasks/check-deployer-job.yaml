@@ -16,26 +16,42 @@
     __job_status: "{{ r_api_response.json.status }}"
   when: __job_status in ['canceled', 'failed']
   block:
-  - name: Set unhealthy in resource handle {{ poolboy_resource_handle_name }}
+  - name: Handle poolboy integration for failure to prevent claim bind
     when:
     # All subjects should have handles, but check just in case.
     - poolboy_resource_handle_name != ''
     - poolboy_resource_handle_namespace != ''
     # When destroying the resource handle will already be deleted
     - vars.anarchy_subject.spec.vars.current_state | default('') != 'destroying'
-    # FIXME - switch to patch with module?
-    command: >-
-      oc patch resourcehandles.poolboy.gpte.redhat.com --type=json
-      -n {{ poolboy_resource_handle_namespace | quote }}
-      {{ poolboy_resource_handle_name | quote }}
-      --patch={{ json_patch | to_json | quote }}
-    vars:
-      json_patch:
-      - op: add
-        path: /spec/resources/{{ poolboy_resource_index }}/template/spec/vars/healthy
-        value: false
-    # This is best-effort, don't fail on task failure
-    ignore_errors: true
+    # If claimed, then the ResourceClaim manages the resource
+    - poolboy_resource_claim_name == ''
+    block:
+    - name: Delete unclaimed resource handle {{ poolboy_resource_handle_name }}
+      when: delete_on_failure
+      k8s:
+        api_version: poolboy.gpte.redhat.com/v1
+        kind: ResourceHandle
+        state: absent
+        name: "{{ poolboy_resource_handle_name }}"
+        namespace: "{{ poolboy_resource_handle_namespace }}"
+      # This is best-effort, don't fail on task failure
+      ignore_errors: true
+
+    - name: Set unhealthy in resource handle {{ poolboy_resource_handle_name }}
+      when: not delete_on_failure
+      # FIXME - switch to patch with module?
+      command: >-
+        oc patch resourcehandles.poolboy.gpte.redhat.com --type=json
+        -n {{ poolboy_resource_handle_namespace | quote }}
+        {{ poolboy_resource_handle_name | quote }}
+        --patch={{ json_patch | to_json | quote }}
+      vars:
+        json_patch:
+        - op: add
+          path: /spec/resources/{{ poolboy_resource_index }}/template/spec/vars/healthy
+          value: false
+      # This is best-effort, don't fail on task failure
+      ignore_errors: true
 
   - name: Set failure current_state for {{ anarchy_subject_name }}
     when: tower_job_action != 'status'
