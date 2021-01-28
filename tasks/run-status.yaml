@@ -22,4 +22,8 @@
       }}
   include_tasks:
     file: run-tower-job.yaml
+
+- name: Schedule check for status of {{ anarchy_subject_name }}
+  anarchy_continue_action:
+    after: "{{ tower_job_check_interval }}"
 ...
