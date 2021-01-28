@@ -3,6 +3,7 @@
   anarchy_subject_update:
     spec:
       vars:
+        check_status_state: successful
         status_data: '{{ anarchy_action_callback_data.data | default(omit, true) }}'
         status_messages: '{{ anarchy_action_callback_data.messages | default(omit, true) }}'
     status:
