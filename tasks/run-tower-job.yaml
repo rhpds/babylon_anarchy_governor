@@ -16,6 +16,22 @@
     tower_password: "{{ babylon_tower.password }}"
     validate_certs: false
 
+- name: Tower credentials
+  loop: "{{ vault_credentials | default({}) | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  awx.awx.tower_credential:
+    name: "{{ tower_organization_name }} {{ item.key }}"
+    credential_type: Vault
+    inputs:
+      vault_id: "{{ item.key }}"
+      vault_password: "{{ item.value }}"
+    organization: "{{ tower_organization_name }}"
+    tower_host: "https://{{ babylon_tower.hostname }}/"
+    tower_username: "{{ babylon_tower.user }}"
+    tower_password: "{{ babylon_tower.password }}"
+    validate_certs: false
+
 - name: Tower project {{ tower_project_name }}
   awx.awx.tower_project:
     name: "{{ tower_project_name }}"
@@ -33,8 +49,13 @@
     validate_certs: false
 
 - name: Tower Job Template {{ tower_job_template_name }}
+  vars:
+    __query: >-
+      [].key.join(' ', [`{{ tower_organization_name | to_json }}`, @])
   awx.awx.tower_job_template:
     name: "{{ tower_job_template_name }}"
+    # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
+    credentials: "{{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__query) }}"
     custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
     extra_vars: "{{ tower_job_extra_vars }}"
     playbook: "{{ tower_job_template_playbook }}"
