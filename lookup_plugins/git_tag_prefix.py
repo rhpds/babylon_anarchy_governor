@@ -55,7 +55,7 @@ class LookupModule(LookupBase):
                 r = requests.get('https://api.github.com/repos/{}/{}/git/refs/tags'.format(git_org, git_repo))
                 latest_tag = None
                 latest_version = None
-                tag_re = re.compile(r'refs/tags/({}-?([0-9.]+))'.format(re.escape(term)))
+                tag_re = re.compile(r'refs/tags/({}-?([0-9.]+))$'.format(re.escape(term)))
                 for tag_ref in r.json():
                     m = tag_re.match(tag_ref['ref'])
                     if m:
