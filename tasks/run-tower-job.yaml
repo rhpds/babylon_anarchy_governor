@@ -61,25 +61,56 @@
     tower_password: "{{ babylon_tower.password }}"
     validate_certs: false
 
-- name: Tower Job Template {{ tower_job_template_name }}
-  vars:
-    __query: >-
-      [].key.join(' ', [`{{ tower_organization_name | to_json }}`, @])
-  awx.awx.tower_job_template:
-    name: "{{ tower_job_template_name }}"
-    # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
-    credentials: "{{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__query) }}"
-    custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
-    extra_vars: "{{ tower_job_extra_vars }}"
-    playbook: "{{ tower_job_template_playbook }}"
-    project: "{{ __tower_project_name }}"
-    ask_inventory_on_launch: true
-    tower_host: "https://{{ babylon_tower.hostname }}/"
-    tower_username: "{{ babylon_tower.user }}"
-    tower_password: "{{ babylon_tower.password }}"
-    validate_certs: false
-  register: r_tower_job_template
-  failed_when: r_tower_job_template is failed and 'already exists' not in r_tower_job_template.msg
+- name: Tower Job Template block
+  block:
+  - name: Tower Job Template {{ tower_job_template_name }}
+    vars:
+      __query: >-
+        [].key.join(' ', [`{{ tower_organization_name | to_json }}`, @])
+    awx.awx.tower_job_template:
+      name: "{{ tower_job_template_name }}"
+      # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
+      credentials: "{{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__query) }}"
+      custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
+      extra_vars: "{{ tower_job_extra_vars }}"
+      playbook: "{{ tower_job_template_playbook }}"
+      project: "{{ __tower_project_name }}"
+      ask_inventory_on_launch: true
+      tower_host: "https://{{ babylon_tower.hostname }}/"
+      tower_username: "{{ babylon_tower.user }}"
+      tower_password: "{{ babylon_tower.password }}"
+      validate_certs: false
+    register: r_tower_job_template
+    failed_when: r_tower_job_template is failed and 'already exists' not in r_tower_job_template.msg
+  rescue:
+  - name: Tower project update
+    awx.awx.tower_project_update:
+      name: "{{ tower_project_name }}"
+      organization: "{{ tower_organization_name }}"
+      tower_host: "https://{{ babylon_tower.hostname }}/"
+      tower_username: "{{ babylon_tower.user }}"
+      tower_password: "{{ babylon_tower.password }}"
+      validate_certs: false
+
+  - name: Tower Job Template {{ tower_job_template_name }} (retry)
+    vars:
+      __query: >-
+        [].key.join(' ', [`{{ tower_organization_name | to_json }}`, @])
+    awx.awx.tower_job_template:
+      name: "{{ tower_job_template_name }}"
+      # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
+      credentials: "{{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__query) }}"
+      custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
+      extra_vars: "{{ tower_job_extra_vars }}"
+      playbook: "{{ tower_job_template_playbook }}"
+      project: "{{ __tower_project_name }}"
+      ask_inventory_on_launch: true
+      tower_host: "https://{{ babylon_tower.hostname }}/"
+      tower_username: "{{ babylon_tower.user }}"
+      tower_password: "{{ babylon_tower.password }}"
+      validate_certs: false
+    register: r_tower_job_template
+    failed_when: r_tower_job_template is failed and 'already exists' not in r_tower_job_template.msg
 
 - name: Launch Job {{ tower_job_template_name }}
   awx.awx.tower_job_launch:
