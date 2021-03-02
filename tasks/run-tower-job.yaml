@@ -32,14 +32,27 @@
     tower_password: "{{ babylon_tower.password }}"
     validate_certs: false
 
-- name: Tower project {{ tower_project_name }}
+- name: Set __tower_project_scm_ref
+  set_fact:
+    __tower_project_scm_ref: >-
+      {{ __meta__.deployer.scm_ref | default(
+        lookup('git_tag_prefix', __meta__.deployer.git_tag_prefix, git_repo=__meta__.deployer.scm_url)
+        if __meta__.deployer.git_tag_prefix is defined else 'main'
+      ) }}
+
+- name: Set __tower_project_name
+  set_fact:
+    __tower_project_name: >-
+      {{ tower_organization_name }} {{ __meta__.deployer.scm_url }} ({{ __tower_project_scm_ref }})
+
+- name: Tower project
   awx.awx.tower_project:
-    name: "{{ tower_project_name }}"
+    name: "{{ __tower_project_name }}"
     scm_type: git
     scm_url: "{{ __meta__.deployer.scm_url }}"
-    scm_branch: "{{ __meta__.deployer.scm_ref }}"
+    scm_branch: "{{ __tower_project_scm_ref }}"
     scm_update_on_launch: >-
-      {{ __meta__.deployer.scm_ref is not search('\d\.\d') }}
+      {{ __tower_project_scm_ref is not search('\d\.\d') }}
     scm_update_cache_timeout: >-
       {{ __meta__.deployer.scm_update_cache_timeout | default(30) }}
     organization: "{{ tower_organization_name }}"
@@ -59,7 +72,7 @@
     custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
     extra_vars: "{{ tower_job_extra_vars }}"
     playbook: "{{ tower_job_template_playbook }}"
-    project: "{{ tower_project_name }}"
+    project: "{{ __tower_project_name }}"
     ask_inventory_on_launch: true
     tower_host: "https://{{ babylon_tower.hostname }}/"
     tower_username: "{{ babylon_tower.user }}"
