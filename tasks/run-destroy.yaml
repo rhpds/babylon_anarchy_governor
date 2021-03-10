@@ -1,7 +1,7 @@
 ---
 - name: Cancel provision tower job
   when:
-  - "'deployerJob' in vars.anarchy_subject.status.towerJobs.provision"
+  - "'deployerJob' in vars.anarchy_subject.status.towerJobs.provision | default({})"
   - "'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision"
   awx.awx.tower_job_cancel:
     job_id: "{{ vars.anarchy_subject.status.towerJobs.provision.deployerJob }}"
