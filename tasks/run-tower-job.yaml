@@ -85,7 +85,7 @@
   rescue:
   - name: Tower project update
     awx.awx.tower_project_update:
-      name: "{{ tower_project_name }}"
+      name: "{{ __tower_project_name }}"
       organization: "{{ tower_organization_name }}"
       tower_host: "https://{{ babylon_tower.hostname }}/"
       tower_username: "{{ babylon_tower.user }}"
