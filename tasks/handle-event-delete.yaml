@@ -1,4 +1,16 @@
 ---
+- name: Cancel provision tower job for {{ anarchy_subject_name }}
+  when:
+  - "'deployerJob' in vars.anarchy_subject.status.towerJobs.provision | default({})"
+  - "'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision"
+  awx.awx.tower_job_cancel:
+    job_id: "{{ vars.anarchy_subject.status.towerJobs.provision.deployerJob }}"
+    fail_if_not_running: false
+    tower_host: "https://{{ babylon_tower.hostname }}/"
+    tower_username: "{{ babylon_tower.user }}"
+    tower_password: "{{ babylon_tower.password }}"
+    validate_certs: false
+
 - name: Immediately remove finalizers on {{ anarchy_subject_name }} if never provisioned
   when: vars.anarchy_subject.status.towerJobs.provision.deployerJob | default('') == ''
   anarchy_subject_delete:
