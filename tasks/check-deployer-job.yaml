@@ -56,7 +56,6 @@
   - name: Set failure current_state for {{ anarchy_subject_name }}
     when: tower_job_action != 'status'
     anarchy_subject_update:
-      skip_update_processing: true
       metadata:
         labels:
           state: "{{ tower_job_action }}-{{ __job_status }}"
