@@ -8,6 +8,7 @@
       vars:
         current_state: started
         provision_data: '{{ anarchy_action_callback_data.data | default(omit, true) }}'
+        provision_message_body: '{{ anarchy_action_callback_data.message_body | default(omit, true) }}'
         provision_messages: '{{ anarchy_action_callback_data.messages | default(omit, true) }}'
     status:
       towerJobs:
