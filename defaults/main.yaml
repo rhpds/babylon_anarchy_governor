@@ -20,6 +20,11 @@ tower_job_check_interval: 5m
 # AnarchyGovernor controls __meta__ settings.
 __meta__: "{{ vars.anarchy_governor.vars.job_vars.__meta__ }}"
 
+callback_url_var: >-
+  {{ __meta__.deployer.callback_url_var | default("agnosticd_callback_url") }}
+callback_token_var: >-
+  {{ __meta__.deployer.callback_token_var | default("agnosticd_callback_token") }}
+
 tower_organization_name: >-
   {{ __meta__.tower.organization | default('babylon') }}
 tower_inventory_name: >-

@@ -12,12 +12,8 @@
        | combine(vars.dynamic_job_vars, recursive=True)
        | combine({
          "ACTION": "provision",
-         "__meta__": {
-           "callback": {
-             "token": anarchy_action_callback_token,
-             "url": anarchy_action_callback_url
-           }
-         }
+         callback_url_var: anarchy_action_callback_url,
+         callback_token_var: anarchy_action_callback_token,
        }, recursive=True)
       }}
   include_tasks:
