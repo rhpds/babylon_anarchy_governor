@@ -20,6 +20,8 @@ tower_job_check_interval: 5m
 # AnarchyGovernor controls __meta__ settings.
 __meta__: "{{ vars.anarchy_governor.vars.job_vars.__meta__ }}"
 
+# Name of variables to set in job vars for the deployer to callback to Anarchy
+# to notify status change, currently just on successful completion.
 callback_url_var: >-
   {{ __meta__.deployer.callback_url_var | default("agnosticd_callback_url") }}
 callback_token_var: >-
