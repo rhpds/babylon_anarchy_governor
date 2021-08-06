@@ -27,6 +27,19 @@ def filter_job_vars_secrets_to_dynamic_job_vars(anarchy_governor):
             dynamic_job_var_secrets.append(dynamic_job_var_secret)
     return dynamic_job_var_secrets
 
+def mark_ansible_vault_values(src):
+    if isinstance(src, dict):
+        return { k: mark_ansible_vault_values(v) for k, v in src.items() }
+    elif isinstance(src, list):
+        return [ mark_ansible_vault_values(v) for v in src ]
+    elif isinstance(src, str):
+        if src.startswith('$ANSIBLE_VAULT;'):
+            return {"__ansible_vault": src}
+        else:
+            return src
+    else:
+        return src
+
 # ---- Ansible filters ----
 class FilterModule(object):
     ''' URI filter '''
@@ -35,4 +48,5 @@ class FilterModule(object):
         return {
             'filter_job_vars_to_dynamic_job_vars': filter_job_vars_to_dynamic_job_vars,
             'filter_job_vars_secrets_to_dynamic_job_vars': filter_job_vars_secrets_to_dynamic_job_vars,
+            'mark_ansible_vault_values': mark_ansible_vault_values,
         }

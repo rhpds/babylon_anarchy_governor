@@ -72,7 +72,11 @@
       # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
       credentials: "{{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__query) }}"
       custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
-      extra_vars: "{{ tower_job_extra_vars }}"
+      extra_vars: >-
+        {{ tower_job_extra_vars
+         | combine({"output_dir": "/tmp/output-" ~ vars.anarchy_subject.vars.job_vars.uuid})
+         | mark_ansible_vault_values
+        }}
       playbook: "{{ tower_job_template_playbook }}"
       project: "{{ __tower_project_name }}"
       ask_inventory_on_launch: true
@@ -102,7 +106,11 @@
       # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
       credentials: "{{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__query) }}"
       custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
-      extra_vars: "{{ tower_job_extra_vars }}"
+      extra_vars: >-
+        {{ tower_job_extra_vars
+         | combine({"output_dir": "/tmp/output-" ~ vars.anarchy_subject.vars.job_vars.uuid})
+         | mark_ansible_vault_values
+        }}
       playbook: "{{ tower_job_template_playbook }}"
       project: "{{ __tower_project_name }}"
       ask_inventory_on_launch: true
