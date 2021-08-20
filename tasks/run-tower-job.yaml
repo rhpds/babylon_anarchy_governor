@@ -122,6 +122,10 @@
     validate_certs: false
   register: r_launch_job
 
+- name: Set Tower Job URL
+  set_fact:
+    towerJobURL: "{{ tower_host }}#/jobs/{{ r_launch_job.id }}/"
+
 - name: Set status in {{ anarchy_subject_name }}
   anarchy_subject_update:
     skip_update_processing: true
@@ -139,6 +143,8 @@
              "deployerJob": r_launch_job.id,
              "startTimestamp": anarchy_run_timestamp,
              "completeTimestamp": None,
+             "towerHost": babylon_tower.hostname,
+             "towerJobURL": tower_job_url
            }
         } }}
 ...
