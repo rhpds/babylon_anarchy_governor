@@ -76,24 +76,24 @@
     anarchy_finish_action:
       state: failed
 
-- name: Handle tower job success (when no callback received)
-vars:
-  __job_status: "{{ r_api_response.json.status }}"
-  __job_name: "{{ r_api_response.json.name | default('UNKNOWN') }}"
-when: __job_status in ['successful']
-block:
+- name: Handle tower job success when no callback received
+  vars:
+    __job_status: "{{ r_api_response.json.status }}"
+    __job_name: "{{ r_api_response.json.name | default('UNKNOWN') }}"
+  when: __job_status in ['successful']
+  block:
 
-  - name: Notification message
-    debug:
-      msg:
-        - "No callback received for successful job: {{ __job_name }}"
+    - name: Notification message
+      debug:
+        msg:
+          - "No callback received for successful job: {{ __job_name }}"
 
-  - name: Handle action complete for {{ anarchy_subject_name }}
-    include_tasks: >-
-      {%- if anarchy_action_config_name is defined -%}
-      handle-action-{{ anarchy_action_config_name }}-complete.yaml
-      {%- endif -%}
-    ignore_errors: true
+    - name: Handle action complete for {{ anarchy_subject_name }}
+      include_tasks: >-
+        {%- if anarchy_action_config_name is defined -%}
+        handle-action-{{ anarchy_action_config_name }}-complete.yaml
+        {%- endif -%}
+      ignore_errors: true
 
 - name: Schedule next check for {{ tower_job_action }} {{ anarchy_subject_name }}
   vars:
