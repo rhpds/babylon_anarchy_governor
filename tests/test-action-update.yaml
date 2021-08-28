@@ -1,0 +1,124 @@
+---
+- name: test-action-update
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    anarchy_governor:
+      spec:
+        # Vars in the spec are not yet processed
+        vars:
+          job_vars:
+            aws_region: us-east-1
+            test_late_eval: "{{ late_eval }}"
+        varSecrets:
+        - name: aws
+          namespace: foo
+          var: job_vars
+      # vars at this level are processed vars injected by Anarchy...
+      vars:
+        job_vars:
+          aws_region: us-east-1
+          governor_var: good
+          governor_override_var: good
+          test_late_eval: "{{ late_eval }}"
+    anarchy_subject:
+      vars:
+        job_vars:
+          subject_var: good
+          governor_override_var: bad
+    anarchy_subject_name: test
+    anarchy_action_name: test
+    anarchy_action_config_name: update
+    anarchy_action_callback_url: test
+    anarchy_action_callback_token: test
+    anarchy_run_timestamp: 2020-01-01T00:00:00Z
+    babylon_tower:
+      hostname: test
+      user: test
+      password: test
+
+  pre_tasks:
+  - name: Create test output dir
+    tempfile:
+      state: directory
+    register: r_test_output_dir
+  - name: Set test_output_dir
+    set_fact:
+      test_output_dir: "{{ r_test_output_dir.path }}"
+
+  roles:
+  - role: babylon_anarchy_governor
+
+  post_tasks:
+  - name: Test output data
+    set_fact:
+      anarchy_subject_updates: >-
+        {{ lookup('file', test_output_dir ~ '/anarchy_subject_updates.yaml') | from_yaml }}
+      uri_calls: >-
+        {{ lookup('file', test_output_dir ~ '/uri-calls.yaml') | from_yaml }}
+
+  - debug:
+      var: uri_calls
+  - name: Check that update was scheduled
+    assert:
+      that:
+      - uri_calls == expected
+      msg: Action update was not scheduled as expected
+    vars:
+      expected:
+      - body:
+          extra_vars:
+            job_vars:
+              ACTION: update
+              __meta__:
+                callback:
+                  token: test
+                  url: test
+                deployer:
+                  entry_point: ansible/main.yml
+                  timeout: 0
+                tower:
+                  action: update
+              aws_region: us-east-1
+              governor_override_var: good
+              governor_var: good
+              subject_var: good
+              test_late_eval: "{% raw %}{{ late_eval }}{% endraw %}"
+        body_format: json
+        force_basic_auth: true
+        method: POST
+        return_content: true
+        status_code: 201
+        url: https://test/api/v2/job_templates/job-runner/launch/
+        url_password: test
+        url_username: test
+        validate_certs: false
+
+  - debug:
+      var: anarchy_subject_updates
+  - name: Check anarchy_subject_updates
+    assert:
+      that:
+      - anarchy_subject_updates == expected
+      msg: anarchy_subject_update was not called as expected
+    vars:
+      expected:
+      - spec:
+          vars:
+            dynamic_job_vars:
+              aws_region: us-east-1
+          varSecrets:
+          - name: aws
+            namespace: foo
+            var: dynamic_job_vars
+        status:
+          towerJobs:
+            update:
+              launchJob: ""
+              launchTimestamp: "2020-01-01 00:00:00+00:00"
+
+  - name: Remove test_output_dir
+    file:
+      path: "{{ test_output_dir }}"
+      state: absent

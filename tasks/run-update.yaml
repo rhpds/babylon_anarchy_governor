@@ -1,0 +1,25 @@
+---
+- name: Run deployer update {{ anarchy_subject_name }}
+  vars:
+    new_subject_state: updating
+    tower_job_template_playbook: >-
+      {{ vars['anarchy_governor']['vars']['job_vars']['__meta__']['deployer']['entry_points']['update']
+       | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
+       | default('ansible/update.yml') }}
+    tower_job_extra_vars: >-
+      {{ vars.anarchy_subject.vars.job_vars | default({})
+       | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
+       | combine(vars.dynamic_job_vars, recursive=True)
+       | combine({
+         "ACTION": "update",
+         callback_url_var: anarchy_action_callback_url,
+         callback_token_var: anarchy_action_callback_token,
+       }, recursive=True)
+      }}
+  include_tasks:
+    file: run-tower-job.yaml
+
+- name: Schedule check for update of {{ anarchy_subject_name }}
+  anarchy_continue_action:
+    after: "{{ tower_job_check_interval }}"
+...
