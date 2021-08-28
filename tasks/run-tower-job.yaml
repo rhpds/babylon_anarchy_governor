@@ -140,7 +140,7 @@
              "startTimestamp": anarchy_run_timestamp,
              "completeTimestamp": None,
              "towerHost": babylon_tower.hostname,
-             "towerJobURL": tower_host ~ "#/jobs/" ~ r_launch_job.id ~ "/"
+             "towerJobURL": babylon_tower.hostname ~ "#/jobs/" ~ r_launch_job.id ~ "/"
            }
         } }}
 ...
