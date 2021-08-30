@@ -93,7 +93,6 @@
         {%- if anarchy_action_config_name is defined -%}
         handle-action-{{ anarchy_action_config_name }}-complete.yaml
         {%- endif -%}
-      ignore_errors: true
 
 - name: Schedule next check for {{ tower_job_action }} {{ anarchy_subject_name }}
   vars:
