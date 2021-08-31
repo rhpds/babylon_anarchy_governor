@@ -10,6 +10,7 @@
 - import_playbook: test-action-provision-complete-noaction.yaml
 - import_playbook: test-action-provision-complete-schedule-stop.yaml
 - import_playbook: test-action-provision-complete-schedule-destroy.yaml
+- import_playbook: test-action-update.yaml
 - import_playbook: test-action-start.yaml
 - import_playbook: test-action-start-started.yaml
 - import_playbook: test-action-start-complete-noaction.yaml
