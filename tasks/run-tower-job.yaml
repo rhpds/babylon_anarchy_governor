@@ -80,6 +80,7 @@
       tower_username: "{{ babylon_tower.user }}"
       tower_password: "{{ babylon_tower.password }}"
       validate_certs: false
+      timeout: "{{ tower_job_template_timeout }}"
     register: r_tower_job_template
     failed_when: r_tower_job_template is failed and 'already exists' not in r_tower_job_template.msg
   rescue:
@@ -109,6 +110,7 @@
       tower_username: "{{ babylon_tower.user }}"
       tower_password: "{{ babylon_tower.password }}"
       validate_certs: false
+      timeout: "{{ tower_job_template_timeout }}"
     register: r_tower_job_template
     failed_when: r_tower_job_template is failed and 'already exists' not in r_tower_job_template.msg
 
