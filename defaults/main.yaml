@@ -33,6 +33,8 @@ tower_inventory_name: >-
   {{ tower_organization_name }} {{ __meta__.tower.inventory | default('default') }}
 tower_job_template_name: >-
   {{ tower_organization_name }} {{ anarchy_action_name }} {{ vars.anarchy_subject.vars.job_vars.uuid }}
+tower_job_template_timeout: >-
+  {{ __meta__.tower.timeout | default(10800) }}
 tower_job_template_custom_virtualenv: >-
   {%- if __meta__.deployer.virtualenv | default('') != '' -%}
   {{ tower_job_template_custom_virtualenv_basedir }}/{{ __meta__.deployer.virtualenv }}
