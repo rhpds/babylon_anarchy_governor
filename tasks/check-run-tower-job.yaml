@@ -1,0 +1,26 @@
+---
+- name: Get number of running jobs
+  when: 
+  # The awx.awx collection does not have a tower_job_info module
+  uri:
+    url: https://{{ babylon_tower.hostname }}/api/v2/jobs/?or__status=running&or__status=pending&or__status=waiting&page_size=1
+    url_username: "{{ babylon_tower.user }}"
+    url_password: "{{ babylon_tower.password }}"
+    force_basic_auth: true
+    # FIXME - Should validate certs
+    validate_certs: false
+    return_content: true
+  register: r_api_response
+
+- name: Set fact for number of active jobs
+  set_fact:
+    active_job_count: "{{ r_api_response.json.count }}"
+
+- name: Run tower job if active job count under maximum
+  vars:
+  include_tasks: >-
+    {%- if active_job_count | int < tower_maximum_job_count | int -%}
+    run-tower-job.yaml
+    {%- else -%}
+    alert-concurrency-exceeded.yaml
+    {%- endif -%}
