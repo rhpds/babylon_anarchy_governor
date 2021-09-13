@@ -14,9 +14,10 @@
         'no action'
       }}
   when:
-  - _action != 'no action'
   - vars.anarchy_governor.spec.actions[_action] | default('') != ''
   block:
+  - debug:
+      msg: "{{ vars.anarchy_governor.spec.actions[_action] }}"
   - name: Set {{ anarchy_subject_name }} current state to {{ _action }}-pending
     anarchy_subject_update:
       skip_update_processing: true
