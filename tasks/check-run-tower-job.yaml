@@ -17,7 +17,6 @@
     active_job_count: "{{ r_api_response.json.count }}"
 
 - name: Run tower job if active job count under maximum
-  vars:
   include_tasks: >-
     {%- if active_job_count | int < tower_maximum_job_count | int -%}
     run-tower-job.yaml
