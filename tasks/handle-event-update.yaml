@@ -14,7 +14,7 @@
         'no action'
       }}
   when:
-  - vars.anarchy_governor.spec.actions[_action] | default('') != ''
+  - _action in vars.anarchy_governor.spec.actions
   block:
   - debug:
       msg: "{{ vars.anarchy_governor.spec.actions[_action] }}"
