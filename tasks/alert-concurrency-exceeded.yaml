@@ -1,0 +1,7 @@
+---
+- name: Report concurrency exceeded
+  debug:
+    msg: >-
+      Maximum concurrency of {{ tower_maximum_job_count }} exceeded.
+      {{ active_job_count }} active jobs.
+      Will try to again in {{ tower_job_check_interval }}.

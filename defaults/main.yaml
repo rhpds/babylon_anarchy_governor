@@ -27,6 +27,9 @@ callback_url_var: >-
 callback_token_var: >-
   {{ __meta__.deployer.callback_token_var | default("agnosticd_callback_token") }}
 
+tower_maximum_job_count: >-
+  {{ __meta__.tower.maximum_job_count | default(200) }}
+
 tower_organization_name: >-
   {{ __meta__.tower.organization | default('babylon') }}
 tower_inventory_name: >-

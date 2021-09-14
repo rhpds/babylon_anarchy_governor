@@ -17,7 +17,7 @@
        }, recursive=True)
       }}
   include_tasks:
-    file: run-tower-job.yaml
+    file: check-run-tower-job.yaml
 
 - name: Schedule check for start of {{ anarchy_subject_name }}
   anarchy_continue_action:
