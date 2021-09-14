@@ -33,9 +33,9 @@
       action: "{{ _action }}"
 
 - name: Run action based on current_state and desired_state
-  when:
-  - check_status_state == 'pending'
-  - vars.anarchy_governor.spec.actions.status | default('') != ''
+  when: >-
+    check_status_state == 'pending' and
+    'status' in vars.anarchy_governor.spec.actions
   block:
   - name: Set {{ anarchy_subject_name }} check_status to false
     anarchy_subject_update:
