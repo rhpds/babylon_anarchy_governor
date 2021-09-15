@@ -75,7 +75,6 @@
       extra_vars: >-
         {{ tower_job_extra_vars
          | combine({"output_dir": "/tmp/output-" ~ vars.anarchy_subject.vars.job_vars.uuid})
-         | mark_ansible_vault_values
         }}
       playbook: "{{ tower_job_template_playbook }}"
       project: "{{ __tower_project_name }}"
@@ -109,7 +108,6 @@
       extra_vars: >-
         {{ tower_job_extra_vars
          | combine({"output_dir": "/tmp/output-" ~ vars.anarchy_subject.vars.job_vars.uuid})
-         | mark_ansible_vault_values
         }}
       playbook: "{{ tower_job_template_playbook }}"
       project: "{{ __tower_project_name }}"
