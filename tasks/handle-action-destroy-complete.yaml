@@ -1,31 +1,5 @@
 ---
-- name: Delete anarchy subject
+- name: Complete AnarchySubject deletion
   anarchy_subject_delete:
     remove_finalizers: true
-
-- when:
-  - poolboy_resource_handle_name != ''
-  - poolboy_resource_handle_namespace != ''
-  name: Delete resource handle
-  k8s:
-    api_version: poolboy.gpte.redhat.com/v1
-    kind: ResourceHandle
-    name: "{{ poolboy_resource_handle_name }}"
-    namespace: "{{ poolboy_resource_handle_namespace }}"
-    state: absent
-  # Best effort
-  ignore_errors: true
-
-- when:
-  - poolboy_resource_claim_name != ''
-  - poolboy_resource_claim_namespace != ''
-  name: Delete resource claim
-  k8s:
-    api_version: poolboy.gpte.redhat.com/v1
-    kind: ResourceClaim
-    name: "{{ poolboy_resource_claim_name }}"
-    namespace: "{{ poolboy_resource_claim_namespace }}"
-    state: absent
-  # Best effort
-  ignore_errors: true
 ...
