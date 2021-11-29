@@ -3,8 +3,8 @@
   vars:
     _current_state: "{{ current_state | default('unknown') }}"
     _desired_state: "{{ desired_state | default('unknown') }}"
-    _current_job_vars: "{{ vars.job_vars | default('unknown') }}"
-    _previous_job_vars: "{{ vars.anarchy_subject_previous_state.spec.vars.job_vars | default(_current_job_vars) }}"
+    _current_job_vars: "{{ vars.anarchy_subject.spec.vars.job_vars | default('unknown') }}"
+    _previous_job_vars: "{{ vars.anarchy_subject_previous_state.spec.vars.job_vars | default_('unknown') }}"
     _action: >-
       {{
         'provision' if _current_state == 'new' else
