@@ -2,10 +2,7 @@
 - name: Run deployer status {{ anarchy_subject_name }}
   vars:
     new_check_status_state: running
-    tower_job_template_playbook: >-
-      {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.status
-       | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
-       | default('ansible/lifecycle_entry_point.yml') }}
+    tower_job_template_playbook: "{{ deployer_entry_points.status }}"
     tower_job_extra_vars: >-
       {{ vars.anarchy_subject.vars.job_vars | default({})
        | combine(vars.anarchy_governor.vars.job_vars, recursive=True)

@@ -44,3 +44,35 @@ tower_job_template_custom_virtualenv: >-
   {%- endif -%}
 
 tower_job_template_custom_virtualenv_basedir: /opt/rh/virtualenvs
+
+deployer_entry_points:
+  destroy: >-
+    {{ __meta__.deployer.entry_points.destroy
+     | default(__meta__.deployer.entry_point)
+     | default('ansible/destroy.yml')
+    }}
+  provision: >-
+    {{ __meta__.deployer.entry_points.provision
+     | default(__meta__.deployer.entry_point)
+     | default('ansible/main.yml')
+    }}
+  start: >-
+    {{ __meta__.deployer.entry_points.start
+     | default(__meta__.deployer.entry_point)
+     | default('ansible/lifecycle_entry_point.yml')
+    }}
+  status: >-
+    {{ __meta__.deployer.entry_points.status
+     | default(__meta__.deployer.entry_point)
+     | default('ansible/lifecycle_entry_point.yml')
+    }}
+  stop: >-
+    {{ __meta__.deployer.entry_points.stop
+     | default(__meta__.deployer.entry_point)
+     | default('ansible/lifecycle_entry_point.yml')
+    }}
+  update: >-
+    {{ __meta__.deployer.entry_points.update
+     | default(__meta__.deployer.entry_point)
+     | default('ansible/update.yml')
+    }}
