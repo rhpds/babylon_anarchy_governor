@@ -32,8 +32,13 @@
       action: "{{ _action }}"
 
 - name: Schedule status action if check pending
+  # Status check should be requested by setting the check_status_request_timestamp
+  # Legacy support for requesting status by setting check_status_state to pending
   when: >-
-    (check_status_state == 'requested' or check_status_state == 'pending')
+    (check_status_state == 'pending' or (
+      check_status_request_timestamp != last_check_status_request_timestamp and
+      check_status_state in ['', 'successful']
+    )) and
     'status' in vars.anarchy_governor.spec.actions and
     deployer_entry_points.status | default('', true) != ''
   block:

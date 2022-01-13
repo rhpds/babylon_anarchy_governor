@@ -6,6 +6,9 @@ delete_on_failure: true
 
 current_state: unknown
 desired_state: unknown
+check_status_request_timestamp: ''
+last_check_status_request_timestamp: >-
+  {{ vars.anarchy_subject_previous_state.spec.vars.check_status_request_timestamp | default('') }}
 check_status_state: null
 
 dynamic_job_vars: {}
