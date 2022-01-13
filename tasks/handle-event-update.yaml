@@ -33,7 +33,7 @@
 
 - name: Schedule status action if check pending
   when: >-
-    check_status_state == 'pending' and
+    (check_status_state == 'requested' or check_status_state == 'pending')
     'status' in vars.anarchy_governor.spec.actions and
     deployer_entry_points.status | default('', true) != ''
   block:
