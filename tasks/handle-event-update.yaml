@@ -1,5 +1,5 @@
 ---
-- name: Run action based on current_state and desired_state
+- name: Schedule action based on current_state and desired_state
   vars:
     _current_state: "{{ current_state | default('unknown') }}"
     _desired_state: "{{ desired_state | default('unknown') }}"
@@ -13,8 +13,9 @@
         'stop' if (_current_state == 'started' and _desired_state == 'stopped') else
         'no action'
       }}
-  when:
-  - _action in vars.anarchy_governor.spec.actions
+  when: >-
+    _action in vars.anarchy_governor.spec.actions and
+    deployer_entry_points[_action] | default('', true) != ''
   block:
   - name: Set {{ anarchy_subject_name }} current state to {{ _action }}-pending
     anarchy_subject_update:
@@ -30,10 +31,11 @@
     anarchy_schedule_action:
       action: "{{ _action }}"
 
-- name: Run action based on current_state and desired_state
+- name: Schedule status action if check pending
   when: >-
     check_status_state == 'pending' and
-    'status' in vars.anarchy_governor.spec.actions
+    'status' in vars.anarchy_governor.spec.actions and
+    deployer_entry_points.status | default('', true) != ''
   block:
   - name: Set {{ anarchy_subject_name }} check_status to false
     anarchy_subject_update:

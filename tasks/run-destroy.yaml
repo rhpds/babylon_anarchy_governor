@@ -14,10 +14,7 @@
 - name: Run deployer destroy {{ anarchy_subject_name }}
   vars:
     new_subject_state: destroying
-    tower_job_template_playbook: >-
-      {{ vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_points.destroy
-       | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
-       | default('ansible/destroy.yml') }}
+    tower_job_template_playbook: "{{ deployer_entry_points.destroy }}"
     tower_job_extra_vars: >-
       {{ vars.anarchy_subject.vars.job_vars | default({})
        | combine(vars.anarchy_governor.vars.job_vars, recursive=True)

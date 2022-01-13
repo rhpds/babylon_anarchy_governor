@@ -2,10 +2,7 @@
 - name: Run deployer update {{ anarchy_subject_name }}
   vars:
     new_subject_state: updating
-    tower_job_template_playbook: >-
-      {{ vars['anarchy_governor']['vars']['job_vars']['__meta__']['deployer']['entry_points']['update']
-       | default(vars.anarchy_governor.vars.job_vars.__meta__.deployer.entry_point)
-       | default('ansible/update.yml') }}
+    tower_job_template_playbook: "{{ deployer_entry_points.update }}"
     tower_job_extra_vars: >-
       {{ vars.anarchy_subject.vars.job_vars | default({})
        | combine(vars.anarchy_governor.vars.job_vars, recursive=True)

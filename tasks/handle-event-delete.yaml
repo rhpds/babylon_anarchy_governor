@@ -11,13 +11,19 @@
     tower_password: "{{ babylon_tower.password }}"
     validate_certs: false
 
-- name: Immediately remove finalizers on {{ anarchy_subject_name }} if never provisioned
-  when: vars.anarchy_subject.status.towerJobs.provision.deployerJob | default('') == ''
+- name: Immediately remove finalizers on {{ anarchy_subject_name }} if never provisioned or destroy not configured
+  when: >-
+    vars.anarchy_subject.status.towerJobs.provision.deployerJob | default('') == '' or
+    deployer_entry_points.destroy | default('', true) == '' or
+    'destroy' not in vars.anarchy_governor.spec.actions
   anarchy_subject_delete:
     remove_finalizers: true
 
 - name: Schedule destroy {{ anarchy_subject_name }}
-  when: vars.anarchy_subject.status.towerJobs.provision.deployerJob | default('') != ''
+  when: >-
+    vars.anarchy_subject.status.towerJobs.provision.deployerJob | default('') != '' and
+    deployer_entry_points.destroy | default('', true) != '' and
+    'destroy' in vars.anarchy_governor.spec.actions
   anarchy_schedule_action:
     action: destroy
 ...
