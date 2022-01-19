@@ -53,6 +53,19 @@ tower_job_template_custom_virtualenv: >-
 tower_job_template_custom_virtualenv_basedir: /opt/rh/virtualenvs
 
 ############## Execution Environment #################
+# Allowed Execution environments
+execution_environment_allow_list:
+  ansible2.9-python3.6-2021-11-05:
+    image: quay.io/redhat-gpte/agnosticd-images:ansible2.9-python3.6-2021-11-05
+
+  'ansible2.9-multi-cloud:latest':
+    image: quay.io/redhat-gpte/agnosticd-images:ansible2.9-multi-cloud:latest
+    pull: always
+
+  'ansible2.9-aws:latest':
+    image: quay.io/redhat-gpte/agnosticd-images:ansible2.9-aws:latest
+    pull: always
+
 # Define execution environment in case automation-controller is selected
 execution_environment: >-
   {%- if ansible_control_plane in ['controller', 'automation_controller', 'automation-controller'] -%}
@@ -61,16 +74,8 @@ execution_environment: >-
   {%- endif -%}
 
 # If not defined, use the same name as previous tower python virtualenv.
-default_execution_environment_tag: >-
-  {{ __meta__.deployer.execution___meta__.deployer.virtualenv
-    | default('ansible2.9-python3.6-2021-11-05') }}
-
-default_execution_environment:
-  name: "{{ default_execution_environment_tag }}"
-  image: >-
-    quay.io/redhat-gpte/agnosticd-images:{{ default_execution_environment_tag }}
-  organization: "{{ tower_organization_name }}"
-  pull: "missing"
+default_execution_environment: >-
+  {{ __meta__.deployer.virtualenv | default('ansible2.9-python3.6-2021-11-05') }}
 
 deployer_entry_points:
   destroy: >-
