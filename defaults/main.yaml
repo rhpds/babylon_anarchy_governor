@@ -30,6 +30,9 @@ callback_url_var: >-
 callback_token_var: >-
   {{ __meta__.deployer.callback_token_var | default("agnosticd_callback_token") }}
 
+ansible_control_plane: >-
+  {{ __meta__.ansible_control_plane.type | default('tower') }}
+
 tower_maximum_job_count: >-
   {{ __meta__.tower.maximum_job_count | default(200) }}
 
@@ -42,11 +45,32 @@ tower_job_template_name: >-
 tower_job_template_timeout: >-
   {{ __meta__.tower.timeout | default(10800) }}
 tower_job_template_custom_virtualenv: >-
-  {%- if __meta__.deployer.virtualenv | default('') != '' -%}
+  {%- if ansible_control_plane == 'tower' and
+  __meta__.deployer.virtualenv | default('') != '' -%}
   {{ tower_job_template_custom_virtualenv_basedir }}/{{ __meta__.deployer.virtualenv }}
   {%- endif -%}
 
 tower_job_template_custom_virtualenv_basedir: /opt/rh/virtualenvs
+
+############## Execution Environment #################
+# Define execution environment in case automation-controller is selected
+execution_environment: >-
+  {%- if ansible_control_plane in ['controller', 'automation_controller', 'automation-controller'] -%}
+  {{ __meta__.deployer.execution_environmnent
+  | default(default_execution_environment) }}
+  {%- endif -%}
+
+# If not defined, use the same name as previous tower python virtualenv.
+default_execution_environment_tag: >-
+  {{ __meta__.deployer.execution___meta__.deployer.virtualenv
+    | default('ansible2.9-python3.6-2021-11-05') }}
+
+default_execution_environment:
+  name: "{{ default_execution_environment_tag }}"
+  image: >-
+    quay.io/redhat-gpte/agnosticd-images:{{ default_execution_environment_tag }}
+  organization: "{{ tower_organization_name }}"
+  pull: "missing"
 
 deployer_entry_points:
   destroy: >-
