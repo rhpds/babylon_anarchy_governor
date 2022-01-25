@@ -54,28 +54,40 @@ tower_job_template_custom_virtualenv_basedir: /opt/rh/virtualenvs
 
 ############## Execution Environment #################
 # Allowed Execution environments
+# Each regex is validated against the corresponding keys of the EE
+# name and image keys cannot be defined at the same time in agnosticV.
+# name is defined: use the  EE, must exists in Controller
+# image is defined: create EE if it doesn't exist. Use the image as the name of the EE.
 execution_environment_allow_list:
-  ansible2.9-python3.6-2021-11-05:
-    image: quay.io/redhat-gpte/agnosticd-images:ansible2.9-python3.6-2021-11-05
-
-  'ansible2.9-multi-cloud:latest':
-    image: quay.io/redhat-gpte/agnosticd-images:ansible2.9-multi-cloud:latest
+  - image: ^quay.io/redhat-gpte/agnosticd-images:ee-.*?-v[0-9]+[.][0-9]+[.][0-9]+$
+    pull: missing
+  - image: ^quay.io/redhat-gpte/agnosticd-images:ee-.*?-(pr-[0-9]+|latest|dev|test)$
     pull: always
+  - image: ^registry.redhat.io/ansible-automation-platform-21/ee-
+  - image: ^quay.io/redhat-gpte/agnosticd-images:ee-ansible2.9-python3.6-2021-11-30$
+  - image: ^quay.io/redhat-gpte/agnosticd-images:ee-equinix_metal-ansible2.9-python3.6-2021-07-02$
+  - image: ^quay.io/redhat-gpte/agnosticd-images:ee-equinix_metal-ansible2.9-python3.6-2021-11-03$
+  - image: ^quay.io/redhat-gpte/agnosticd-images:ee-azure_open_envs-ansible2.9-python3.6-2022-01-10$
+  - image: ^quay.io/redhat-gpte/agnosticd-images:ee-ansible2.9-python3.6-2021-01-22$
 
-  'ansible2.9-aws:latest':
-    image: quay.io/redhat-gpte/agnosticd-images:ansible2.9-aws:latest
-    pull: always
+  - name: ^Ansible Engine 2.9 execution environment$
+  - name: ^Automation Hub Ansible Engine 2.9 execution environment$
+  - name: ^Automation Hub Default execution environment$
+  - name: ^Automation Hub Minimal execution environment$
+  - name: ^Control Plane Execution Environment$
+  - name: ^Default execution environment$
+  - name: ^Minimal execution environment$
 
 # Define execution environment in case automation-controller is selected
 execution_environment: >-
-  {%- if ansible_control_plane in ['controller', 'automation_controller', 'automation-controller'] -%}
+  {%- if ansible_control_plane == 'controller' -%}
   {{ __meta__.deployer.execution_environmnent
   | default(default_execution_environment) }}
   {%- endif -%}
 
 # If not defined, use the same name as previous tower python virtualenv.
-default_execution_environment: >-
-  {{ __meta__.deployer.virtualenv | default('ansible2.9-python3.6-2021-11-05') }}
+default_execution_environment:
+  image: quay.io/redhat-gpte/agnosticd-images:ee-{{ __meta__.deployer.virtualenv | default('ansible2.9-python3.6-2021-11-05') }}
 
 deployer_entry_points:
   destroy: >-

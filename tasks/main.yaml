@@ -45,7 +45,7 @@
   - msg: Execution Environment is not allowed
     that: >-
       execution_environment | default('', true) == ''
-      or execution_environment in execution_environment_allow_list
+      or execution_environment | ee_is_allowed(execution_environment_allow_list)
 
 - name: Handle action or event for {{ anarchy_subject_name }}
   include_tasks: >-
