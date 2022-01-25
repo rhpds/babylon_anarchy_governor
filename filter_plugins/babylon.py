@@ -62,6 +62,8 @@ def ee_is_allowed(ee, allow_list):
 
     if 'name' in ee and 'image' in ee:
         return False
+    if 'name' in ee and 'pull' in ee:
+        return False
 
     # Set default values in ee
     ee = deepcopy(ee)
