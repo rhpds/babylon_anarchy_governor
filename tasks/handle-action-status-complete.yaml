@@ -4,8 +4,8 @@
     spec:
       vars:
         check_status_state: successful
-        status_data: '{{ anarchy_action_callback_data.data | default(omit, true) }}'
-        status_messages: '{{ anarchy_action_callback_data.messages | default(omit, true) }}'
+        status_data: '{{ action_provision_data | default(omit, true) }}'
+        status_messages: '{{ action_provision_messages | default(omit, true) }}'
     status:
       towerJobs:
         status:
