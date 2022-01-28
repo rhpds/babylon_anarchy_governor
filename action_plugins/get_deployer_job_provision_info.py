@@ -28,9 +28,17 @@ from ansible.module_utils.six import string_types
 from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.plugins.action import ActionBase
 
-user_body_regex = re.compile(r'^user\.body:\s*');
-user_data_regex = re.compile(r'^user\.data:\s*');
-user_info_regex = re.compile(r'^user\.info:\s*');
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
+requests_retry = Retry(backoff_factor=1, total=5)
+requests_adapter = HTTPAdapter(max_retries = requests_retry)
+requests_session = requests.Session()
+requests_session.mount('https://', requests_adapter)
+
+user_body_regex = re.compile(r'^user\.body:\s*')
+user_data_regex = re.compile(r'^user\.data:\s*')
+user_info_regex = re.compile(r'^user\.info:\s*')
 
 class ActionModule(ActionBase):
     '''Print statements during execution and save user info to file'''
@@ -68,7 +76,7 @@ class ActionModule(ActionBase):
         provision_messages = []
 
         while True:
-          resp = requests.get(url, auth = (user, password), verify = validate_certs)
+          resp = requests_session.get(url, auth = (user, password), verify = validate_certs)
           resp_data = resp.json()
           for result in resp_data.get('results', []):
               event_data = result.get('event_data', {})
