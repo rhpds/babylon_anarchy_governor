@@ -11,7 +11,9 @@ from ansible.utils import helpers
 from copy import deepcopy
 from datetime import datetime, timedelta
 
+import random
 import re
+import string
 
 def filter_job_vars_to_dynamic_job_vars(anarchy_governor, preserve_job_vars):
     return {
@@ -26,6 +28,25 @@ def filter_job_vars_secrets_to_dynamic_job_vars(anarchy_governor):
             dynamic_job_var_secret['var'] = 'dynamic_job_vars'
             dynamic_job_var_secrets.append(dynamic_job_var_secret)
     return dynamic_job_var_secrets
+
+def __insert_unvault_string(value, vaulted_values):
+    if isinstance(value, dict):
+        return { k: __insert_unvault_string(v, vaulted_values) for k, v in value.items() }
+    elif isinstance(value, list):
+        return [ __insert_unvault_string(v, vaulted_values) for v in value ]
+    if isinstance(value, str) and value.startswith('$ANSIBLE_VAULT;'):
+        letters = string.ascii_lowercase
+        vaulted_value_var = '__vaulted_value_' + ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(8))
+        vaulted_values[vaulted_value_var] = value
+        return "{{ lookup('unvault_string', " + vaulted_value_var +") }}"
+    else:
+        return value
+
+def insert_unvault_string(vars_dict):
+    vaulted_values = {}
+    ret_vars_dict = __insert_unvault_string(vars_dict, vaulted_values)
+    ret_vars_dict.update(vaulted_values)
+    return ret_vars_dict
 
 def mark_ansible_vault_values(src):
     if isinstance(src, dict):
@@ -48,5 +69,6 @@ class FilterModule(object):
         return {
             'filter_job_vars_to_dynamic_job_vars': filter_job_vars_to_dynamic_job_vars,
             'filter_job_vars_secrets_to_dynamic_job_vars': filter_job_vars_secrets_to_dynamic_job_vars,
+            'insert_unvault_string': insert_unvault_string,
             'mark_ansible_vault_values': mark_ansible_vault_values,
         }
