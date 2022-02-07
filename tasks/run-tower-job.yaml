@@ -55,6 +55,8 @@
       {{ __tower_project_scm_ref is not search('\d\.\d') }}
     scm_update_cache_timeout: >-
       {{ __meta__.deployer.scm_update_cache_timeout | default(30) }}
+    scm_clean: >-
+      {{ __meta__.deployer.scm_clean | default(true) }}
     organization: "{{ tower_organization_name }}"
     tower_host: "https://{{ babylon_tower.hostname }}/"
     tower_username: "{{ babylon_tower.user }}"
