@@ -1,0 +1,50 @@
+- hosts: localhost
+  connection: localhost
+  gather_facts: false
+  vars:
+    test_vars:
+      test_plain_string: Hello, World!
+      test_vaulted_string:
+        $ANSIBLE_VAULT;1.1;AES256
+        62636665646636306161303836626134616161633236633065653737326538663931613462366666
+        6634313965303664623034666461353933333564623737350a666536323264353031653765313232
+        63633437346264616339623734353966393238346365323766333464623564646161386335356431
+        6166306331306130350a386634356432653935313931303432623333386134336339633032613235
+        6431
+      test_list:
+      - Hello, World!
+      - $ANSIBLE_VAULT;1.1;AES256
+        62636665646636306161303836626134616161633236633065653737326538663931613462366666
+        6634313965303664623034666461353933333564623737350a666536323264353031653765313232
+        63633437346264616339623734353966393238346365323766333464623564646161386335356431
+        6166306331306130350a386634356432653935313931303432623333386134336339633032613235
+        6431
+
+  tasks:
+  - name: Apply insert_unvault_string to test_vars
+    set_fact:
+      processed_test_vars: "{{ test_vars | insert_unvault_string }}"
+
+  - name: Check insert_unvault_string processing
+    assert:
+      that:
+        - vars.processed_test_vars | dict2items | length == 5
+        - vars.processed_test_vars.test_plain_string == 'Hello, World!'
+        - vars.processed_test_vars.test_vaulted_string.startswith(lookup_unvault_string_start)
+        - vars.processed_test_vars.test_vaulted_string.endswith(lookup_unvault_string_end)
+        - vars.processed_test_vars[test_vaulted_string_vaulted_value_var] is defined
+        - vars.processed_test_vars[test_vaulted_string_vaulted_value_var] == test_vars.test_vaulted_string
+        - vars.processed_test_vars.test_list[0] == 'Hello, World!'
+        - vars.processed_test_vars.test_list[1].startswith(lookup_unvault_string_start)
+        - vars.processed_test_vars.test_list[1].endswith(lookup_unvault_string_end)
+        - vars.processed_test_vars[test_vaulted_list_1_vaulted_value_var] is defined
+        - vars.processed_test_vars[test_vaulted_list_1_vaulted_value_var] == test_vars.test_vaulted_string
+    vars:
+      lookup_unvault_string_start: >-
+        {% raw %}{{ lookup('unvault_string', __vaulted_value_{% endraw %}
+      lookup_unvault_string_end: >-
+        {% raw %}) }}{% endraw %}
+      test_vaulted_string_vaulted_value_var: >-
+        {{ vars.processed_test_vars.test_vaulted_string | regex_replace('.*(__vaulted_value_\w+).*', '\1') }}
+      test_vaulted_list_1_vaulted_value_var: >-
+        {{ vars.processed_test_vars.test_list[1] | regex_replace('.*(__vaulted_value_\w+).*', '\1') }}

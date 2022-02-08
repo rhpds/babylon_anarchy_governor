@@ -1,5 +1,6 @@
 ---
 # FIXME - These are out of date...
+- import_playbook: test-filter-insert_unvault_string.yaml
 - import_playbook: test-event-create.yaml
 - import_playbook: test-event-update-noaction.yaml
 - import_playbook: test-event-update-schedule-start.yaml
