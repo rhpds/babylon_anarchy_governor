@@ -39,7 +39,7 @@
         - vars.processed_test_vars.test_list[1].startswith(lookup_unvault_string_start)
         - vars.processed_test_vars.test_list[1].endswith(lookup_unvault_string_end)
         - vars.processed_test_vars[test_vaulted_list_1_vaulted_value_var] is defined
-        - vars.processed_test_vars[test_vaulted_list_1_vaulted_value_var] == test_vars.test_vaulted_string
+        - vars.processed_test_vars[test_vaulted_list_1_vaulted_value_var] == test_vars.test_list[1]
     vars:
       lookup_unvault_string_start: >-
         {% raw %}{{ lookup('unvault_string', __vaulted_value_{% endraw %}
