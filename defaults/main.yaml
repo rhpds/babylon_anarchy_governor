@@ -79,7 +79,7 @@ deployer_entry_points:
      | default('ansible/lifecycle_entry_point.yml')
     }}
   update: >-
-    {{ __meta__.deployer.entry_points.update
+    {{ __meta__.deployer.entry_points['update']
      | default(__meta__.deployer.entry_point)
      | default('ansible/update.yml')
     }}
