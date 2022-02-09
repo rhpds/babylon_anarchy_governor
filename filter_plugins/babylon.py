@@ -15,6 +15,8 @@ import random
 import re
 import string
 
+variable_chars = string.ascii_lowercase + string.digits
+
 def filter_job_vars_to_dynamic_job_vars(anarchy_governor, preserve_job_vars):
     return {
         k: v for (k, v) in anarchy_governor['spec']['vars'].get('job_vars', {}).items() if k in preserve_job_vars
@@ -35,8 +37,11 @@ def __insert_unvault_string(value, vaulted_values):
     elif isinstance(value, list):
         return [ __insert_unvault_string(v, vaulted_values) for v in value ]
     if isinstance(value, str) and value.startswith('$ANSIBLE_VAULT;'):
-        letters = string.ascii_lowercase
-        vaulted_value_var = '__vaulted_value_' + ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(8))
+        vaulted_value_var = None
+        while True:
+            vaulted_value_var = '__vaulted_value_' + ''.join(random.choice(variable_chars) for i in range(8))
+            if vaulted_value_var not in vaulted_values:
+                break
         vaulted_values[vaulted_value_var] = value
         return "{{ lookup('unvault_string', " + vaulted_value_var +") }}"
     else:
