@@ -81,7 +81,13 @@
     image: "{{ ee.image }}"
     name: "{{ ee.image }}"
     pull: "{{ ee.pull | default(omit, true) }}"
-
+    # If ee is private, use the hostname of the image as the name of the credential
+    credential: >-
+      {%- if ee.private | default(false) -%}
+      {{  (ee.image|default(omit)).split('/')[0] }}
+      {%- else -%}
+      {{ omit }}
+      {%- endif -%}
 
 - name: Tower Job Template block
   block:
