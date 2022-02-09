@@ -36,7 +36,7 @@ def __insert_unvault_string(value, vaulted_values):
         return { k: __insert_unvault_string(v, vaulted_values) for k, v in value.items() }
     elif isinstance(value, list):
         return [ __insert_unvault_string(v, vaulted_values) for v in value ]
-    if isinstance(value, str) and value.startswith('$ANSIBLE_VAULT;'):
+    if isinstance(value, str) and value.strip().startswith('$ANSIBLE_VAULT;'):
         vaulted_value_var = None
         while True:
             vaulted_value_var = '__vaulted_value_' + ''.join(random.choice(variable_chars) for i in range(12))
@@ -59,7 +59,7 @@ def mark_ansible_vault_values(src):
     elif isinstance(src, list):
         return [ mark_ansible_vault_values(v) for v in src ]
     elif isinstance(src, str):
-        if src.startswith('$ANSIBLE_VAULT;'):
+        if src.strip().startswith('$ANSIBLE_VAULT;'):
             return {"__ansible_vault": src}
         else:
             return src
