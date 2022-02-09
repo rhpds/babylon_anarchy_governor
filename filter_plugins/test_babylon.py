@@ -68,7 +68,7 @@ def test_insert_unvault_string():
     patched = babylon.insert_unvault_string(test_vaulted)
 
     assert(patched['foo']['subdict1']['subdict2']['foo'].startswith(startwithstring))
-    assert(patched['foo']['subdict1']['foo'].startswith('{{ lookup(\'unvault_string\', __vaulted_value_'))
+    assert(patched['foo']['subdict1']['foo'].startswith(startwithstring))
     assert(len(patched) == 3)
 
     test_vaulted={}
