@@ -15,7 +15,7 @@ import random
 import re
 import string
 
-variable_chars = string.ascii_lowercase + string.digits
+variable_chars = string.ascii_lowercase + string.ascii_uppercase + string.digits
 
 def filter_job_vars_to_dynamic_job_vars(anarchy_governor, preserve_job_vars):
     return {
@@ -39,7 +39,7 @@ def __insert_unvault_string(value, vaulted_values):
     if isinstance(value, str) and value.startswith('$ANSIBLE_VAULT;'):
         vaulted_value_var = None
         while True:
-            vaulted_value_var = '__vaulted_value_' + ''.join(random.choice(variable_chars) for i in range(8))
+            vaulted_value_var = '__vaulted_value_' + ''.join(random.choice(variable_chars) for i in range(12))
             if vaulted_value_var not in vaulted_values:
                 break
         vaulted_values[vaulted_value_var] = value
