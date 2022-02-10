@@ -85,7 +85,7 @@ execution_environment_allow_list:
 # Define execution environment in case automation-controller is selected
 execution_environment: >-
   {%- if ansible_control_plane == 'controller' -%}
-  {{ __meta__.deployer.execution_environmnent
+  {{ __meta__.deployer.execution_environment
   | default(default_execution_environment) }}
   {%- endif -%}
 
