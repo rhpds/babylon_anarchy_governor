@@ -42,7 +42,7 @@
     - schedule_stop_after_provision is match('(\d+[dhms]?|disabled)$')
     - schedule_destroy_after_provision is match('(\d+[dhms]?|disabled)$')
 
-  - msg: Execution Environment is not allowed
+  - msg: Execution Environment is not allowed {{ execution_environment }}
     that: >-
       execution_environment | default('', true) == ''
       or execution_environment | ee_is_allowed(execution_environment_allow_list)
