@@ -124,4 +124,5 @@ class FilterModule(object):
             'filter_job_vars_secrets_to_dynamic_job_vars': filter_job_vars_secrets_to_dynamic_job_vars,
             'insert_unvault_string': insert_unvault_string,
             'mark_ansible_vault_values': mark_ansible_vault_values,
+            'ee_is_allowed': ee_is_allowed,
         }
