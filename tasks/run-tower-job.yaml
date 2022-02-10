@@ -106,6 +106,7 @@
         | default(omit, true) }}
       extra_vars: >-
         {{ tower_job_extra_vars
+         | insert_unvault_string
          | combine({"output_dir": "/tmp/output-" ~ vars.anarchy_subject.vars.job_vars.uuid})
         }}
       playbook: "{{ tower_job_template_playbook }}"
@@ -143,6 +144,7 @@
         | default(omit, true) }}
       extra_vars: >-
         {{ tower_job_extra_vars
+         | insert_unvault_string
          | combine({"output_dir": "/tmp/output-" ~ vars.anarchy_subject.vars.job_vars.uuid})
         }}
       playbook: "{{ tower_job_template_playbook }}"
