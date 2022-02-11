@@ -61,11 +61,8 @@ tower_job_template_custom_virtualenv_basedir: /opt/rh/virtualenvs
 execution_environment: >-
   {%- if ansible_control_plane == 'controller' -%}
   {{ __meta__.deployer.execution_environment
-  | default(default_execution_environment) }}
+  | default({}) }}
   {%- endif -%}
-
-# use default EE set in controller
-default_execution_environment: {}
 
 deployer_entry_points:
   destroy: >-
