@@ -67,7 +67,6 @@
   when:
     - ee | default({}, true) != {}
     - ee.image | default('') != ''
-    - ee | ee_is_allowed(execution_environment_allow_list)
   vars:
     ee: "{{ execution_environment }}"
   awx.awx.execution_environment:
@@ -82,6 +81,7 @@
     name: "{{ ee.image }}"
     pull: "{{ ee.pull | default(omit, true) }}"
     # If ee is private, use the hostname of the image as the name of the credential
+    # The credential must be created beforehand.
     credential: >-
       {%- if ee.private | default(false) -%}
       {{  (ee.image|default(omit)).split('/')[0] }}

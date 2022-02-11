@@ -42,11 +42,6 @@
     - schedule_stop_after_provision is match('(\d+[dhms]?|disabled)$')
     - schedule_destroy_after_provision is match('(\d+[dhms]?|disabled)$')
 
-  - msg: Execution Environment is not allowed {{ execution_environment }}
-    that: >-
-      execution_environment | default('', true) == ''
-      or execution_environment | ee_is_allowed(execution_environment_allow_list)
-
 - name: Handle action or event for {{ anarchy_subject_name }}
   include_tasks: >-
     {%- if anarchy_action_config_name is defined -%}
