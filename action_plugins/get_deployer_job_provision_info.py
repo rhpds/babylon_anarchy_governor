@@ -85,12 +85,29 @@ class ActionModule(ActionBase):
               if task_action == 'agnosticd_user_info':
                   data = event_res.get('data')
                   msg = event_res.get('msg')
-                  if msg:
-                      messages = [msg] if isinstance(msg, string_types) else msg
-                      for message in messages:
-                          provision_messages.append(user_info_regex.sub('', message))
-                  if data:
-                      provision_data.update(data)
+                  user = event_res.get('user')
+                  if user:
+                      if not 'users' in provision_data:
+                          provision_data['users'] = {
+                            user: {}
+                          }
+                      if not user in provision_data['users']:
+                          provision_data['users'][user] = {}
+                      if msg:
+                          msg_string = msg if isinstance(msg, string_types) else "\n".join(msg)
+                          if 'msg' in provision_data['users'][user]:
+                              provision_data['users'][user]['msg'] += "\n{msg_string}"
+                          else:
+                              provision_data['users'][user]['msg'] = msg_string
+                      if data:
+                          provision_data['users'][user].update(data)
+                  else:
+                      if msg:
+                          messages = [msg] if isinstance(msg, string_types) else msg
+                          for message in messages:
+                              provision_messages.append(user_info_regex.sub('', message))
+                      if data:
+                          provision_data.update(data)
               elif task_action == 'debug':
                   msg = event_res.get('msg')
                   if msg:
