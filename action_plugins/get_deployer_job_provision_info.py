@@ -94,10 +94,11 @@ class ActionModule(ActionBase):
                       if not user in provision_data['users']:
                           provision_data['users'][user] = {}
                       if msg:
+                          msg_string = msg if isinstance(msg, string_types) else "\n".join(msg)
                           if 'msg' in provision_data['users'][user]:
-                              provision_data['users'][user]['msg'] += "\n{msg}"
+                              provision_data['users'][user]['msg'] += "\n{msg_string}"
                           else:
-                              provision_data['users'][user]['msg'] = msg
+                              provision_data['users'][user]['msg'] = msg_string
                       if data:
                           provision_data['users'][user].update(data)
                   else:
