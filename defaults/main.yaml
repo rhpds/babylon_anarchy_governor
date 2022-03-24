@@ -5,7 +5,7 @@ schedule_stop_after_start: disabled
 delete_on_failure: true
 
 action_provision_data: "{{ anarchy_action_callback_data.data | default({}) }}"
-action_provision_message_body: "{{ anarchy_action_callback_data.messages | default([]) }}"
+action_provision_message_body: "{{ anarchy_action_callback_data.message_body | default([]) }}"
 action_provision_messages: "{{ anarchy_action_callback_data.messages | default([]) }}"
 
 current_state: unknown
