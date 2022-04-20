@@ -7,8 +7,8 @@
       {{ vars.anarchy_subject.vars.job_vars | default({})
        | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
        | combine(vars.dynamic_job_vars, recursive=True)
+       | combine(__meta__.deployer.actions.start.extra_vars | default({"ACTION": "start"}))
        | combine({
-         "ACTION": "start",
          callback_url_var: anarchy_action_callback_url,
          callback_token_var: anarchy_action_callback_token,
        }, recursive=True)
