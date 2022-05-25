@@ -51,7 +51,11 @@ tower_job_template_timeout: >-
 tower_job_template_custom_virtualenv: >-
   {%- if ansible_control_plane == 'tower' and
   __meta__.deployer.virtualenv | default('') != '' -%}
-  {{ tower_job_template_custom_virtualenv_basedir }}/{{ __meta__.deployer.virtualenv }}
+    {%- if __meta__.deployer.virtualenv.startswith('/') -%}
+      {{ __meta__.deployer.virtualenv }}
+    {%- else -%}
+      {{ tower_job_template_custom_virtualenv_basedir }}/{{ __meta__.deployer.virtualenv }}
+    {%- endif -%}
   {%- endif -%}
 
 tower_job_template_custom_virtualenv_basedir: /opt/rh/virtualenvs
