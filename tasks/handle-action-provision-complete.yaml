@@ -7,6 +7,7 @@
     spec:
       vars:
         current_state: started
+        healthy: true
         provision_data: '{{ action_provision_data | default(omit, true) }}'
         provision_message_body: '{{ action_provision_message_body | default(omit, true) }}'
         provision_messages: '{{ action_provision_messages | default(omit, true) }}'

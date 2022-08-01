@@ -1,0 +1,13 @@
+---
+- name: Set failure check_status_state for {{ anarchy_subject_name }}
+  when: tower_job_action == 'status'
+  anarchy_subject_update:
+    skip_update_processing: true
+    spec:
+      vars:
+        check_status_state: canceled
+
+- name: Finish action {{ anarchy_action_name }} as canceled
+  anarchy_finish_action:
+    state: failed
+...

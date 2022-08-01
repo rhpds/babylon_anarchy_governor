@@ -15,66 +15,8 @@
   vars:
     __job_status: "{{ r_api_response.json.status }}"
   when: __job_status in ['canceled', 'failed']
-  block:
-  - name: Handle poolboy integration for failure to prevent claim bind
-    when:
-    # All subjects should have handles, but check just in case.
-    - poolboy_resource_handle_name != ''
-    - poolboy_resource_handle_namespace != ''
-    # When destroying the resource handle will already be deleted
-    - vars.anarchy_subject.spec.vars.current_state | default('') != 'destroying'
-    # If claimed, then the ResourceClaim manages the resource
-    - poolboy_resource_claim_name == ''
-    block:
-    - name: Delete unclaimed resource handle {{ poolboy_resource_handle_name }}
-      when: delete_on_failure
-      k8s:
-        api_version: poolboy.gpte.redhat.com/v1
-        kind: ResourceHandle
-        state: absent
-        name: "{{ poolboy_resource_handle_name }}"
-        namespace: "{{ poolboy_resource_handle_namespace }}"
-      # This is best-effort, don't fail on task failure
-      ignore_errors: true
-
-    - name: Set unhealthy in resource handle {{ poolboy_resource_handle_name }}
-      when: not delete_on_failure
-      # FIXME - switch to patch with module?
-      command: >-
-        oc patch resourcehandles.poolboy.gpte.redhat.com --type=json
-        -n {{ poolboy_resource_handle_namespace | quote }}
-        {{ poolboy_resource_handle_name | quote }}
-        --patch={{ json_patch | to_json | quote }}
-      vars:
-        json_patch:
-        - op: add
-          path: /spec/resources/{{ poolboy_resource_index }}/template/spec/vars/healthy
-          value: false
-      # This is best-effort, don't fail on task failure
-      ignore_errors: true
-
-  - name: Set failure current_state for {{ anarchy_subject_name }}
-    when: tower_job_action != 'status'
-    anarchy_subject_update:
-      metadata:
-        labels:
-          state: "{{ tower_job_action }}-{{ __job_status }}"
-      spec:
-        vars:
-          current_state: "{{ tower_job_action }}-{{ __job_status }}"
-          healthy: false
-
-  - name: Set failure check_status_state for {{ anarchy_subject_name }}
-    when: tower_job_action == 'status'
-    anarchy_subject_update:
-      skip_update_processing: true
-      spec:
-        vars:
-          check_status_state: "{{ __job_status }}"
-
-  - name: Mark {{ tower_job_action }} as failed for {{ anarchy_subject_name }}
-    anarchy_finish_action:
-      state: failed
+  include_tasks:
+    file: handle-action-{{ anarchy_action_config_name }}-{{ __job_status }}.yml
 
 - name: Handle tower job success when no callback received
   vars:
@@ -82,8 +24,7 @@
     __job_name: "{{ r_api_response.json.name | default('UNKNOWN') }}"
   when: __job_status in ['successful']
   block:
-
-    - name: Notification message
+    - name: Report callback not received for {{ anarchy_action_name }}
       debug:
         msg:
           - "No callback received for successful job: {{ __job_name }}"
@@ -107,7 +48,6 @@
         action_provision_data: "{{ r_get_provision_info.provision_data | default({}) }}"
         action_provision_message_body: "{{ r_get_provision_info.provision_message_body | default([]) }}"
         action_provision_messages: "{{ r_get_provision_info.provision_messages | default([]) }}"
-
 
 - name: Schedule next check for {{ tower_job_action }} {{ anarchy_subject_name }}
   vars:

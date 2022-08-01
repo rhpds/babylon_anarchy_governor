@@ -1,0 +1,15 @@
+---
+- name: Set current state to destroy-canceled for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    skip_update_processing: true
+    metadata:
+      labels:
+        state: destroy-canceled
+    spec:
+      vars:
+        current_state: destroy-canceled
+
+- name: Schedule destroy retry for {{ anarchy_subject_name }}
+  anarchy_continue_action:
+    after: "{{ action_retry_intervals[0] }}"
+...
