@@ -30,6 +30,9 @@
   - name: Schedule {{ _action }} for {{ anarchy_subject_name }}
     anarchy_schedule_action:
       action: "{{ _action }}"
+      cancel:
+      - start
+      - stop
 
 - name: Schedule status action if check pending
   # Status check should be requested by setting the check_status_request_timestamp

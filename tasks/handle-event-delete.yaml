@@ -1,10 +1,14 @@
 ---
-- name: Cancel provision tower job for {{ anarchy_subject_name }}
-  when:
-  - "'deployerJob' in vars.anarchy_subject.status.towerJobs.provision | default({})"
-  - "'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision"
+- name: Cancel tower jobs for {{ anarchy_subject_name }}
+  loop: >-
+    {{ vars.anarchy_subject.status.TowerJobs | default({}) | dict2items
+     | json_query('[?value.deployerJob && value.completeTimestamp==null]')
+    }}
+  loop_control:
+    label: "{{ tower_job.key }}"
+    loop_var: tower_job
   awx.awx.tower_job_cancel:
-    job_id: "{{ vars.anarchy_subject.status.towerJobs.provision.deployerJob }}"
+    job_id: "{{ tower_job.value.deployerJob }}"
     fail_if_not_running: false
     tower_host: "https://{{ babylon_tower.hostname }}/"
     tower_username: "{{ babylon_tower.user }}"
@@ -26,4 +30,8 @@
     'destroy' in vars.anarchy_governor.spec.actions
   anarchy_schedule_action:
     action: destroy
+    cancel:
+    - start
+    - stop
+    - update
 ...

@@ -1,0 +1,26 @@
+---
+- name: Pass to poolboy integration to prevent claim bind
+  when:
+    # All subjects should have handles, but check just in case.
+    - poolboy_resource_handle_name != ''
+    - poolboy_resource_handle_namespace != ''
+    # If claimed, then the ResourceClaim manages the resource
+    - poolboy_resource_claim_name == ''
+  include_tasks:
+    file: prevent_resource_claim_bind.yaml
+
+- name: Set current state to provision-failed for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    skip_update_processing: true
+    metadata:
+      labels:
+        state: provision-failed
+    spec:
+      vars:
+        current_state: provision-failed
+        healthy: false
+
+- name: Finish action {{ anarchy_action_name }} as failed
+  anarchy_finish_action:
+    state: failed
+...

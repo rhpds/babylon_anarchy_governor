@@ -1,0 +1,28 @@
+---
+- name: Delete unclaimed resource handle {{ poolboy_resource_handle_name }}
+  when: delete_on_failure | bool
+  k8s:
+    api_version: poolboy.gpte.redhat.com/v1
+    kind: ResourceHandle
+    state: absent
+    name: "{{ poolboy_resource_handle_name }}"
+    namespace: "{{ poolboy_resource_handle_namespace }}"
+  # This is best-effort, don't fail on task failure
+  ignore_errors: true
+
+- name: Set unhealthy in resource handle {{ poolboy_resource_handle_name }}
+  when: not delete_on_failure | bool
+  # FIXME - switch to patch with module?
+  command: >-
+    oc patch resourcehandles.poolboy.gpte.redhat.com --type=json
+    -n {{ poolboy_resource_handle_namespace | quote }}
+    {{ poolboy_resource_handle_name | quote }}
+    --patch={{ json_patch | to_json | quote }}
+  vars:
+    json_patch:
+    - op: add
+      path: /spec/resources/{{ poolboy_resource_index }}/template/spec/vars/healthy
+      value: false
+  # This is best-effort, don't fail on task failure
+  ignore_errors: true
+...

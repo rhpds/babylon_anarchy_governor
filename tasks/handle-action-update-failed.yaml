@@ -1,0 +1,22 @@
+---
+- name: Set current state to update-failed for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    skip_update_processing: true
+    metadata:
+      labels:
+        state: update-failed
+    spec:
+      vars:
+        current_state: update-failed
+        healthy: false
+
+- name: Schedule update retry for {{ anarchy_subject_name }}
+  when: anarchy_subject.metadata.deletionTimestamp is not defined
+  anarchy_continue_action:
+    after: "{{ action_retry_interval }}"
+
+- name: Finish action {{ anarchy_action_name }} as failed
+  when: anarchy_subject.metadata.deletionTimestamp is defined
+  anarchy_finish_action:
+    state: failed
+...

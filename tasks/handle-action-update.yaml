@@ -1,6 +1,6 @@
 ---
 - name: Update {{ anarchy_subject_name }}
-  when: current_state == "update-pending"
+  when: current_state != "updating"
   include_tasks: run-update.yaml
 
 - name: Check start of {{ anarchy_subject_name }}
