@@ -16,7 +16,7 @@
     __job_status: "{{ r_api_response.json.status }}"
   when: __job_status in ['canceled', 'failed']
   include_tasks:
-    file: handle-action-{{ anarchy_action_config_name }}-{{ __job_status }}.yml
+    file: handle-action-{{ anarchy_action_config_name }}-{{ __job_status }}.yaml
 
 - name: Handle tower job success when no callback received
   vars:
