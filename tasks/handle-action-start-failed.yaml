@@ -11,13 +11,13 @@
         healthy: false
 
 - name: Schedule start retry for {{ anarchy_subject_name }}
-  when: desired_state == 'started' and anarchy_subject.metadata.deletionTimestamp is not defined
+  when: desired_state == 'started' and vars.anarchy_subject.metadata.deletionTimestamp is not defined
   anarchy_continue_action:
     after: "{{ action_retry_interval }}"
     vars: "{{ {'action_retry_count': 1 + action_retry_count | int} }}"
 
 - name: Schedule stop after start failed for {{ anarchy_subject_name }}
-  when: desired_state == 'stopped' and anarchy_subject.metadata.deletionTimestamp is not defined
+  when: desired_state == 'stopped' and vars.anarchy_subject.metadata.deletionTimestamp is not defined
   anarchy_schedule_action:
     action: stop
     cancel:
@@ -25,7 +25,7 @@
     - stop
 
 - name: Finish action {{ anarchy_action_name }} as failed
-  when: desired_state != 'started' or anarchy_subject.metadata.deletionTimestamp is defined
+  when: desired_state != 'started' or vars.anarchy_subject.metadata.deletionTimestamp is defined
   anarchy_finish_action:
     state: failed
 ...
