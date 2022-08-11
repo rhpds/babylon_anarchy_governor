@@ -11,12 +11,12 @@
         healthy: false
 
 - name: Schedule update retry for {{ anarchy_subject_name }}
-  when: anarchy_subject.metadata.deletionTimestamp is not defined
+  when: vars.anarchy_subject.metadata.deletionTimestamp is not defined
   anarchy_continue_action:
     after: "{{ action_retry_intervals[0] }}"
 
 - name: Finish action {{ anarchy_action_name }} as canceled
-  when: anarchy_subject.metadata.deletionTimestamp is defined
+  when: vars.anarchy_subject.metadata.deletionTimestamp is defined
   anarchy_finish_action:
     state: canceled
 ...
