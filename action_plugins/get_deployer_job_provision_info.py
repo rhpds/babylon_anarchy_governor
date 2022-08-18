@@ -85,22 +85,22 @@ class ActionModule(ActionBase):
               if task_action == 'agnosticd_user_info':
                   data = event_res.get('data')
                   msg = event_res.get('msg')
-                  user = event_res.get('user')
-                  if user:
+                  user_name = event_res.get('user')
+                  if user_name:
                       if not 'users' in provision_data:
                           provision_data['users'] = {
-                            user: {}
+                            user_name: {}
                           }
-                      if not user in provision_data['users']:
-                          provision_data['users'][user] = {}
+                      if not user_name in provision_data['users']:
+                          provision_data['users'][user_name] = {}
                       if msg:
                           msg_string = msg if isinstance(msg, string_types) else "\n".join(msg)
-                          if 'msg' in provision_data['users'][user]:
-                              provision_data['users'][user]['msg'] += "\n{msg_string}"
+                          if 'msg' in provision_data['users'][user_name]:
+                              provision_data['users'][user_name]['msg'] += "\n{msg_string}"
                           else:
-                              provision_data['users'][user]['msg'] = msg_string
+                              provision_data['users'][user_name]['msg'] = msg_string
                       if data:
-                          provision_data['users'][user].update(data)
+                          provision_data['users'][user_name].update(data)
                   else:
                       if msg:
                           messages = [msg] if isinstance(msg, string_types) else msg
@@ -113,12 +113,13 @@ class ActionModule(ActionBase):
                   if msg:
                       messages = [msg] if isinstance(msg, string_types) else msg
                       for message in messages:
-                          if user_body_regex.search(message):
-                              provision_message_body.append(user_body_regex.sub('', message))
-                          elif user_data_regex.search(message):
-                              provision_data.update(yaml.safe_load(user_data_regex.sub('', message)))
-                          elif user_info_regex.search(message):
-                              provision_messages.append(user_info_regex.sub('', message))
+                          if isinstance(message, string_types):
+                              if user_body_regex.search(message):
+                                  provision_message_body.append(user_body_regex.sub('', message))
+                              elif user_data_regex.search(message):
+                                  provision_data.update(yaml.safe_load(user_data_regex.sub('', message)))
+                              elif user_info_regex.search(message):
+                                  provision_messages.append(user_info_regex.sub('', message))
 
           next_url_path = resp_data.get('next')
           if next_url_path:
