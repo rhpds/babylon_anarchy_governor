@@ -1,13 +1,19 @@
 ---
-- name: Set {{ anarchy_subject_name }} current state to new
+- name: Set {{ anarchy_subject_name }} current state to provision-pending
+  when: vars.anarchy_subject.spec.vars.current_state is undefined
   anarchy_subject_update:
+    skip_update_processing: true
     metadata:
       labels:
-        state: new
+        state: provision-pending
     spec:
       vars:
-        current_state: new
+        current_state: provision-pending
         job_vars:
           uuid: >-
-            {{ vars.anarchy_subject.vars.job_vars.uuid | default((2**127) | random | to_uuid) }}
+            {{ vars.anarchy_subject.spec.vars.job_vars.uuid | default((2**127) | random | to_uuid) }}
+
+- name: Schedule provision for {{ anarchy_subject_name }}
+  anarchy_schedule_action:
+    action: provision
 ...

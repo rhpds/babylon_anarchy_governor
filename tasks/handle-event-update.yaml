@@ -7,7 +7,6 @@
     _previous_job_vars: "{{ vars.anarchy_subject_previous_state.spec.vars.job_vars | default(_current_job_vars) }}"
     _action: >-
       {{
-        'provision' if _current_state == 'new' else
         'update' if _current_job_vars != _previous_job_vars else
         'start' if (_current_state == 'stopped' and _desired_state == 'started') else
         'stop' if (_current_state == 'started' and _desired_state == 'stopped') else
