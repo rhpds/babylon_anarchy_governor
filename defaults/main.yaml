@@ -1,7 +1,4 @@
 ---
-schedule_destroy_after_provision: disabled
-schedule_stop_after_provision: disabled
-schedule_stop_after_start: disabled
 delete_on_failure: true
 
 action_provision_data: "{{ anarchy_action_callback_data.data | default({}) }}"

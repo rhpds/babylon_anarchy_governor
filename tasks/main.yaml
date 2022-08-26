@@ -36,11 +36,6 @@
     - babylon_tower.hostname is defined
     - babylon_tower.user is defined
     - babylon_tower.password is defined
-  - msg: schedule_stop_after_start, schedule_stop_after_provision, and schedule_destroy_after_provision must be a time interval or disabled
-    that:
-    - schedule_stop_after_start is match('(\d+[dhms]?|disabled)$')
-    - schedule_stop_after_provision is match('(\d+[dhms]?|disabled)$')
-    - schedule_destroy_after_provision is match('(\d+[dhms]?|disabled)$')
 
 - name: Handle action or event for {{ anarchy_subject_name }}
   include_tasks: >-
