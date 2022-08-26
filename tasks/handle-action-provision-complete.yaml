@@ -16,10 +16,6 @@
         provision:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
 
-- name: Cancel provision check
-  anarchy_schedule_action:
-    cancel: ['check']
-
 - name: Report action successful
   anarchy_finish_action:
     state: successful
