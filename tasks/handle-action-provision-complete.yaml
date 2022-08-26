@@ -20,18 +20,6 @@
   anarchy_schedule_action:
     cancel: ['check']
 
-- when: schedule_stop_after_provision != 'disabled'
-  name: Schedule stop {{ anarchy_subject_name }} after {{ schedule_stop_after_provision }}
-  anarchy_schedule_action:
-    action: stop
-    after: "{{ schedule_stop_after_provision }}"
-
-- when: schedule_destroy_after_provision != 'disabled'
-  name: Schedule stop {{ anarchy_subject_name }} after {{ schedule_destroy_after_provision }}
-  anarchy_schedule_action:
-    action: destroy
-    after: "{{ schedule_destroy_after_provision }}"
-
 - name: Report action successful
   anarchy_finish_action:
     state: successful

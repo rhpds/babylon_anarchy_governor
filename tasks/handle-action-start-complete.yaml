@@ -12,12 +12,6 @@
         start:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
 
-- when: schedule_stop_after_start != 'disabled'
-  name: Schedule stop {{ anarchy_subject_name }} after {{ schedule_stop_after_start }}
-  anarchy_schedule_action:
-    action: stop
-    after: "{{ schedule_stop_after_start }}"
-
 - name: Report action successful
   anarchy_finish_action:
     state: successful
