@@ -122,7 +122,7 @@ deployer_entry_points:
      | default('ansible/lifecycle_entry_point.yml')
     )}}
   update: >-
-    {{ __meta__.deployer.actions.stop.disable | default(false) | bool | ternary('',
+    {{ __meta__.deployer.actions.update.disable | default(false) | bool | ternary('',
      __meta__.deployer.actions['update'].entry_point
      | default(__meta__.deployer.entry_points['update'])
      | default(__meta__.deployer.entry_point)
