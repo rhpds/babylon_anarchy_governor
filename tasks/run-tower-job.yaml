@@ -108,6 +108,7 @@
         {{ tower_job_extra_vars
          | insert_unvault_string
          | combine({"output_dir": "/tmp/output-" ~ vars.anarchy_subject.vars.job_vars.uuid})
+         | combine({__meta__.deployer.scm_ref_var: __tower_project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
         }}
       playbook: "{{ tower_job_template_playbook }}"
       project: "{{ __tower_project_name }}"
@@ -146,6 +147,7 @@
         {{ tower_job_extra_vars
          | insert_unvault_string
          | combine({"output_dir": "/tmp/output-" ~ vars.anarchy_subject.vars.job_vars.uuid})
+         | combine({__meta__.deployer.scm_ref_var: __tower_project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
         }}
       playbook: "{{ tower_job_template_playbook }}"
       project: "{{ __tower_project_name }}"
