@@ -160,15 +160,37 @@
     register: r_tower_job_template
     failed_when: r_tower_job_template is failed and 'already exists' not in r_tower_job_template.msg
 
-- name: Launch Job {{ tower_job_template_name }}
-  awx.awx.tower_job_launch:
-    name: "{{ tower_job_template_name }}"
-    inventory: "{{ tower_inventory_name }}"
-    tower_host: "https://{{ babylon_tower.hostname }}/"
-    tower_username: "{{ babylon_tower.user }}"
-    tower_password: "{{ babylon_tower.password }}"
-    validate_certs: false
-  register: r_launch_job
+- name: Tower Job Launch block
+  block:
+  - name: Launch Job {{ tower_job_template_name }}
+    awx.awx.tower_job_launch:
+      name: "{{ tower_job_template_name }}"
+      inventory: "{{ tower_inventory_name }}"
+      tower_host: "https://{{ babylon_tower.hostname }}/"
+      tower_username: "{{ babylon_tower.user }}"
+      tower_password: "{{ babylon_tower.password }}"
+      validate_certs: false
+    register: r_launch_job
+
+  rescue:
+  - name: Tower project update
+    awx.awx.tower_project_update:
+      name: "{{ __tower_project_name }}"
+      organization: "{{ tower_organization_name }}"
+      tower_host: "https://{{ babylon_tower.hostname }}/"
+      tower_username: "{{ babylon_tower.user }}"
+      tower_password: "{{ babylon_tower.password }}"
+      validate_certs: false
+
+  - name: Launch Job {{ tower_job_template_name }}
+    awx.awx.tower_job_launch:
+      name: "{{ tower_job_template_name }}"
+      inventory: "{{ tower_inventory_name }}"
+      tower_host: "https://{{ babylon_tower.hostname }}/"
+      tower_username: "{{ babylon_tower.user }}"
+      tower_password: "{{ babylon_tower.password }}"
+      validate_certs: false
+    register: r_launch_job
 
 - name: Set status in {{ anarchy_subject_name }}
   anarchy_subject_update:
