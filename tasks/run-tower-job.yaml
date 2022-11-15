@@ -93,12 +93,14 @@
   block:
   - name: Tower Job Template {{ tower_job_template_name }}
     vars:
-      __query: >-
+      __dynamic_credentials_query: >-
         [].key.join(' ', [`{{ tower_organization_name | to_json }}`, @])
+      __dynamic_credentials: >-
+         {{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__dynamic_credentials_query) }}
     awx.awx.tower_job_template:
       name: "{{ tower_job_template_name }}"
       # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
-      credentials: "{{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__query) }}"
+      credentials: "{{ __dynamic_credentials + static_credentials }}"
       custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
       execution_environment: >-
         {{ execution_environment.name
@@ -132,12 +134,14 @@
 
   - name: Tower Job Template {{ tower_job_template_name }} (retry)
     vars:
-      __query: >-
+      __dynamic_credentials_query: >-
         [].key.join(' ', [`{{ tower_organization_name | to_json }}`, @])
+      __dynamic_credentials: >-
+         {{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__dynamic_credentials_query) }}
     awx.awx.tower_job_template:
       name: "{{ tower_job_template_name }}"
       # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
-      credentials: "{{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__query) }}"
+      credentials: "{{ __dynamic_credentials + static_credentials }}"
       custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
       execution_environment: >-
         {{ execution_environment.name

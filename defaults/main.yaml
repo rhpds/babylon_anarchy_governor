@@ -128,3 +128,6 @@ deployer_entry_points:
      | default(__meta__.deployer.entry_point)
      | default('ansible/update.yml')
     )}}
+
+static_credentials: >-
+  {{ __meta__.deployer.credentials | default([]) }}
