@@ -10,6 +10,7 @@
     validate_certs: false
     return_content: true
   register: r_api_response
+  no_log: true
 
 - name: Handle tower job failed or canceled
   vars:
