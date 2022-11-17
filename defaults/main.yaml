@@ -52,8 +52,9 @@ callback_token_var: >-
 ansible_control_plane: >-
   {{ __meta__.ansible_control_plane.type | default('tower') }}
 
-set_output_dir: >-
-  {{ __meta__.deployer.type == 'agnosticd' }}
+deployer_type: "{{ __meta__.deployer.type | default('agnosticd') }}"
+
+set_output_dir: "{{ deployer_type == 'agnosticd' }}"
 
 tower_maximum_job_count: >-
   {{ __meta__.tower.maximum_job_count | default(200) }}
