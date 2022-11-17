@@ -90,13 +90,14 @@
       {%- endif -%}
 
 - name: Tower Job Template block
+  vars:
+    __dynamic_credentials_query: >-
+      [].key.join(' ', [`{{ tower_organization_name | to_json }}`, @])
+    __dynamic_credentials: >-
+      {{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__dynamic_credentials_query) }}
+    __output_dir: /tmp/output-{{ vars.anarchy_subject.vars.job_vars.uuid }}
   block:
   - name: Tower Job Template {{ tower_job_template_name }}
-    vars:
-      __dynamic_credentials_query: >-
-        [].key.join(' ', [`{{ tower_organization_name | to_json }}`, @])
-      __dynamic_credentials: >-
-         {{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__dynamic_credentials_query) }}
     awx.awx.tower_job_template:
       name: "{{ tower_job_template_name }}"
       # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
@@ -109,7 +110,7 @@
       extra_vars: >-
         {{ tower_job_extra_vars
          | insert_unvault_string
-         | combine({"output_dir": "/tmp/output-" ~ vars.anarchy_subject.vars.job_vars.uuid})
+         | combine(set_output_dir | bool | ternary({"output_dir": __output_dir}, {}))
          | combine({__meta__.deployer.scm_ref_var: __tower_project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
         }}
       playbook: "{{ tower_job_template_playbook }}"
@@ -133,11 +134,6 @@
       validate_certs: false
 
   - name: Tower Job Template {{ tower_job_template_name }} (retry)
-    vars:
-      __dynamic_credentials_query: >-
-        [].key.join(' ', [`{{ tower_organization_name | to_json }}`, @])
-      __dynamic_credentials: >-
-         {{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__dynamic_credentials_query) }}
     awx.awx.tower_job_template:
       name: "{{ tower_job_template_name }}"
       # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
@@ -150,7 +146,7 @@
       extra_vars: >-
         {{ tower_job_extra_vars
          | insert_unvault_string
-         | combine({"output_dir": "/tmp/output-" ~ vars.anarchy_subject.vars.job_vars.uuid})
+         | combine(set_output_dir | bool | ternary({"output_dir": __output_dir}, {}))
          | combine({__meta__.deployer.scm_ref_var: __tower_project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
         }}
       playbook: "{{ tower_job_template_playbook }}"
