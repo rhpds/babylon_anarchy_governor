@@ -9,6 +9,8 @@
     # FIXME - Should validate certs
     validate_certs: false
     return_content: true
+  async: 300
+  poll: 30
   register: r_api_response
   no_log: true
 
