@@ -1,66 +1,66 @@
 ---
-- name: Tower organization {{ tower_organization_name }}
-  awx.awx.tower_organization:
-    name: "{{ tower_organization_name }}"
-    tower_host: "https://{{ babylon_tower.hostname }}/"
-    tower_username: "{{ babylon_tower.user }}"
-    tower_password: "{{ babylon_tower.password }}"
+- name: Tower organization {{ organization_name }}
+  awx.awx.organization:
+    name: "{{ organization_name }}"
+    controller_host: "https://{{ babylon_tower.hostname }}/"
+    controller_username: "{{ babylon_tower.user }}"
+    controller_password: "{{ babylon_tower.password }}"
     validate_certs: false
 
-- name: Tower inventory {{ tower_inventory_name }}
-  awx.awx.tower_inventory:
-    name: "{{ tower_inventory_name }}"
-    organization: "{{ tower_organization_name }}"
-    tower_host: "https://{{ babylon_tower.hostname }}/"
-    tower_username: "{{ babylon_tower.user }}"
-    tower_password: "{{ babylon_tower.password }}"
+- name: Tower inventory {{ inventory_name }}
+  awx.awx.inventory:
+    name: "{{ inventory_name }}"
+    controller_host: "https://{{ babylon_tower.hostname }}/"
+    controller_username: "{{ babylon_tower.user }}"
+    controller_password: "{{ babylon_tower.password }}"
+    organization: "{{ organization_name }}"
     validate_certs: false
 
 - name: Tower credentials
   loop: "{{ vault_credentials | default({}) | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-  awx.awx.tower_credential:
-    name: "{{ tower_organization_name }} {{ item.key }}"
+  awx.awx.credential:
+    name: "{{ organization_name }} {{ item.key }}"
+    controller_host: "https://{{ babylon_tower.hostname }}/"
+    controller_username: "{{ babylon_tower.user }}"
+    controller_password: "{{ babylon_tower.password }}"
     credential_type: Vault
     inputs:
       vault_id: "{{ item.key }}"
       vault_password: "{{ item.value }}"
-    organization: "{{ tower_organization_name }}"
-    tower_host: "https://{{ babylon_tower.hostname }}/"
-    tower_username: "{{ babylon_tower.user }}"
-    tower_password: "{{ babylon_tower.password }}"
+    organization: "{{ organization_name }}"
     validate_certs: false
 
-- name: Set __tower_project_scm_ref
+- name: Set __project_scm_ref
   set_fact:
-    __tower_project_scm_ref: >-
+    __project_scm_ref: >-
       {{ __meta__.deployer.scm_ref | default(
         lookup('git_tag_prefix', __meta__.deployer.git_tag_prefix, git_repo=__meta__.deployer.scm_url)
         if __meta__.deployer.git_tag_prefix is defined else 'main'
       ) }}
 
-- name: Set __tower_project_name
+- name: Set __project_name
   set_fact:
-    __tower_project_name: >-
-      {{ tower_organization_name }} {{ __meta__.deployer.scm_url }} ({{ __tower_project_scm_ref }})
+    __project_name: >-
+      {{ organization_name }} {{ __meta__.deployer.scm_url }} ({{ __project_scm_ref }})
 
 - name: Tower project
-  awx.awx.tower_project:
-    name: "{{ __tower_project_name }}"
+  awx.awx.project:
+    name: "{{ __project_name }}"
+    controller_host: "https://{{ babylon_tower.hostname }}/"
+    controller_username: "{{ babylon_tower.user }}"
+    controller_password: "{{ babylon_tower.password }}"
     scm_type: git
     scm_url: "{{ __meta__.deployer.scm_url }}"
-    scm_branch: "{{ __tower_project_scm_ref }}"
+    scm_branch: "{{ __project_scm_ref }}"
     scm_update_on_launch: >-
-      {{ __tower_project_scm_ref is not search('\d\.\d') }}
+      {{ __project_scm_ref is not search('\d\.\d') }}
     scm_update_cache_timeout: >-
       {{ __meta__.deployer.scm_update_cache_timeout | default(30) }}
     scm_clean: >-
       {{ __meta__.deployer.scm_clean | default(true) }}
-    organization: "{{ tower_organization_name }}"
-    tower_host: "https://{{ babylon_tower.hostname }}/"
-    tower_username: "{{ babylon_tower.user }}"
-    tower_password: "{{ babylon_tower.password }}"
+    organization: "{{ organization_name }}"
     validate_certs: false
 
 - name: Create Execution environment
@@ -70,7 +70,7 @@
   vars:
     ee: "{{ execution_environment }}"
   awx.awx.execution_environment:
-    organization: "{{ tower_organization_name }}"
+    organization: "{{ organization_name }}"
     controller_host: "https://{{ babylon_tower.hostname }}/"
     controller_username: "{{ babylon_tower.user }}"
     controller_password: "{{ babylon_tower.password }}"
@@ -92,97 +92,97 @@
 - name: Tower Job Template block
   vars:
     __dynamic_credentials_query: >-
-      [].key.join(' ', [`{{ tower_organization_name | to_json }}`, @])
+      [].key.join(' ', [`{{ organization_name | to_json }}`, @])
     __dynamic_credentials: >-
       {{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__dynamic_credentials_query) }}
     __output_dir: /tmp/output-{{ vars.anarchy_subject.vars.job_vars.uuid }}
   block:
-  - name: Tower Job Template {{ tower_job_template_name }}
-    awx.awx.tower_job_template:
-      name: "{{ tower_job_template_name }}"
+  - name: Tower Job Template {{ job_template_name }}
+    awx.awx.job_template:
+      name: "{{ job_template_name }}"
       # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
       credentials: "{{ __dynamic_credentials + static_credentials }}"
-      custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
+      custom_virtualenv: "{{ job_template_custom_virtualenv | default(omit, true) }}"
       execution_environment: "{{ execution_environment_name | default(omit, true) }}"
       extra_vars: >-
-        {{ tower_job_extra_vars
+        {{ job_extra_vars
          | insert_unvault_string
          | combine(set_output_dir | bool | ternary({"output_dir": __output_dir}, {}))
-         | combine({__meta__.deployer.scm_ref_var: __tower_project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
+         | combine({__meta__.deployer.scm_ref_var: __project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
         }}
-      playbook: "{{ tower_job_template_playbook }}"
-      project: "{{ __tower_project_name }}"
+      playbook: "{{ job_template_playbook }}"
+      project: "{{ __project_name }}"
       ask_inventory_on_launch: true
-      tower_host: "https://{{ babylon_tower.hostname }}/"
-      tower_username: "{{ babylon_tower.user }}"
-      tower_password: "{{ babylon_tower.password }}"
+      controller_host: "https://{{ babylon_tower.hostname }}/"
+      controller_username: "{{ babylon_tower.user }}"
+      controller_password: "{{ babylon_tower.password }}"
       validate_certs: false
-      timeout: "{{ tower_job_template_timeout }}"
-    register: r_tower_job_template
-    failed_when: r_tower_job_template is failed and 'already exists' not in r_tower_job_template.msg
+      timeout: "{{ job_template_timeout }}"
+    register: r_job_template
+    failed_when: r_job_template is failed and 'already exists' not in r_job_template.msg
   rescue:
   - name: Tower project update
-    awx.awx.tower_project_update:
-      name: "{{ __tower_project_name }}"
-      organization: "{{ tower_organization_name }}"
-      tower_host: "https://{{ babylon_tower.hostname }}/"
-      tower_username: "{{ babylon_tower.user }}"
-      tower_password: "{{ babylon_tower.password }}"
+    awx.awx.project_update:
+      name: "{{ __project_name }}"
+      organization: "{{ organization_name }}"
+      controller_host: "https://{{ babylon_tower.hostname }}/"
+      controller_username: "{{ babylon_tower.user }}"
+      controller_password: "{{ babylon_tower.password }}"
       validate_certs: false
 
-  - name: Tower Job Template {{ tower_job_template_name }} (retry)
-    awx.awx.tower_job_template:
-      name: "{{ tower_job_template_name }}"
+  - name: Tower Job Template {{ job_template_name }} (retry)
+    awx.awx.job_template:
+      name: "{{ job_template_name }}"
       # Need to use to_json | from_json to avoid AnsibleUnicode error on json_query
       credentials: "{{ __dynamic_credentials + static_credentials }}"
-      custom_virtualenv: "{{ tower_job_template_custom_virtualenv | default(omit, true) }}"
+      custom_virtualenv: "{{ job_template_custom_virtualenv | default(omit, true) }}"
       execution_environment: "{{ execution_environment_name | default(omit, true) }}"
       extra_vars: >-
-        {{ tower_job_extra_vars
+        {{ job_extra_vars
          | insert_unvault_string
          | combine(set_output_dir | bool | ternary({"output_dir": __output_dir}, {}))
-         | combine({__meta__.deployer.scm_ref_var: __tower_project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
+         | combine({__meta__.deployer.scm_ref_var: __project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
         }}
-      playbook: "{{ tower_job_template_playbook }}"
-      project: "{{ __tower_project_name }}"
+      playbook: "{{ job_template_playbook }}"
+      project: "{{ __project_name }}"
       ask_inventory_on_launch: true
-      tower_host: "https://{{ babylon_tower.hostname }}/"
-      tower_username: "{{ babylon_tower.user }}"
-      tower_password: "{{ babylon_tower.password }}"
+      controller_host: "https://{{ babylon_tower.hostname }}/"
+      controller_username: "{{ babylon_tower.user }}"
+      controller_password: "{{ babylon_tower.password }}"
       validate_certs: false
-      timeout: "{{ tower_job_template_timeout }}"
-    register: r_tower_job_template
-    failed_when: r_tower_job_template is failed and 'already exists' not in r_tower_job_template.msg
+      timeout: "{{ job_template_timeout }}"
+    register: r_job_template
+    failed_when: r_job_template is failed and 'already exists' not in r_job_template.msg
 
 - name: Tower Job Launch block
   block:
-  - name: Launch Job {{ tower_job_template_name }}
-    awx.awx.tower_job_launch:
-      name: "{{ tower_job_template_name }}"
-      inventory: "{{ tower_inventory_name }}"
-      tower_host: "https://{{ babylon_tower.hostname }}/"
-      tower_username: "{{ babylon_tower.user }}"
-      tower_password: "{{ babylon_tower.password }}"
+  - name: Launch Job {{ job_template_name }}
+    awx.awx.job_launch:
+      name: "{{ job_template_name }}"
+      inventory: "{{ inventory_name }}"
+      controller_host: "https://{{ babylon_tower.hostname }}/"
+      controller_username: "{{ babylon_tower.user }}"
+      controller_password: "{{ babylon_tower.password }}"
       validate_certs: false
     register: r_launch_job
 
   rescue:
   - name: Tower project update
-    awx.awx.tower_project_update:
-      name: "{{ __tower_project_name }}"
-      organization: "{{ tower_organization_name }}"
-      tower_host: "https://{{ babylon_tower.hostname }}/"
-      tower_username: "{{ babylon_tower.user }}"
-      tower_password: "{{ babylon_tower.password }}"
+    awx.awx.project_update:
+      name: "{{ __project_name }}"
+      organization: "{{ organization_name }}"
+      controller_host: "https://{{ babylon_tower.hostname }}/"
+      controller_username: "{{ babylon_tower.user }}"
+      controller_password: "{{ babylon_tower.password }}"
       validate_certs: false
 
-  - name: Launch Job {{ tower_job_template_name }}
-    awx.awx.tower_job_launch:
-      name: "{{ tower_job_template_name }}"
-      inventory: "{{ tower_inventory_name }}"
-      tower_host: "https://{{ babylon_tower.hostname }}/"
-      tower_username: "{{ babylon_tower.user }}"
-      tower_password: "{{ babylon_tower.password }}"
+  - name: Launch Job {{ job_template_name }}
+    awx.awx.job_launch:
+      name: "{{ job_template_name }}"
+      inventory: "{{ inventory_name }}"
+      controller_host: "https://{{ babylon_tower.hostname }}/"
+      controller_username: "{{ babylon_tower.user }}"
+      controller_password: "{{ babylon_tower.password }}"
       validate_certs: false
     register: r_launch_job
 

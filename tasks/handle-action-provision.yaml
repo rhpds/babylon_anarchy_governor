@@ -6,7 +6,7 @@
 - name: Check provision of {{ anarchy_subject_name }}
   when: current_state == "provisioning"
   vars:
-    tower_job_action: provision
-    tower_job_info: "{{ vars.anarchy_subject.status.towerJobs.provision }}"
+    job_action: provision
+    job_info: "{{ vars.anarchy_subject.status.towerJobs.provision }}"
   include_tasks: check-deployer-job.yaml
 ...

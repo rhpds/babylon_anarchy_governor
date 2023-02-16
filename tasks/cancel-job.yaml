@@ -1,0 +1,15 @@
+---
+- name: Set Ansible controller access facts
+  include_tasks:
+    file: controller-access-facts.yaml
+
+- name: Cancel job {{ job_info.towerJobURL }}
+  awx.awx.job_cancel:
+    job_id: "{{ job_info.deployerJob }}"
+    fail_if_not_running: false
+    controller_host: "https://{{ controller_host }}/"
+    controller_username: "{{ controller_user }}"
+    controller_password: "{{ controller_password }}"
+    # FIXME - validate certs
+    validate_certs: false
+...

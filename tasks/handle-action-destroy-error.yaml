@@ -1,13 +1,13 @@
 ---
-- name: Set current state to destroy-failed for {{ anarchy_subject_name }}
+- name: Set current state to destroy-error for {{ anarchy_subject_name }}
   anarchy_subject_update:
     skip_update_processing: true
     metadata:
       labels:
-        state: destroy-failed
+        state: destroy-error
     spec:
       vars:
-        current_state: destroy-failed
+        current_state: destroy-error
 
 - name: Schedule destroy retry for {{ anarchy_subject_name }}
   anarchy_continue_action:

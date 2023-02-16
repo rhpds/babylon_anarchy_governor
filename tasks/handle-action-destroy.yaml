@@ -6,7 +6,7 @@
 - name: Check destroy of {{ anarchy_subject_name }}
   when: current_state == "destroying"
   vars:
-    tower_job_action: destroy
-    tower_job_info: "{{ vars.anarchy_subject.status.towerJobs.destroy }}"
+    job_action: destroy
+    job_info: "{{ vars.anarchy_subject.status.towerJobs.destroy }}"
   include_tasks: check-deployer-job.yaml
 ...

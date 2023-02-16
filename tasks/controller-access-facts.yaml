@@ -1,0 +1,33 @@
+---
+- name: Set controller_host
+  set_fact:
+    controller_host: "{{ job_info.towerHost | default(babylon_tower.hostname) }}"
+
+- name: Get secret for controller_host
+  when: controller_host != babylon_tower.hostname
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    namespace: "{{ anarchy_namespace }}"
+    label_selectors: 
+    - babylon.gpte.redhat.com/ansible-control-plane={{ controller_host }}
+  register: r_get_secret
+  failed_when: r_get_secret.resources | length < 1
+
+- name: Set controller_user and controller_password
+  set_fact:
+    controller_user: >-
+      {% if r_get_secret is skipped %}{{ babylon_tower.user }}{% else %}{{
+        r_get_secret.resources[0].data.user | ansible.builtin.b64decode | from_yaml
+      }}{% endif %}
+    controller_password: >-
+      {% if r_get_secret is skipped %}{{ babylon_tower.password }}{% else %}{{
+        r_get_secret.resources[0].data.password | ansible.builtin.b64decode | from_yaml
+      }}{% endif %}
+
+- debug:
+    msg: |
+      controller_host: {{ controller_host }}
+      controller_user: {{ controller_user }}
+      controller_password: {{ controller_password }}
+...

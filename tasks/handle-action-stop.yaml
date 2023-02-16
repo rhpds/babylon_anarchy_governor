@@ -6,7 +6,7 @@
 - name: Check stop of {{ anarchy_subject_name }}
   when: current_state == "stopping"
   vars:
-    tower_job_action: stop
-    tower_job_info: "{{ vars.anarchy_subject.status.towerJobs.stop }}"
+    job_action: stop
+    job_info: "{{ vars.anarchy_subject.status.towerJobs.stop }}"
   include_tasks: check-deployer-job.yaml
 ...

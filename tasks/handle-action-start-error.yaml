@@ -1,0 +1,31 @@
+---
+- name: Set current state to start-error for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    skip_update_processing: true
+    metadata:
+      labels:
+        state: start-error
+    spec:
+      vars:
+        current_state: start-error
+        healthy: false
+
+- name: Schedule start retry for {{ anarchy_subject_name }}
+  when: desired_state == 'started' and vars.anarchy_subject.metadata.deletionTimestamp is not defined
+  anarchy_continue_action:
+    after: "{{ action_retry_interval }}"
+    vars: "{{ {'action_retry_count': 1 + action_retry_count | int} }}"
+
+- name: Schedule stop after start error for {{ anarchy_subject_name }}
+  when: desired_state == 'stopped' and vars.anarchy_subject.metadata.deletionTimestamp is not defined
+  anarchy_schedule_action:
+    action: stop
+    cancel:
+    - start
+    - stop
+
+- name: Finish action {{ anarchy_action_name }} as error
+  when: desired_state != 'started' or vars.anarchy_subject.metadata.deletionTimestamp is defined
+  anarchy_finish_action:
+    state: error
+...
