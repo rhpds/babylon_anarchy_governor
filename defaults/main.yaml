@@ -32,6 +32,11 @@ check_status_state: null
 
 dynamic_job_vars: {}
 
+execution_environment_name: >-
+  {%- if execution_environment | default({}, true) != {} -%}
+  {{ tower_organization_name }} {{ execution_environment.name | default(execution_environment.image) }}
+  {%- endif -%}
+
 preserve_job_vars:
 - aws_region
 - region
