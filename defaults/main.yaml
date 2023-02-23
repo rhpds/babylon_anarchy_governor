@@ -34,7 +34,7 @@ dynamic_job_vars: {}
 
 execution_environment_name: >-
   {%- if execution_environment | default({}, true) != {} -%}
-  {{ tower_organization_name }} {{ execution_environment.name | default(execution_environment.image) }}
+  {{ organization_name }} {{ execution_environment.name | default(execution_environment.image) }}
   {%- endif -%}
 
 preserve_job_vars:
@@ -42,7 +42,7 @@ preserve_job_vars:
 - region
 
 # Default check interval for tower job status
-tower_job_check_interval: 5m
+job_check_interval: 5m
 
 # AnarchyGovernor controls __meta__ settings.
 __meta__: "{{ vars.anarchy_governor.vars.job_vars.__meta__ }}"
@@ -61,28 +61,28 @@ deployer_type: "{{ __meta__.deployer.type | default('agnosticd') }}"
 
 set_output_dir: "{{ deployer_type == 'agnosticd' }}"
 
-tower_maximum_job_count: >-
+maximum_job_count: >-
   {{ __meta__.tower.maximum_job_count | default(200) }}
 
-tower_organization_name: >-
+organization_name: >-
   {{ __meta__.tower.organization | default('babylon') }}
-tower_inventory_name: >-
-  {{ tower_organization_name }} {{ __meta__.tower.inventory | default('default') }}
-tower_job_template_name: >-
-  {{ tower_organization_name }} {{ anarchy_action_name }} {{ vars.anarchy_subject.vars.job_vars.uuid }}
-tower_job_template_timeout: >-
+inventory_name: >-
+  {{ organization_name }} {{ __meta__.tower.inventory | default('default') }}
+job_template_name: >-
+  {{ organization_name }} {{ anarchy_action_name }} {{ vars.anarchy_subject.vars.job_vars.uuid }}
+job_template_timeout: >-
   {{ __meta__.tower.timeout | default(10800) }}
-tower_job_template_custom_virtualenv: >-
+job_template_custom_virtualenv: >-
   {%- if ansible_control_plane == 'tower' and
   __meta__.deployer.virtualenv | default('') != '' -%}
     {%- if __meta__.deployer.virtualenv.startswith('/') -%}
       {{ __meta__.deployer.virtualenv }}
     {%- else -%}
-      {{ tower_job_template_custom_virtualenv_basedir }}/{{ __meta__.deployer.virtualenv }}
+      {{ job_template_custom_virtualenv_basedir }}/{{ __meta__.deployer.virtualenv }}
     {%- endif -%}
   {%- endif -%}
 
-tower_job_template_custom_virtualenv_basedir: /opt/rh/virtualenvs
+job_template_custom_virtualenv_basedir: /opt/rh/virtualenvs
 
 ############## Execution Environment #################
 # Define execution environment in case automation-controller is selected

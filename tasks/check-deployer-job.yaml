@@ -1,18 +1,21 @@
 ---
-- name: Get deployer job for {{ tower_job_action }} {{ anarchy_subject_name }}
-  # The awx.awx collection does not have a tower_job_info module
+- name: Set Ansible controller access facts
+  include_tasks:
+    file: controller-access-facts.yaml
+
+- name: Get deployer job for {{ job_action }} {{ anarchy_subject_name }}
+  # The awx.awx collection does not have a job_info module
   uri:
-    url: https://{{ babylon_tower.hostname }}/api/v2/jobs/{{ tower_job_info.deployerJob }}/
-    url_username: "{{ babylon_tower.user }}"
-    url_password: "{{ babylon_tower.password }}"
+    url: https://{{ controller_host }}/api/v2/jobs/{{ job_info.deployerJob }}/
+    url_username: "{{ controller_user }}"
+    url_password: "{{ controller_password }}"
     force_basic_auth: true
     # FIXME - Should validate certs
     validate_certs: false
     return_content: true
-  async: 300
-  poll: 30
+  timeout: 600
   register: r_api_response
-  no_log: true
+  #no_log: true
 
 - name: Handle tower job failed or canceled
   vars:
@@ -34,10 +37,10 @@
 
     - name: Get provision info
       get_deployer_job_provision_info:
-        host: "{{ babylon_tower.hostname }}"
-        job_id: "{{ tower_job_info.deployerJob }}"
-        user: "{{ babylon_tower.user }}"
-        password: "{{ babylon_tower.password }}"
+        host: "{{ controller_host }}"
+        job_id: "{{ job_info.deployerJob }}"
+        user: "{{ controller_user }}"
+        password: "{{ controller_password }}"
         # FIXME - Should validate certs
         validate_certs: false
       register: r_get_provision_info
@@ -52,10 +55,10 @@
         action_provision_message_body: "{{ r_get_provision_info.provision_message_body | default([]) }}"
         action_provision_messages: "{{ r_get_provision_info.provision_messages | default([]) }}"
 
-- name: Schedule next check for {{ tower_job_action }} {{ anarchy_subject_name }}
+- name: Schedule next check for {{ job_action }} {{ anarchy_subject_name }}
   vars:
     __job_status: "{{ r_api_response.json.status }}"
   when: __job_status not in ['canceled', 'failed', 'successful']
   anarchy_continue_action:
-    after: "{{ tower_job_check_interval }}"
+    after: "{{ job_check_interval }}"
 ...

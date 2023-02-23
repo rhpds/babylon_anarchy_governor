@@ -2,8 +2,8 @@
 - name: Run deployer update {{ anarchy_subject_name }}
   vars:
     new_subject_state: updating
-    tower_job_template_playbook: "{{ deployer_entry_points['update'] }}"
-    tower_job_extra_vars: >-
+    job_template_playbook: "{{ deployer_entry_points['update'] }}"
+    job_extra_vars: >-
       {{ vars.anarchy_subject.vars.job_vars | default({})
        | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
        | combine(vars.dynamic_job_vars, recursive=True)
@@ -18,5 +18,5 @@
 
 - name: Schedule check for update of {{ anarchy_subject_name }}
   anarchy_continue_action:
-    after: "{{ tower_job_check_interval }}"
+    after: "{{ job_check_interval }}"
 ...

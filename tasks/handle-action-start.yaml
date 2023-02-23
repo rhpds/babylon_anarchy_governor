@@ -6,7 +6,7 @@
 - name: Check start of {{ anarchy_subject_name }}
   when: current_state == "starting"
   vars:
-    tower_job_action: start
-    tower_job_info: "{{ vars.anarchy_subject.status.towerJobs.start }}"
+    job_action: start
+    job_info: "{{ vars.anarchy_subject.status.towerJobs.start }}"
   include_tasks: check-deployer-job.yaml
 ...

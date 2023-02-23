@@ -5,9 +5,9 @@
     skip_update_processing: true
     spec:
       vars:
-        check_status_state: failed
+        check_status_state: error
 
-- name: Finish action {{ anarchy_action_name }} as failed
+- name: Finish action {{ anarchy_action_name }} as error
   anarchy_finish_action:
-    state: failed
+    state: error
 ...

@@ -1,21 +1,28 @@
 ---
+- name: Set Ansible controller access facts
+  vars:
+    job_info: >-
+      {{ vars.anarchy_subject.status.towerJobs.provision | default({}) }}
+  include_tasks:
+    file: controller-access-facts.yaml
+
 - name: Cancel provision tower job
   when:
   - "'deployerJob' in vars.anarchy_subject.status.towerJobs.provision | default({})"
   - "'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision"
-  awx.awx.tower_job_cancel:
+  awx.awx.job_cancel:
+    controller_host: "https://{{ controller_host }}/"
+    controller_username: "{{ controller_user }}"
+    controller_password: "{{ controller_password }}"
     job_id: "{{ vars.anarchy_subject.status.towerJobs.provision.deployerJob }}"
     fail_if_not_running: false
-    tower_host: "https://{{ babylon_tower.hostname }}/"
-    tower_username: "{{ babylon_tower.user }}"
-    tower_password: "{{ babylon_tower.password }}"
     validate_certs: false
 
 - name: Run deployer destroy {{ anarchy_subject_name }}
   vars:
     new_subject_state: destroying
-    tower_job_template_playbook: "{{ deployer_entry_points.destroy }}"
-    tower_job_extra_vars: >-
+    job_template_playbook: "{{ deployer_entry_points.destroy }}"
+    job_extra_vars: >-
       {{ vars.anarchy_subject.vars.job_vars | default({})
        | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
        | combine(vars.dynamic_job_vars, recursive=True)
@@ -30,5 +37,5 @@
 
 - name: Schedule check for destroy of {{ anarchy_subject_name }}
   anarchy_continue_action:
-    after: "{{ tower_job_check_interval }}"
+    after: "{{ job_check_interval }}"
 ...

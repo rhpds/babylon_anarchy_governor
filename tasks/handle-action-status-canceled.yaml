@@ -1,6 +1,6 @@
 ---
 - name: Set failure check_status_state for {{ anarchy_subject_name }}
-  when: tower_job_action == 'status'
+  when: job_action == 'status'
   anarchy_subject_update:
     skip_update_processing: true
     spec:

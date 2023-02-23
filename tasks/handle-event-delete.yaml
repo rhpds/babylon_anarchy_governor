@@ -1,19 +1,17 @@
 ---
+
 - name: Cancel tower jobs for {{ anarchy_subject_name }}
   loop: >-
     {{ vars.anarchy_subject.status.TowerJobs | default({}) | dict2items
      | json_query('[?value.deployerJob && value.completeTimestamp==null]')
     }}
   loop_control:
-    label: "{{ tower_job.key }}"
-    loop_var: tower_job
-  awx.awx.tower_job_cancel:
-    job_id: "{{ tower_job.value.deployerJob }}"
-    fail_if_not_running: false
-    tower_host: "https://{{ babylon_tower.hostname }}/"
-    tower_username: "{{ babylon_tower.user }}"
-    tower_password: "{{ babylon_tower.password }}"
-    validate_certs: false
+    label: "{{ __job.key }}"
+    loop_var: __job
+  vars:
+    job_info: "{{ __job.value }}"
+  include_tasks:
+    file: cancel-job.yaml
 
 - name: Immediately remove finalizers on {{ anarchy_subject_name }} if never provisioned or destroy not configured
   when: >-
