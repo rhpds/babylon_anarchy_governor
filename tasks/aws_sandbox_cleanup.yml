@@ -60,6 +60,7 @@
         --expression-attribute-values '{{ _data | to_json }}'
         --max-item 1
       register: r_associated
+      changed_when: false
 
     - set_fact:
         query1: "{{ r_associated.stdout | from_json }}"
@@ -121,7 +122,7 @@
           # That's why we set the failed_when as follow:
           failed_when: >-
             r_mark.rc != 0
-            and  'The conditional request failed' not in r_mark.stdout
+            and  'ConditionalCheckFailedException' not in r_mark.stderr
 
     - when: query1.Count == 0
       debug:
