@@ -111,9 +111,9 @@
           # it means the condition expression wasn't true and the item was not updated.
           # In the condition-expression above, before marking for cleanup,
           # we make sure:
-          # - sandbox is not available (taken)
-          # - associated to the guid and uuid
-          # - to_cleanup is false
+          # - the sandbox is not available (taken)
+          # - the sandbox is associated to the guid and uuid
+          # - the sandbox is not marked for cleanup (to_cleanup is false)
           #
           # if the conditional expression did not pass, it means, between the previous request and this one:
           # the sandbox's been cleaned up already => All good
