@@ -71,7 +71,7 @@
             msg: >-
               guid={{ vars.anarchy_subject.vars.job_vars.guid }}
               uuid={{ vars.anarchy_subject.vars.job_vars.uuid }}
-              {{ query1.Items[0].name.S }} found"
+              {{ query1.Items[0].name.S }} found
 
         - name: Save sandbox variables
           set_fact:
@@ -129,4 +129,4 @@
         msg: >-
           guid={{ vars.anarchy_subject.vars.job_vars.guid }}
           uuid={{ vars.anarchy_subject.vars.job_vars.uuid }}
-          sandbox not found"
+          sandbox not found
