@@ -1,4 +1,7 @@
 ---
+- when: vars.anarchy_governor.vars.job_vars.__meta__.aws_sandboxed | default(false)
+  include_tasks: aws_sandbox_cleanup.yml
+
 - name: Complete AnarchySubject deletion
   anarchy_subject_delete:
     remove_finalizers: true
