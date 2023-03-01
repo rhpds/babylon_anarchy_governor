@@ -12,4 +12,6 @@
     controller_password: "{{ controller_password }}"
     # FIXME - validate certs
     validate_certs: false
+  register: r_job_cancel
+  failed_when: r_job_cancel.failed and 'Unable to find job with id ' not in r_job_cancel.msg
 ...
