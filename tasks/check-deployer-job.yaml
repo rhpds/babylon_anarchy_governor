@@ -20,7 +20,7 @@
 - name: Handle tower job failed or canceled
   vars:
     __job_status: "{{ r_api_response.json.status }}"
-  when: __job_status in ['canceled', 'failed']
+  when: __job_status in ['canceled', 'error', 'failed']
   include_tasks:
     file: handle-action-{{ anarchy_action_config_name }}-{{ __job_status }}.yaml
 
@@ -58,7 +58,7 @@
 - name: Schedule next check for {{ job_action }} {{ anarchy_subject_name }}
   vars:
     __job_status: "{{ r_api_response.json.status }}"
-  when: __job_status not in ['canceled', 'failed', 'successful']
+  when: __job_status not in ['canceled', 'error', 'failed', 'successful']
   anarchy_continue_action:
     after: "{{ job_check_interval }}"
 ...

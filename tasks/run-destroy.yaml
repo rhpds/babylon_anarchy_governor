@@ -17,6 +17,8 @@
     job_id: "{{ vars.anarchy_subject.status.towerJobs.provision.deployerJob }}"
     fail_if_not_running: false
     validate_certs: false
+  register: r_job_cancel
+  failed_when: r_job_cancel.failed and 'Unable to find job with id ' not in r_job_cancel.msg
 
 - name: Run deployer destroy {{ anarchy_subject_name }}
   vars:
