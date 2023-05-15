@@ -53,6 +53,7 @@ class LookupModule(LookupBase):
                 git_org = parts[0]
                 git_repo = re.sub('\.git$', '', parts[1])
                 r = requests.get('https://api.github.com/repos/{}/{}/git/refs/tags'.format(git_org, git_repo))
+                r.raise_for_status()
                 latest_tag = None
                 latest_version = None
                 tag_re = re.compile(r'refs/tags/({}-?([0-9.]+))$'.format(re.escape(term)))
