@@ -21,15 +21,24 @@
   anarchy_subject_delete:
     remove_finalizers: true
 
-- name: Schedule destroy {{ anarchy_subject_name }}
+- name: Handle destroy
   when: >-
     vars.anarchy_subject.status.towerJobs.provision.deployerJob | default('') != '' and
     deployer_entry_points.destroy | default('', true) != '' and
     'destroy' in vars.anarchy_governor.spec.actions
-  anarchy_schedule_action:
-    action: destroy
-    cancel:
-    - start
-    - stop
-    - update
+  block:
+  - name: Schedule destroy {{ anarchy_subject_name }}
+    anarchy_schedule_action:
+      action: destroy
+      cancel:
+      - start
+      - stop
+      - update
+
+  - name: Update desired_state to destroyed for {{ anarchy_subject_name }}
+    anarchy_subject_update:
+      spec:
+        vars:
+          current_state: destroy-pending
+          desired_state: destroyed
 ...
