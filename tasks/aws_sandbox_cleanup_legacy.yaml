@@ -1,0 +1,97 @@
+---
+- environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_sandbox_manager.pool_manager_aws_access_key_id }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_sandbox_manager.pool_manager_aws_secret_access_key }}"
+  block:
+    - name: Check if sandbox is associated
+      vars:
+        _expression: >-
+          available = :a
+          and guid = :g
+          and ( attribute_not_exists(service_uuid) or service_uuid = :u )
+        _data:
+          ":a":
+            BOOL: false
+          ":g":
+            S: "{{ vars.anarchy_subject.vars.job_vars.guid }}"
+          ":u":
+            S: "{{ vars.anarchy_subject.vars.job_vars.uuid }}"
+      command: >-
+        aws
+        --region "{{ aws_sandbox_manager.pool_region | default('us-east-1') }}"
+        dynamodb scan
+        --table-name {{ aws_sandbox_manager.pool_table | default('accounts') }}
+        --filter-expression '{{ _expression }}'
+        --expression-attribute-values '{{ _data | to_json }}'
+        --max-item 1
+      register: r_associated
+      changed_when: false
+
+    - set_fact:
+        query1: "{{ r_associated.stdout | from_json }}"
+
+    - when: query1.Count == 1
+      block:
+        - debug:
+            msg: >-
+              guid={{ vars.anarchy_subject.vars.job_vars.guid }}
+              uuid={{ vars.anarchy_subject.vars.job_vars.uuid }}
+              {{ query1.Items[0].name.S }} found
+
+        - name: Save sandbox variables
+          set_fact:
+            sandbox_name: "{{ query1.Items[0].name.S }}"
+
+        - name: Mark the sandbox for cleanup
+          vars:
+            _data:
+              ":cl":
+                BOOL: true
+              ":currval":
+                BOOL: false
+              ":av":
+                BOOL: false
+              ":g":
+                S: "{{ vars.anarchy_subject.vars.job_vars.guid }}"
+              ":u":
+                S: "{{ vars.anarchy_subject.vars.job_vars.uuid }}"
+          command: >-
+            aws
+            --region "{{ aws_sandbox_manager.pool_region | default('us-east-1') }}"
+            dynamodb update-item
+            --table-name {{ aws_sandbox_manager.pool_table | default('accounts') }}
+            --key "{\"name\": {\"S\": \"{{ sandbox_name }}\"}}"
+            --update-expression "SET to_cleanup = :cl"
+            --condition-expression "available = :av
+            and guid = :g
+            and ( attribute_not_exists(service_uuid) or service_uuid = :u )
+            and to_cleanup = :currval
+            "
+            --expression-attribute-values '{{ _data | to_json }}'
+
+          register: r_mark
+          changed_when: r_mark.rc == 0
+
+          # When an update-item request fails with 'The conditional request failed' error message,
+          # it means the condition expression wasn't true and the item was not updated.
+          # In the condition-expression above, before marking for cleanup,
+          # we make sure:
+          # - the sandbox is not available (taken)
+          # - the sandbox is associated to the guid and uuid
+          # - the sandbox is not marked for cleanup (to_cleanup is false)
+          #
+          # if the conditional expression did not pass, it means, between the previous request and this one:
+          # the sandbox's been cleaned up already => All good
+          # OR the sandbox is already marked for cleanup => All good
+          #
+          # That's why we set the failed_when as follow:
+          failed_when: >-
+            r_mark.rc != 0
+            and  'ConditionalCheckFailedException' not in r_mark.stderr
+
+    - when: query1.Count == 0
+      debug:
+        msg: >-
+          guid={{ vars.anarchy_subject.vars.job_vars.guid }}
+          uuid={{ vars.anarchy_subject.vars.job_vars.uuid }}
+          sandbox not found
