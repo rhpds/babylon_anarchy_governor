@@ -15,7 +15,7 @@
       towerJobs:
         destroy:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
-          jobStatus: complete
+          jobStatus: successful
 
 - name: Complete AnarchySubject deletion
   anarchy_subject_delete:
