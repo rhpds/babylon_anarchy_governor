@@ -15,6 +15,7 @@
       towerJobs:
         provision:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
+          jobStatus: complete
 
 - name: Report action successful
   anarchy_finish_action:
