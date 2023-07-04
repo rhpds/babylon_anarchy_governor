@@ -2,6 +2,21 @@
 - when: vars.anarchy_governor.vars.job_vars.__meta__.aws_sandboxed | default(false)
   include_tasks: aws_sandbox_cleanup.yml
 
+- name: Set state destroy for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    skip_update_processing: true
+    metadata:
+      labels:
+        state: destroy-complete
+    spec:
+      vars:
+        current_state: destroy-complete
+    status:
+      towerJobs:
+        destroy:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          jobStatus: successful
+
 - name: Complete AnarchySubject deletion
   anarchy_subject_delete:
     remove_finalizers: true

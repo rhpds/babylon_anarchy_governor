@@ -11,6 +11,7 @@
       towerJobs:
         stop:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
+          jobStatus: successful
 
 - name: Report action successful
   anarchy_finish_action:
