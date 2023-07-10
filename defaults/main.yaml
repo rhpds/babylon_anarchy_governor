@@ -141,3 +141,12 @@ deployer_entry_points:
 
 static_credentials: >-
   {{ __meta__.deployer.credentials | default([]) }}
+
+# Sandbox API
+sandbox_api_login_token: "{{ sandbox_api.sandbox_api_login_token }}"
+
+sandbox_api_url: >-
+  {{ sandbox_api.sandbox_api_url
+  | default('http://sandbox-api.babylon-sandbox-api.svc.cluster.local:8080') }}
+sandbox_api_retries: 10
+sandbox_api_delay: 30

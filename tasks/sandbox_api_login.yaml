@@ -1,0 +1,15 @@
+---
+- name: Login using the JWT login token
+  uri:
+    url: "{{ sandbox_api_url }}/api/v1/login"
+    headers:
+      Authorization: Bearer {{ sandbox_api_login_token }}
+  register: r_login
+  retries: "{{ sandbox_api_retries }}"
+  delay: "{{ sandbox_api_delay }}"
+  until: r_login is succeeded
+  no_log: true
+
+- name: Save access token
+  set_fact:
+    access_token: "{{ r_login.json.access_token }}"
