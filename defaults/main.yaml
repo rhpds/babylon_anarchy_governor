@@ -150,3 +150,5 @@ sandbox_api_url: >-
   | default('http://sandbox-api.babylon-sandbox-api.svc.cluster.local:8080') }}
 sandbox_api_retries: 10
 sandbox_api_delay: 30
+
+now_time_utc: "{{ now(utc=true, fmt='%Y-%m-%dT%H:%M:%S') }}"

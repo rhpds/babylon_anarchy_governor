@@ -1,6 +1,19 @@
 ---
+# Use the sandbox API to start environments if
+# __meta__.sandbox_api.actions.start is non empty
+- name: start {{ anarchy_subject_name }} with Sandbox API
+  when: >-
+    __meta__.sandbox_api.actions.start | default({}) | length > 0
+    and current_state != "starting"
+    and sandbox_api_login_token | default("") != ""
+  block:
+    - include_tasks: sandbox_api_login.yaml
+    - include_tasks: sandbox_api_start.yaml
+
 - name: Start {{ anarchy_subject_name }}
-  when: current_state != "starting"
+  when: >-
+    __meta__.sandbox_api.actions.start | default({}) | length == 0
+    and current_state != "starting"
   include_tasks: run-start.yaml
 
 - name: Check start of {{ anarchy_subject_name }}
