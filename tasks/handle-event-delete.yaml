@@ -13,32 +13,17 @@
   include_tasks:
     file: cancel-job.yaml
 
-- name: Immediately remove finalizers on {{ anarchy_subject_name }} if never provisioned or destroy not configured
+- name: Handle delete without destroy
   when: >-
     vars.anarchy_subject.status.towerJobs.provision.deployerJob | default('') == '' or
     deployer_entry_points.destroy | default('', true) == '' or
     'destroy' not in vars.anarchy_governor.spec.actions
-  anarchy_subject_delete:
-    remove_finalizers: true
+  include_tasks: handle-event-delete-no-destroy.yaml
 
-- name: Handle destroy
+- name: Handle delete with destroy
   when: >-
     vars.anarchy_subject.status.towerJobs.provision.deployerJob | default('') != '' and
     deployer_entry_points.destroy | default('', true) != '' and
     'destroy' in vars.anarchy_governor.spec.actions
-  block:
-  - name: Schedule destroy {{ anarchy_subject_name }}
-    anarchy_schedule_action:
-      action: destroy
-      cancel:
-      - start
-      - stop
-      - update
-
-  - name: Update desired_state to destroyed for {{ anarchy_subject_name }}
-    anarchy_subject_update:
-      spec:
-        vars:
-          current_state: destroy-pending
-          desired_state: destroyed
+  include_tasks: handle-event-delete-with-destroy.yaml
 ...
