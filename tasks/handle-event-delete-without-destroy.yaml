@@ -1,0 +1,12 @@
+---
+- name: Update state to destroyed for {{ anarchy_subject_name }} with no destroy action
+  anarchy_subject_update:
+    spec:
+      vars:
+        current_state: destroy-complete
+        desired_state: destroyed
+
+- name: Remove finalizers from {{ anarchy_subject_name }} with no destroy action
+  anarchy_subject_delete:
+    remove_finalizers: true
+...
