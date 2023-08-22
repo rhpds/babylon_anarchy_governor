@@ -44,7 +44,7 @@
       or r_request.json.status | default('unknown') == 'error'
     until: >-
       r_request is succeeded
-      and r_request.json.status not in ["unknown", "running", "new", "initializing", "initialized"]
+      and r_request.json.status in ["success", "error"]
 
   - when: r_request.json.status == "success"
     block:
@@ -66,6 +66,27 @@
     - name: Report action successful
       anarchy_finish_action:
         state: successful
+
+  - when: r_request.json.status == "error"
+    block:
+    - name: Set state started for {{ anarchy_subject_name }}
+      anarchy_subject_update:
+        metadata:
+          labels:
+            state: start-error
+        spec:
+          vars:
+            current_state: start-error
+        status:
+          sandboxAPIJobs:
+            start:
+              completeTimestamp: "{{ now_time_utc }}"
+              jobStatus: error
+              message: "{{ r_request.json.message | default('') }}"
+
+    - name: Report action successful
+      anarchy_finish_action:
+        state: error
 
   rescue:
   - name: Set state start-error for {{ anarchy_subject_name }}
