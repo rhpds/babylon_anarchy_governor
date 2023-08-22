@@ -61,7 +61,7 @@
             stop:
               completeTimestamp: "{{ now_time_utc }}"
               jobStatus: successful
-              Message: r_request.json.message
+              message: "{{ r_request.json.message | default('') }}"
 
     - name: Report action successful
       anarchy_finish_action:
@@ -82,7 +82,7 @@
           stop:
             completeTimestamp: "{{ now_time_utc }}"
             jobStatus: error
-            Message: r_request.json.message
+            message: "{{ r_request.json.message | default('') }}"
 
   - name: Report action successful
     anarchy_finish_action:
