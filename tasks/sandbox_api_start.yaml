@@ -84,7 +84,7 @@
               jobStatus: error
               message: "{{ r_request.json.message | default('') }}"
 
-    - name: Report action successful
+    - name: Report action failure
       anarchy_finish_action:
         state: error
 
@@ -105,7 +105,7 @@
             jobStatus: error
             message: "{{ r_request.json.message | default('') }}"
 
-  - name: Report action successful
+  - name: Report action failure
     anarchy_finish_action:
       state: error
 ...
