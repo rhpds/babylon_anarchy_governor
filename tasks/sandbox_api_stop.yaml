@@ -28,6 +28,7 @@
             requestID: "{{ r_stop.json.request_id }}"
             message: "{{ r_stop.json.message }}"
             startTimestamp: "{{ now_time_utc }}"
+            httpStatus: "{{ r_stop.status }}"
 
   - name: Wait until async job is completed
     uri:
