@@ -11,7 +11,7 @@
     register: r_stop
     retries: "{{ sandbox_api_retries }}"
     delay: "{{ sandbox_api_delay }}"
-    until: r_stop is succeeded or r_start.status == 404
+    until: r_stop is succeeded or r_stop.status == 404
 
   - name: Set status in anarchy subject
     anarchy_subject_update:
@@ -70,7 +70,7 @@
 
   - when: r_request.json.status == "error"
     block:
-    - name: Set state started for {{ anarchy_subject_name }}
+    - name: Set state stop-error for {{ anarchy_subject_name }}
       anarchy_subject_update:
         metadata:
           labels:

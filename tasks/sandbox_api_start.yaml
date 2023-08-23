@@ -70,7 +70,7 @@
 
   - when: r_request.json.status == "error"
     block:
-    - name: Set state started for {{ anarchy_subject_name }}
+    - name: Set state start-error for {{ anarchy_subject_name }}
       anarchy_subject_update:
         metadata:
           labels:
