@@ -28,6 +28,7 @@
             requestID: "{{ r_start.json.request_id }}"
             message: "{{ r_start.json.message }}"
             startTimestamp: "{{ now_time_utc }}"
+            httpStatus: "{{ r_start.status }}"
 
   - name: Wait until async job is completed
     uri:
@@ -44,7 +45,7 @@
       or r_request.json.status | default('unknown') == 'error'
     until: >-
       r_request is succeeded
-      and r_request.json.status not in ["unknown", "running", "new", "initializing", "initialized"]
+      and r_request.json.status in ["success", "error"]
 
   - when: r_request.json.status == "success"
     block:
@@ -61,11 +62,32 @@
             start:
               completeTimestamp: "{{ now_time_utc }}"
               jobStatus: successful
-              Message: r_request.json.message
+              httpStatus: "{{ r_request.status }}"
 
     - name: Report action successful
       anarchy_finish_action:
         state: successful
+
+  - when: r_request.json.status == "error"
+    block:
+    - name: Set state start-error for {{ anarchy_subject_name }}
+      anarchy_subject_update:
+        metadata:
+          labels:
+            state: start-error
+        spec:
+          vars:
+            current_state: start-error
+        status:
+          sandboxAPIJobs:
+            start:
+              completeTimestamp: "{{ now_time_utc }}"
+              jobStatus: error
+              httpStatus: "{{ r_request.status }}"
+
+    - name: Report action failure
+      anarchy_finish_action:
+        state: error
 
   rescue:
   - name: Set state start-error for {{ anarchy_subject_name }}
@@ -82,9 +104,19 @@
           start:
             completeTimestamp: "{{ now_time_utc }}"
             jobStatus: error
-            Message: r_request.json.message
+            httpStatus: >-
+              {{ r_request.status
+              | default(r_start.status)
+              }}
+            message: >-
+              {{ r_request.json.message
+              | default(r_request.msg, true)
+              | default(r_start.json.message, true)
+              | default(r_start.msg, true)
+              | default("something bad happened")
+              }}
 
-  - name: Report action successful
+  - name: Report action failure
     anarchy_finish_action:
       state: error
 ...

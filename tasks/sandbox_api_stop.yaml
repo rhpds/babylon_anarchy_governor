@@ -11,7 +11,7 @@
     register: r_stop
     retries: "{{ sandbox_api_retries }}"
     delay: "{{ sandbox_api_delay }}"
-    until: r_stop is succeeded or r_start.status == 404
+    until: r_stop is succeeded or r_stop.status == 404
 
   - name: Set status in anarchy subject
     anarchy_subject_update:
@@ -28,6 +28,7 @@
             requestID: "{{ r_stop.json.request_id }}"
             message: "{{ r_stop.json.message }}"
             startTimestamp: "{{ now_time_utc }}"
+            httpStatus: "{{ r_stop.status }}"
 
   - name: Wait until async job is completed
     uri:
@@ -44,7 +45,7 @@
       or r_request.json.status | default('unknown') == 'error'
     until: >-
       r_request is succeeded
-      and r_request.json.status not in ["unknown", "running", "new", "initializing", "initialized"]
+      and r_request.json.status in ["success", "error"]
 
   - when: r_request.json.status == "success"
     block:
@@ -61,11 +62,32 @@
             stop:
               completeTimestamp: "{{ now_time_utc }}"
               jobStatus: successful
-              Message: r_request.json.message
+              httpStatus: "{{ r_request.status }}"
 
     - name: Report action successful
       anarchy_finish_action:
         state: successful
+
+  - when: r_request.json.status == "error"
+    block:
+    - name: Set state stop-error for {{ anarchy_subject_name }}
+      anarchy_subject_update:
+        metadata:
+          labels:
+            state: stop-error
+        spec:
+          vars:
+            current_state: stop-error
+        status:
+          sandboxAPIJobs:
+            stop:
+              completeTimestamp: "{{ now_time_utc }}"
+              jobStatus: error
+              httpStatus: "{{ r_request.status }}"
+
+    - name: Report action failure
+      anarchy_finish_action:
+        state: error
 
   rescue:
   - name: Set state stop-error for {{ anarchy_subject_name }}
@@ -82,9 +104,19 @@
           stop:
             completeTimestamp: "{{ now_time_utc }}"
             jobStatus: error
-            Message: r_request.json.message
+            httpStatus: >-
+              {{ r_request.status
+              | default(r_stop.status)
+              }}
+            message: >-
+              {{ r_request.json.message
+              | default(r_request.msg, true)
+              | default(r_stop.json.message, true)
+              | default(r_stop.msg, true)
+              | default("something bad happened")
+              }}
 
-  - name: Report action successful
+  - name: Report action failure
     anarchy_finish_action:
       state: error
 ...
