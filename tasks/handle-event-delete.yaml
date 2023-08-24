@@ -18,7 +18,7 @@
     vars.anarchy_subject.status.towerJobs.provision.deployerJob | default('') == '' or
     deployer_entry_points.destroy | default('', true) == '' or
     'destroy' not in vars.anarchy_governor.spec.actions
-  include_tasks: handle-event-delete-no-destroy.yaml
+  include_tasks: handle-event-delete-without-destroy.yaml
 
 - name: Handle delete with destroy
   when: >-
