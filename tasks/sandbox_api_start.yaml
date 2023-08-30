@@ -68,7 +68,7 @@
       anarchy_finish_action:
         state: successful
 
-  - when: r_request.json.status == "error"
+  - when: r_request.json.status != "success"
     block:
     - name: Set state start-error for {{ anarchy_subject_name }}
       anarchy_subject_update:
