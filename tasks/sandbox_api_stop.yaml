@@ -68,7 +68,7 @@
       anarchy_finish_action:
         state: successful
 
-  - when: r_request.json.status != "success"
+  - when: r_request.json.status | default('') != "success"
     block:
     - name: Set state stop-error for {{ anarchy_subject_name }}
       anarchy_subject_update:
@@ -82,7 +82,7 @@
           sandboxAPIJobs:
             stop:
               completeTimestamp: "{{ now_time_utc }}"
-              jobStatus: error
+              jobStatus: "{{ r_request.json.status | default('unknown') }}"
               httpStatus: "{{ r_request.status }}"
 
     - name: Report action failure
