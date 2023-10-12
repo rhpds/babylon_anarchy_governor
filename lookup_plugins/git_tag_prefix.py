@@ -56,7 +56,7 @@ class LookupModule(LookupBase):
                 r.raise_for_status()
                 latest_tag = None
                 latest_version = None
-                tag_re = re.compile(r'refs/tags/({}-?([0-9.]+))$'.format(re.escape(term)))
+                tag_re = re.compile(r'refs/tags/({}-?v?([0-9.]+))$'.format(re.escape(term)))
                 for tag_ref in r.json():
                     m = tag_re.match(tag_ref['ref'])
                     if m:
