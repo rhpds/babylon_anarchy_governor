@@ -26,15 +26,6 @@
         vars.anarchy_subject.vars.job_vars.uuid is defined
         and vars.anarchy_subject.vars.job_vars.uuid != ''
 
-    - msg: Variable aws_sandbox_manager is not defined
-      that: aws_sandbox_manager is defined
-
-    - msg: Variable aws_sandbox_manager is incomplete ; missing AWS credentials
-      that: >-
-        ('pool_manager_aws_access_key_id' in aws_sandbox_manager
-        and 'pool_manager_aws_secret_access_key' in aws_sandbox_manager)
-        or sandbox_api_login_token | default('') != ''
-
 - when: sandbox_api_login_token | default("") != ""
   block:
     - include_tasks: sandbox_api_login.yaml
