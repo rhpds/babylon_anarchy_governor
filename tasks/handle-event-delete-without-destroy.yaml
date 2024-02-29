@@ -1,4 +1,10 @@
 ---
+# When destroy is disable and if it's a sandbox + destroy_catch_all is true,
+# then delete placement from the sandbox API
+- when: >-
+    sandbox_api_in_use and sandbox_api_destroy_catch_all
+  include_tasks: aws_sandbox_cleanup.yml
+
 - name: Update state to destroyed for {{ anarchy_subject_name }} with no destroy action
   anarchy_subject_update:
     spec:

@@ -1,4 +1,30 @@
 ---
+- when: >-
+    sandbox_api_in_use
+    and sandbox_api_destroy_catch_all
+    and (
+        'destroy-error' == current_state | default('') or
+        'destroy-failed' == current_state | default('') or
+        'destroy-canceled' == current_state | default('')
+    )
+
+  block:
+  - debug:
+      msg: >-
+        {{ current_state }}, Use sandbox API to cleanup {{ anarchy_subject_name }}
+        and delete + remove finalizers
+
+  - include_tasks: aws_sandbox_cleanup.yml
+
+  # The following proceed with the deletion of the anarchy subject if the Placement
+  # is deleted, even if the tower job failed.
+  - name: Complete deletion anarchy subject on destroy failure
+    anarchy_subject_delete:
+      remove_finalizers: true
+
+  # Do not run deployer destroy in this case, just use the Sandbox API to cleanup
+  - meta: end_play
+
 - name: Destroying {{ anarchy_subject_name }}
   when: current_state != "destroying"
   include_tasks: run-destroy.yaml
