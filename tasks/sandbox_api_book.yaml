@@ -43,22 +43,36 @@
 # TODO: capturing the result should be done depending on the resources requested.
 #       if it's Azure, then ... if count is 2, then ...
 #       That should probably be a module
-- set_fact:
-    sandbox_name: "{{ placement.resources[0].name }}"
-    sandbox_zone: "{{ placement.resources[0].zone }}"
-    sandbox_hosted_zone_id: "{{ placement.resources[0].hosted_zone_id }}"
-    sandbox_account: "{{ placement.resources[0].account_id }}"
-    sandbox_account_id: "{{ placement.resources[0].account_id }}"
-    sandbox_aws_access_key_id: >-
-      {{ (placement.resources[0].credentials
-      | selectattr('kind', 'equalto', 'aws_iam_key')
-      | selectattr('name', 'equalto', 'admin-key')
-      | first
-      ).get('aws_access_key_id') }}
-    sandbox_aws_secret_access_key: >-
-      {{ (placement.resources[0].credentials
-      | selectattr('kind', 'equalto', 'aws_iam_key')
-      | selectattr('name', 'equalto', 'admin-key')
-      | first).get('aws_secret_access_key') }}
+#
+- when: >-
+    'aws' in sandbox_api_providers
+  block:
+    - set_fact:
+        sandbox_name: "{{ placement.resources[0].name }}"
+        sandbox_zone: "{{ placement.resources[0].zone }}"
+        sandbox_hosted_zone_id: "{{ placement.resources[0].hosted_zone_id }}"
+        sandbox_account: "{{ placement.resources[0].account_id }}"
+        sandbox_account_id: "{{ placement.resources[0].account_id }}"
+        sandbox_aws_access_key_id: >-
+          {{ (placement.resources[0].credentials
+          | selectattr('kind', 'equalto', 'aws_iam_key')
+          | selectattr('name', 'equalto', 'admin-key')
+          | first
+          ).get('aws_access_key_id') }}
+        sandbox_aws_secret_access_key: >-
+          {{ (placement.resources[0].credentials
+          | selectattr('kind', 'equalto', 'aws_iam_key')
+          | selectattr('name', 'equalto', 'admin-key')
+          | first).get('aws_secret_access_key') }}
 
-- include_tasks: set_aws_sandbox.yaml
+    - include_tasks: set_aws_sandbox.yaml
+
+- when: >-
+    'aws' in sandbox_api_providers
+  block:
+    - set_fact:
+        sandbox_name: "{{ placement.resources[0].name }}"
+        sandbox_ocp_sa_account: "{{ placement.resources[0].sa_account }}"
+        sandbox_ocp_sa_token: "{{ placement.resources[0].sa_token}}"
+        sandbox_ocp_api_url: "{{ placement.resources[0].api_url }}"
+    - include_tasks: set_ocp_sandbox.yaml

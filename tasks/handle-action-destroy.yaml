@@ -15,6 +15,7 @@
         and delete + remove finalizers
 
   - include_tasks: aws_sandbox_cleanup.yml
+    when: sandbox_api_provider == "aws"
 
   # The following proceed with the deletion of the anarchy subject if the Placement
   # is deleted, even if the tower job failed.
