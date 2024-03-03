@@ -175,6 +175,26 @@ sandbox_api_in_use: >-
     or
     vars.anarchy_governor.vars.job_vars.__meta__.aws_sandboxed | default(false)
     or
+    vars.anarchy_subject.vars.job_vars.__meta__.ocp_sandboxed | default(false)
+    or
+    vars.anarchy_governor.vars.job_vars.__meta__.ocp_sandboxed | default(false)
+    or
+    vars.anarchy_governor.vars.job_vars.__meta__.sandbox_api.resources
+    | default(vars.anarchy_subject.vars.__meta__.sandbox_api.resources)
+    | default([])
+    | length > 0
+  }}
+
+sandbox_api_provider: >-
+  {{
+    "aws" if vars.anarchy_subject.vars.job_vars.__meta__.aws_sandboxed | default(false)
+    or
+    vars.anarchy_governor.vars.job_vars.__meta__.aws_sandboxed | default(false)
+    else
+    "ocp" if vars.anarchy_subject.vars.job_vars.__meta__.ocp_sandboxed | default(false)
+    or
+    vars.anarchy_governor.vars.job_vars.__meta__.ocp_sandboxed | default(false)
+    or
     vars.anarchy_governor.vars.job_vars.__meta__.sandbox_api.resources
     | default(vars.anarchy_subject.vars.__meta__.sandbox_api.resources)
     | default([])
@@ -217,7 +237,10 @@ sandbox_api_destroy_catch_all: >-
   | default(true) }}
 
 sandbox_api_resources_default:
-- kind: AwsSandbox
+- kind: >-
+    {{ "AwsSandbox" if sandbox_api_provider == "aws"
+       else
+       "OcpSanbox" if sandbox_api_provider == "ocp" }}
   count: 1
 
 # Kind of resources to book

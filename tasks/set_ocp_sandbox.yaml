@@ -1,0 +1,38 @@
+---
+- debug:
+    msg: >-
+      Sandbox {{ sandbox_name }} picked
+      uuid={{ uuid }}
+      guid={{ guid }}
+      env_type={{ env_type }}"
+
+- name: Save secret of ocp_sandbox_secrets dictionary
+  set_fact:
+    ocp_sandbox_secrets:
+      sandbox_name: "{{ sandbox_name }}"
+      # agnosticd
+      sandbox_ocp_sa_name: "{{ sandbox_ocp_sa_name }}"
+      sandbox_ocp_sa_token: "{{ sandbox_ocp_sa_token }}"
+      sandbox_ocp_sa_api_url: "{{ sandbox_ocp_api_url }}"
+
+- name: Inject secrets into dynamic_job_vars
+  set_fact:
+    dynamic_job_vars: >-
+      {{ vars.dynamic_job_vars
+      | default({})
+      | combine(ocp_sandbox_secrets, recursive=True) }}
+
+- name: Set sandbox for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    skip_update_processing: true
+    metadata:
+      labels:
+        sandbox: "{{ sandbox_name }}"
+    spec:
+      vars:
+        job_vars:
+          sandbox_name: "{{ sandbox_name }}"
+          # agnosticd
+          sandbox_ocp_sa_name: "{{ sandbox_ocp_sa_name }}"
+          sandbox_ocp_sa_token: "{{ sandbox_ocp_sa_token }}"
+          sandbox_ocp_sa_api_url: "{{ sandbox_ocp_api_url }}"
