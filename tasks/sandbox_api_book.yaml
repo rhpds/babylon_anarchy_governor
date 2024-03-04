@@ -29,7 +29,8 @@
         owner: "{{ requester_user }}"
         owner_email: "{{ requester_email | default('unknown', True) }}"
         comment: "sandbox-api {{ ocp_console_url }}"
-      resources: "{{ sandbox_api_resources }}"
+      cloud_selector: "{{ }}"
+      resources: "{{ sandbox_api_cloud_selector | default(omit) }}"
   register: r_new_placement
   retries: "{{ sandbox_api_retries }}"
   delay: "{{ sandbox_api_delay }}"

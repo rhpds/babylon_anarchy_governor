@@ -226,3 +226,7 @@ sandbox_api_resources_default:
 sandbox_api_resources: >-
   {{ vars.anarchy_governor.vars.job_vars.__meta__.sandboxes
   | default(sandbox_api_resources_default) }}
+
+sandbox_api_cloud_selector: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.cloud_selector
+  | default(vars.anarchy_subject.vars.__meta__.cloud_selector) }}
