@@ -11,7 +11,7 @@
     ocp_sandbox_secrets:
       sandbox_name: "{{ sandbox_name }}"
       # agnosticd
-      sandbox_ocp_sa_name: "{{ sandbox_ocp_sa_name }}"
+      sandbox_ocp_sa_account: "{{ sandbox_ocp_sa_account }}"
       sandbox_ocp_sa_token: "{{ sandbox_ocp_sa_token }}"
       sandbox_ocp_sa_api_url: "{{ sandbox_ocp_api_url }}"
 
@@ -33,6 +33,6 @@
         job_vars:
           sandbox_name: "{{ sandbox_name }}"
           # agnosticd
-          sandbox_ocp_sa_name: "{{ sandbox_ocp_sa_name }}"
+          sandbox_ocp_sa_account: "{{ sandbox_ocp_sa_account }}"
           sandbox_ocp_sa_token: "{{ sandbox_ocp_sa_token }}"
           sandbox_ocp_sa_api_url: "{{ sandbox_ocp_api_url }}"
