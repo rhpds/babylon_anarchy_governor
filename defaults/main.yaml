@@ -219,7 +219,7 @@ sandbox_api_resources_default:
 - kind: >-
     {{ "AwsSandbox" if sandbox_api_provider == "aws"
        else
-       "OcpSandbox" if sandbox_api_provider == "ocp" }}
+       "OcpAccount" if sandbox_api_provider == "ocp" }}
   count: 1
 
 # Kind of resources to book
