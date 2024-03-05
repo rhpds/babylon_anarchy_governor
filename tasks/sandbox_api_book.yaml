@@ -30,7 +30,7 @@
         owner_email: "{{ requester_email | default('unknown', True) }}"
         comment: "sandbox-api {{ ocp_console_url }}"
       cloud_selector: "{{ sandbox_api_cloud_selector | default(omit)}}"
-      resources: "{{ item }}"
+      resources: "{{ item + {'count': 1} }}"
   register: r_new_placement
   retries: "{{ sandbox_api_retries }}"
   delay: "{{ sandbox_api_delay }}"
