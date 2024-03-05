@@ -74,7 +74,7 @@
   block:
     - set_fact:
         sandbox_name: "{{ placement.resources[0].name }}"
-        sandbox_ocp_sa_account: "{{ placement.resources[0].sa_account }}"
-        sandbox_ocp_sa_token: "{{ placement.resources[0].sa_token }}"
-        sandbox_ocp_api_url: "{{ placement.resources[0].api_url }}"
+        ocp_access_account: "{{ placement.resources[0].sa_account }}"
+        ocp_access_token: "{{ placement.resources[0].sa_token }}"
+        ocp_api_url: "{{ placement.resources[0].api_url }}"
     - include_tasks: set_ocp_sandbox.yaml
