@@ -21,7 +21,7 @@ requester_user: >-
   {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-requester-user']
   | default(vars.anarchy_subject.vars.job_vars.requester_username)
   | default(vars.anarchy_subject.vars.job_vars.student_name)
-  | default('babylon') }}
+  | default('babylon', true) }}
 
 delete_on_failure: true
 
