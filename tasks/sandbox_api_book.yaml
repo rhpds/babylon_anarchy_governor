@@ -13,7 +13,7 @@
     ocp_console_url: >-
       {{ r_ocp_console_public.resources[0].data.consoleURL | default('') }}
 
-- name: Get a placement, book 1 aws sandbox
+- name: Get a placement, book sandbox(es)
   uri:
     headers:
       Authorization: Bearer {{ access_token }}
