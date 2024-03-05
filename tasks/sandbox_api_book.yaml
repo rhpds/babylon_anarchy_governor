@@ -30,12 +30,13 @@
         owner_email: "{{ requester_email | default('unknown', True) }}"
         comment: "sandbox-api {{ ocp_console_url }}"
       cloud_selector: "{{ sandbox_api_cloud_selector | default(omit)}}"
-      resources: "{{ sandbox_api_resources }}"
+      resources: "{{ item }}"
   register: r_new_placement
   retries: "{{ sandbox_api_retries }}"
   delay: "{{ sandbox_api_delay }}"
   until: r_new_placement is succeeded
   changed_when: true
+  loop: "{{ __meta__.sandboxes }}"
 
 - name: Save placement
   set_fact:
@@ -74,6 +75,6 @@
     - set_fact:
         sandbox_name: "{{ placement.resources[0].name }}"
         sandbox_ocp_sa_account: "{{ placement.resources[0].sa_account }}"
-        sandbox_ocp_sa_token: "{{ placement.resources[0].sa_token}}"
+        sandbox_ocp_sa_token: "{{ placement.resources[0].sa_token }}"
         sandbox_ocp_api_url: "{{ placement.resources[0].api_url }}"
     - include_tasks: set_ocp_sandbox.yaml
