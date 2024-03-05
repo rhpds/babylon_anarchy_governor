@@ -171,34 +171,9 @@ static_credentials: >-
 ################################
 sandbox_api_in_use: >-
   {{
-    vars.anarchy_subject.vars.job_vars.__meta__.aws_sandboxed | default(false)
+    __meta__.aws_sandboxed | default(false)
     or
-    vars.anarchy_governor.vars.job_vars.__meta__.aws_sandboxed | default(false)
-    or
-    vars.anarchy_subject.vars.job_vars.__meta__.ocp_sandboxed | default(false)
-    or
-    vars.anarchy_governor.vars.job_vars.__meta__.ocp_sandboxed | default(false)
-    or
-    vars.anarchy_governor.vars.job_vars.__meta__.sandbox_api.resources
-    | default(vars.anarchy_subject.vars.__meta__.sandbox_api.resources)
-    | default([])
-    | length > 0
-  }}
-
-sandbox_api_provider: >-
-  {{
-    "aws" if vars.anarchy_subject.vars.job_vars.__meta__.aws_sandboxed | default(false)
-    or
-    vars.anarchy_governor.vars.job_vars.__meta__.aws_sandboxed | default(false)
-    else
-    "ocp" if vars.anarchy_subject.vars.job_vars.__meta__.ocp_sandboxed | default(false)
-    or
-    vars.anarchy_governor.vars.job_vars.__meta__.ocp_sandboxed | default(false)
-    or
-    vars.anarchy_governor.vars.job_vars.__meta__.sandbox_api.resources
-    | default(vars.anarchy_subject.vars.__meta__.sandbox_api.resources)
-    | default([])
-    | length > 0
+    __meta__.sandboxes | default(false)
   }}
 
 # minimum age the sandbox must be before it's selected from the pool
@@ -235,13 +210,6 @@ sandbox_api_destroy_catch_all: >-
   {{ vars.anarchy_governor.vars.job_vars.__meta__.sandbox_api.destroy_catch_all
   | default(vars.anarchy_subject.vars.__meta__.sandbox_api.destroy_catch_all)
   | default(true) }}
-
-sandbox_api_resources_default:
-- kind: >-
-    {{ "AwsSandbox" if sandbox_api_provider == "aws"
-       else
-       "OcpAccount" if sandbox_api_provider == "ocp" }}
-  count: 1
 
 # Kind of resources to book
 sandbox_api_resources: >-
