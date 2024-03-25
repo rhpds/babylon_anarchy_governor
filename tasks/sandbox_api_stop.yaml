@@ -12,6 +12,7 @@
     retries: "{{ sandbox_api_retries }}"
     delay: "{{ sandbox_api_delay }}"
     until: r_stop is succeeded or r_stop.status == 404
+    changed_when: true
 
   - name: Set status in anarchy subject
     anarchy_subject_update:
