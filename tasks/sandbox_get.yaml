@@ -1,0 +1,13 @@
+---
+# First, try to get the information from the sandbox API using uuid and Placement
+- include_tasks: sandbox_api_login.yaml
+- include_tasks: sandbox_api_get.yaml
+
+# If no sandbox associated, book a new one using the Sandbox API
+# Run book only if the action is 'provision'
+- when: >-
+    anarchy_action_config_name == 'provision'
+    and r_get_placement.status | default(0, true) != 200
+    and sandbox_name is not defined
+    and sandbox_api_login_token | default("") != ""
+  include_tasks: sandbox_api_book.yaml

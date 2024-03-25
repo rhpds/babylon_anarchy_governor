@@ -1,4 +1,8 @@
 ---
+# Get sandbox to get the credential and perform deployer job
+- when: sandbox_api_in_use
+  include_tasks: sandbox_get.yaml
+
 - name: Set Ansible controller access facts
   vars:
     job_info: >-

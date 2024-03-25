@@ -18,9 +18,9 @@
             S: "{{ vars.anarchy_subject.vars.job_vars.uuid }}"
       command: >-
         aws
-        --region "{{ aws_sandbox_manager.pool_region | default('us-east-1') }}"
+        --region "{{ dynamodb_pool_region }}"
         dynamodb scan
-        --table-name {{ aws_sandbox_manager.pool_table | default('accounts') }}
+        --table-name {{ dynamodb_pool_table }}
         --filter-expression '{{ _expression }}'
         --expression-attribute-values '{{ _data | to_json }}'
         --max-item 1
@@ -57,9 +57,9 @@
                 S: "{{ vars.anarchy_subject.vars.job_vars.uuid }}"
           command: >-
             aws
-            --region "{{ aws_sandbox_manager.pool_region | default('us-east-1') }}"
+            --region "{{ dynamodb_pool_region }}"
             dynamodb update-item
-            --table-name {{ aws_sandbox_manager.pool_table | default('accounts') }}
+            --table-name {{ dynamodb_pool_table }}
             --key "{\"name\": {\"S\": \"{{ sandbox_name }}\"}}"
             --update-expression "SET to_cleanup = :cl"
             --condition-expression "available = :av

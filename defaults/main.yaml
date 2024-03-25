@@ -1,4 +1,28 @@
 ---
+# Variables from Anarchy Subject
+guid: "{{ vars.anarchy_subject.vars.job_vars.guid | default(None) }}"
+
+# Variables from Anarchy Subject
+uuid: "{{ vars.anarchy_subject.vars.job_vars.uuid | default(None) }}"
+
+# Variables from either Governor or Subject
+env_type: >-
+  {{ vars.anarchy_governor.vars.job_vars.env_type
+  | default(vars.anarchy_subject.vars.job_vars.env_type)
+  | default(None) }}
+
+requester_email: >-
+  {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-requester-email']
+  | default(vars.anarchy_subject.vars.job_vars.requester_email)
+  | default(vars.anarchy_subject.vars.job_vars.email)
+  | default(None) }}
+
+requester_user: >-
+  {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-requester-user']
+  | default(vars.anarchy_subject.vars.job_vars.requester_username)
+  | default(vars.anarchy_subject.vars.job_vars.student_name)
+  | default('babylon', true) }}
+
 delete_on_failure: true
 
 action_provision_data: "{{ anarchy_action_callback_data.data | default({}) }}"
@@ -142,7 +166,22 @@ deployer_entry_points:
 static_credentials: >-
   {{ __meta__.deployer.credentials | default([]) }}
 
+################################
 # Sandbox API
+################################
+sandbox_api_in_use: >-
+  {{
+    vars.anarchy_governor.vars.job_vars.__meta__.aws_sandboxed | default(false)
+    or
+    vars.anarchy_governor.vars.job_vars.__meta__.sandboxes
+    | default([])
+    | length > 0
+  }}
+
+# minimum age the sandbox must be before it's selected from the pool
+# default is 24h
+babylon_aws_sandbox_min_age: "{{ 3600 * 24 }}"
+
 sandbox_api_login_token: "{{ sandbox_api.sandbox_api_login_token }}"
 
 sandbox_api_url: >-
@@ -152,3 +191,31 @@ sandbox_api_retries: 10
 sandbox_api_delay: 30
 
 now_time_utc: "{{ now(utc=true, fmt='%Y-%m-%dT%H:%M:%S') }}"
+
+# Variables from secret via the aws_sandbox_manager variable
+dynamodb_pool_table: "{{ aws_sandbox_manager.pool_table | default('accounts') }}"
+dynamodb_pool_region: "{{ aws_sandbox_manager.pool_region | default('us-east-1') }}"
+pool_manager_aws_access_key_id: "{{ aws_sandbox_manager.pool_manager_aws_access_key_id | default(None) }}"
+pool_manager_aws_secret_access_key: "{{ aws_sandbox_manager.pool_manager_aws_secret_access_key | default(None) }}"
+pool_manager_vault_password: "{{ aws_sandbox_manager.pool_manager_vault_password | default(None) }}"
+
+# Reservation
+sandbox_api_reservation: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.sandbox_api.reservation
+  | default("") }}
+
+# Control wether the Sandbox API is enough to cleanup everything. By default, it's true.
+# It means if the deployer fails in AAP, it'll be ignored and the sandbox API will cleanup everything after and the AnarchySubject will be deleted
+# If the Controller job must succeed for a service to be considered delete, turn this to false in agnosticv __meta__.sandbox_api.destroy_catch_all
+sandbox_api_destroy_catch_all: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.sandbox_api.destroy_catch_all
+  | default(true) }}
+
+sandbox_api_resources_default:
+- kind: AwsSandbox
+  count: 1
+
+# Kind of resources to book
+sandbox_api_resources: >-
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.sandboxes
+  | default(sandbox_api_resources_default) }}

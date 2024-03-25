@@ -1,0 +1,64 @@
+---
+- name: Get the cluster console
+  k8s_info:
+    api_version: v1
+    kind: ConfigMap
+    namespace: openshift-config-managed
+    name: console-public
+  register: r_ocp_console_public
+  changed_when: false
+
+- name: Set ocp_console_url
+  set_fact:
+    ocp_console_url: >-
+      {{ r_ocp_console_public.resources[0].data.consoleURL | default('') }}
+
+- name: Get a placement, book sandbox(es)
+  uri:
+    headers:
+      Authorization: Bearer {{ access_token }}
+    url: "{{ sandbox_api_url }}/api/v1/placements"
+    method: POST
+    body_format: json
+    body:
+      service_uuid: "{{ uuid }}"
+      reservation: "{{ sandbox_api_reservation }}"
+      annotations:
+        guid: "{{ guid }}"
+        env_type: "{{ env_type }}"
+        owner: "{{ requester_user }}"
+        owner_email: "{{ requester_email | default('unknown', True) }}"
+        comment: "sandbox-api {{ ocp_console_url }}"
+      resources: "{{ sandbox_api_resources }}"
+  register: r_new_placement
+  retries: "{{ sandbox_api_retries }}"
+  delay: "{{ sandbox_api_delay }}"
+  until: r_new_placement is succeeded
+  changed_when: true
+
+- name: Save placement
+  set_fact:
+    placement: "{{ r_new_placement.json.Placement }}"
+
+# TODO: capturing the result should be done depending on the resources requested.
+#       if it's Azure, then ... if count is 2, then ...
+#       That should probably be a module
+- set_fact:
+    sandbox_name: "{{ placement.resources[0].name }}"
+    sandbox_zone: "{{ placement.resources[0].zone }}"
+    sandbox_hosted_zone_id: "{{ placement.resources[0].hosted_zone_id }}"
+    sandbox_account: "{{ placement.resources[0].account_id }}"
+    sandbox_account_id: "{{ placement.resources[0].account_id }}"
+    sandbox_aws_access_key_id: >-
+      {{ (placement.resources[0].credentials
+      | selectattr('kind', 'equalto', 'aws_iam_key')
+      | selectattr('name', 'equalto', 'admin-key')
+      | first
+      ).get('aws_access_key_id') }}
+    sandbox_aws_secret_access_key: >-
+      {{ (placement.resources[0].credentials
+      | selectattr('kind', 'equalto', 'aws_iam_key')
+      | selectattr('name', 'equalto', 'admin-key')
+      | first).get('aws_secret_access_key') }}
+
+- include_tasks: set_aws_sandbox.yaml

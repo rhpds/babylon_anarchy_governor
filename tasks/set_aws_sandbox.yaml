@@ -1,0 +1,47 @@
+---
+- debug:
+    msg: >-
+      Sandbox {{ sandbox_name }} picked
+      uuid={{ uuid }}
+      guid={{ guid }}
+      env_type={{ env_type }}"
+
+- name: Save secret of aws_sandbox_secrets dictionary
+  set_fact:
+    aws_sandbox_secrets:
+      sandbox_aws_access_key_id: "{{ sandbox_aws_access_key_id }}"
+      sandbox_aws_secret_access_key: "{{ sandbox_aws_secret_access_key }}"
+      sandbox_hosted_zone_id: "{{ sandbox_hosted_zone_id }}"
+      sandbox_name: "{{ sandbox_name }}"
+      sandbox_account: "{{ sandbox_account }}"
+      sandbox_account_id: "{{ sandbox_account_id }}"
+      sandbox_zone: "{{ sandbox_zone }}"
+      # agnosticd
+      aws_access_key_id: "{{ sandbox_aws_access_key_id }}"
+      aws_secret_access_key: "{{ sandbox_aws_secret_access_key }}"
+      HostedZoneId: "{{ sandbox_hosted_zone_id }}"
+      subdomain_base_suffix: ".{{ sandbox_zone }}"
+
+- name: Inject secrets into dynamic_job_vars
+  set_fact:
+    dynamic_job_vars: >-
+      {{ vars.dynamic_job_vars
+      | default({})
+      | combine(aws_sandbox_secrets, recursive=True) }}
+
+- name: Set sandbox for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    skip_update_processing: true
+    metadata:
+      labels:
+        sandbox: "{{ sandbox_name }}"
+    spec:
+      vars:
+        job_vars:
+          sandbox_name: "{{ sandbox_name }}"
+          sandbox_account: "{{ sandbox_account }}"
+          sandbox_zone: "{{ sandbox_zone }}"
+          sandbox_hosted_zone_id: "{{ sandbox_hosted_zone_id }}"
+          # agnosticd
+          HostedZoneId: "{{ sandbox_hosted_zone_id }}"
+          subdomain_base_suffix: ".{{ sandbox_zone }}"

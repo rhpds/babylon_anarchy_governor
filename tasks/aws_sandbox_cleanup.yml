@@ -34,5 +34,7 @@
 # If sandbox-api tasks didn't run or if placement was not found, it's safe to run legacy code to mark for cleanup any account matching uuid.
 # TODO: remove later
 # (when everything is using the sandbox-api and all services have a Placement in DB)
-- when: r_del.status | default(404) == 404
+- when:
+    - r_del.status | default(404) == 404
+    - pool_manager_aws_access_key_id | default('', true) != ''
   include_tasks: aws_sandbox_cleanup_legacy.yaml
