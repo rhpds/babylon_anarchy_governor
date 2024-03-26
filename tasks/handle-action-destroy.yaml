@@ -1,7 +1,7 @@
 ---
 - when: >-
-    sandbox_api_in_use
-    and sandbox_api_destroy_catch_all
+    sandbox_api_in_use | bool
+    and sandbox_api_destroy_catch_all | bool
     and (
         'destroy-error' == current_state | default('') or
         'destroy-failed' == current_state | default('') or
