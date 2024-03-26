@@ -208,7 +208,7 @@ sandbox_api_reservation: >-
 # It means if the deployer fails in AAP, it'll be ignored and the sandbox API will cleanup everything after and the AnarchySubject will be deleted
 # If the Controller job must succeed for a service to be considered delete, turn this to false in agnosticv __meta__.sandbox_api.destroy_catch_all
 sandbox_api_destroy_catch_all: >-
-  {{ vars.anarchy_governor.vars.job_vars.__meta__.sandbox_api.destroy_catch_all
+  {{ vars.anarchy_governor.vars.job_vars.__meta__.sandbox_api.actions.destroy.catch_all
   | default(true) }}
 
 sandbox_api_resources_default:
