@@ -29,40 +29,36 @@
         owner: "{{ requester_user }}"
         owner_email: "{{ requester_email | default('unknown', True) }}"
         comment: "sandbox-api {{ ocp_console_url }}"
-      cloud_selector: "{{ sandbox_api_cloud_selector | default(omit)}}"
-      resources: "{{ item + {'count': 1} }}"
+      resources: "{{ sandbox_api_resources | inject_var_annotations }}"
   register: r_new_placement
   retries: "{{ sandbox_api_retries }}"
   delay: "{{ sandbox_api_delay }}"
   until: r_new_placement is succeeded
   changed_when: true
-  loop: "{{ __meta__.sandboxes }}"
 
 - name: Save placement
   set_fact:
     placement: "{{ r_new_placement.json.Placement }}"
 
-# TODO: capturing the result should be done depending on the resources requested.
-#       if it's Azure, then ... if count is 2, then ...
-#       That should probably be a module
-#
 - when: >-
-    'aws' in sandbox_api_providers
+    'AwsSandbox' in sandbox_api_providers
   block:
-    - set_fact:
-        sandbox_name: "{{ placement.resources[0].name }}"
-        sandbox_zone: "{{ placement.resources[0].zone }}"
-        sandbox_hosted_zone_id: "{{ placement.resources[0].hosted_zone_id }}"
-        sandbox_account: "{{ placement.resources[0].account_id }}"
-        sandbox_account_id: "{{ placement.resources[0].account_id }}"
+    - vars:
+        main_sandbox: "{{ placement.resources | filter_main_sandbox }}"
+      set_fact:
+        sandbox_name: "{{ main_sandbox.name }}"
+        sandbox_zone: "{{ main_sandbox.zone }}"
+        sandbox_hosted_zone_id: "{{ main_sandbox.hosted_zone_id }}"
+        sandbox_account: "{{ main_sandbox.account_id }}"
+        sandbox_account_id: "{{ main_sandbox.account_id }}"
         sandbox_aws_access_key_id: >-
-          {{ (placement.resources[0].credentials
+          {{ (main_sandbox.credentials
           | selectattr('kind', 'equalto', 'aws_iam_key')
           | selectattr('name', 'equalto', 'admin-key')
           | first
           ).get('aws_access_key_id') }}
         sandbox_aws_secret_access_key: >-
-          {{ (placement.resources[0].credentials
+          {{ (main_sandbox.credentials
           | selectattr('kind', 'equalto', 'aws_iam_key')
           | selectattr('name', 'equalto', 'admin-key')
           | first).get('aws_secret_access_key') }}
@@ -70,7 +66,7 @@
     - include_tasks: set_aws_sandbox.yaml
 
 - when: >-
-    'aws' in sandbox_api_providers
+    'OcpSandbox' in sandbox_api_providers
   block:
     - set_fact:
         sandbox_name: "{{ placement.resources[0].name }}"

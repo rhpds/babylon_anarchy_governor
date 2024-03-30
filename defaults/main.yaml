@@ -179,8 +179,7 @@ sandbox_api_in_use: >-
   }}
 
 sandbox_api_providers: >-
-  TODO   grab all needed providers from:
-    vars.anarchy_governor.vars.job_vars.__meta__.sandboxes
+  {{ __meta__ | json_query('sandboxes[].kind') | default([]) }}
 
 # minimum age the sandbox must be before it's selected from the pool
 # default is 24h

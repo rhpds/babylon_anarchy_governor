@@ -7,6 +7,7 @@ __metaclass__ = type
 from ansible.errors import AnsibleFilterError
 from ansible.module_utils.six.moves.urllib.parse import urlsplit
 from ansible.utils import helpers
+from ansible.utils.display import Display
 
 from copy import deepcopy
 from datetime import datetime, timedelta
@@ -16,6 +17,8 @@ import re
 import string
 
 variable_chars = string.ascii_lowercase + string.ascii_uppercase + string.digits
+
+display = Display()
 
 def filter_job_vars_to_dynamic_job_vars(anarchy_governor, preserve_job_vars):
     return {
@@ -66,6 +69,110 @@ def mark_ansible_vault_values(src):
     else:
         return src
 
+def filter_main_sandbox(resources, kind='AwsSandbox'):
+    """Get the main sandbox from the resources list returned by the sandbox API
+
+    Args:
+        resources (list): List of resources returned by the sandbox API
+        kind (str): Kind of sandbox to filter
+
+    Returns:
+        dict: The main sandbox
+        the main sandbox is the only sandbox without a 'var' key in the annotations
+        or with annotations['var'] == 'main'
+        for example in:
+
+        returns None if the main sandbox is not found
+
+        [{
+                'kind': 'AwsSandbox',
+            },
+            {
+                'kind': 'AwsSandbox',
+                'annotations': {
+                    'var': 'sandbox2'
+                }
+            },
+            {
+            {
+                'kind': 'OcpSandbox',
+            },
+        ]
+        the main sandbox is the first one without a 'var' defined
+
+    """
+    main_sandbox = None
+    for resource in resources:
+        if resource.get('kind', 'none') == kind:
+            var = resource.get('annotations', {}).get('var', 'main')
+            if var == 'main':
+                return resource
+
+
+    return main_sandbox
+
+
+def inject_var_annotations(sandboxes_request):
+    """
+    Inject the var key in the annotations of the sandboxes to be able to reference them in the sandboxes_request
+    It's used to build the request to the sandbox API
+    """
+
+    done = {}
+
+    for req in sandboxes_request:
+        if req.get('var', False):
+            req['annotations'] = req.get('annotations', {})
+            req['annotations']['var'] = req['var']
+
+    return sandboxes_request
+
+def validate_sandboxes_request(sandboxes_request):
+    """
+    Validate the sandboxes request __meta__.sandboxes
+
+    This function should be also used in agnosticV validation tests
+
+    returns: String
+        'OK' if the request is valid
+        The error message if the request is invalid
+    """
+
+    mainFound = {}
+    vars = {}
+
+    if len(sandboxes_request) == 0:
+        return "ERROR: At least one sandbox is required in the sandboxes request"
+
+    for req in sandboxes_request:
+        if 'kind' not in req:
+            return "ERROR: Sandbox kind is required in the sandboxes request"
+
+        kind = req['kind']
+
+        if kind not in mainFound:
+            mainFound[kind] = False
+
+        var = req.get('var', False)
+        if var:
+            if var in vars:
+                return "ERROR: Variable '" + var + "' is duplicated"
+            vars[var] = True
+        else:
+            if mainFound.get(kind, False):
+                return "ERROR: missing 'var' key for second sandbox of kind " + kind
+
+            mainFound[kind] = True
+
+    if len(mainFound) == 0:
+        return "ERROR: At least one main sandbox is required in the sandboxes request"
+
+    for kind in mainFound:
+        if not mainFound[kind]:
+            return "ERROR: Main sandbox is missing for kind " + kind
+
+    return "OK"
+
 # ---- Ansible filters ----
 class FilterModule(object):
     ''' URI filter '''
@@ -76,4 +183,7 @@ class FilterModule(object):
             'filter_job_vars_secrets_to_dynamic_job_vars': filter_job_vars_secrets_to_dynamic_job_vars,
             'insert_unvault_string': insert_unvault_string,
             'mark_ansible_vault_values': mark_ansible_vault_values,
+            'filter_main_sandbox': filter_main_sandbox,
+            'inject_var_annotations': inject_var_annotations,
+            'validate_sandboxes_request': validate_sandboxes_request,
         }
