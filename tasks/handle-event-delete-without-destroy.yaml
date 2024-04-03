@@ -4,8 +4,7 @@
 - when: >-
     sandbox_api_in_use | bool
     and sandbox_api_destroy_catch_all | bool
-    and 'aws' in sandbox_api_providers
-  include_tasks: aws_sandbox_cleanup.yml
+  include_tasks: sandbox_cleanup.yml
 
 - name: Update state to destroyed for {{ anarchy_subject_name }} with no destroy action
   anarchy_subject_update:
