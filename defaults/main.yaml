@@ -178,9 +178,6 @@ sandbox_api_in_use: >-
     | length > 0
   }}
 
-sandbox_api_providers: >-
-  {{ __meta__ | json_query('sandboxes[].kind') | default([]) }}
-
 # minimum age the sandbox must be before it's selected from the pool
 # default is 24h
 babylon_aws_sandbox_min_age: "{{ 3600 * 24 }}"
