@@ -1,4 +1,21 @@
 ---
+- name: Ensure request is correct
+  vars:
+    error_request: >-
+       {{ sandbox_api_resources | validate_sandboxes_request }}
+
+  when: error_request != "OK"
+  block:
+    - fail:
+        msg: "{{ error_request }}"
+      ignore_errors: true
+
+    - name: Finish action {{ anarchy_action_name }} as failed
+      anarchy_finish_action:
+        state: failed
+
+    - meta: end_play
+
 - name: Get the cluster console
   k8s_info:
     api_version: v1
@@ -36,41 +53,32 @@
   until: r_new_placement is succeeded
   changed_when: true
 
-- name: Save placement
+- name: Wait for the resources of the placement to be ready
+  uri:
+    headers:
+      Authorization: Bearer {{ access_token }}
+    url: "{{ sandbox_api_url }}/api/v1/placements/{{ uuid }}"
+    method: GET
+
+  register: r_placement
+  retries: "{{ sandbox_api_retries }}"
+  delay: "{{ sandbox_api_delay }}"
+  until: r_placement.json.status == 'ready' or r_placement.json.status == 'error'
+  changed_when: false
+  failed_when: false
+
+- name: Finish action {{ anarchy_action_name }} as failed
+  # TODO: ensure it's the right way to finish, question for JK
+  when: r_placement.json.status == 'error'
+  block:
+    - anarchy_finish_action:
+        state: failed
+
+    - meta: end_play
+
+- name: Inject vars into dynamic_job_vars
   set_fact:
-    placement: "{{ r_new_placement.json.Placement }}"
-
-- when: >-
-    'AwsSandbox' in sandbox_api_providers
-  block:
-    - vars:
-        main_sandbox: "{{ placement.resources | filter_main_sandbox }}"
-      set_fact:
-        sandbox_name: "{{ main_sandbox.name }}"
-        sandbox_zone: "{{ main_sandbox.zone }}"
-        sandbox_hosted_zone_id: "{{ main_sandbox.hosted_zone_id }}"
-        sandbox_account: "{{ main_sandbox.account_id }}"
-        sandbox_account_id: "{{ main_sandbox.account_id }}"
-        sandbox_aws_access_key_id: >-
-          {{ (main_sandbox.credentials
-          | selectattr('kind', 'equalto', 'aws_iam_key')
-          | selectattr('name', 'equalto', 'admin-key')
-          | first
-          ).get('aws_access_key_id') }}
-        sandbox_aws_secret_access_key: >-
-          {{ (main_sandbox.credentials
-          | selectattr('kind', 'equalto', 'aws_iam_key')
-          | selectattr('name', 'equalto', 'admin-key')
-          | first).get('aws_secret_access_key') }}
-
-    - include_tasks: set_aws_sandbox.yaml
-
-- when: >-
-    'OcpSandbox' in sandbox_api_providers
-  block:
-    - set_fact:
-        sandbox_name: "{{ placement.resources[0].name }}"
-        ocp_access_account: "{{ placement.resources[0].sa_account }}"
-        ocp_access_token: "{{ placement.resources[0].sa_token }}"
-        ocp_api_url: "{{ placement.resources[0].api_url }}"
-    - include_tasks: set_ocp_sandbox.yaml
+    dynamic_job_vars: >-
+      {{ vars.dynamic_job_vars
+      | default({})
+      | combine(r_placement.json | extract_sandboxes_vars, recursive=True) }}

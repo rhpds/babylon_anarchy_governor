@@ -4,17 +4,10 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-from ansible.errors import AnsibleFilterError
-from ansible.module_utils.six.moves.urllib.parse import urlsplit
-from ansible.utils import helpers
-from ansible.utils.display import Display
-
-from copy import deepcopy
-from datetime import datetime, timedelta
-
 import random
-import re
 import string
+from copy import deepcopy
+from ansible.utils.display import Display
 
 variable_chars = string.ascii_lowercase + string.ascii_uppercase + string.digits
 
@@ -118,8 +111,6 @@ def inject_var_annotations(sandboxes_request):
     It's used to build the request to the sandbox API
     """
 
-    done = {}
-
     for req in sandboxes_request:
         if req.get('var', False):
             req['annotations'] = req.get('annotations', {})
@@ -138,8 +129,8 @@ def validate_sandboxes_request(sandboxes_request):
         The error message if the request is invalid
     """
 
-    mainFound = {}
-    vars = {}
+    main_found = {}
+    target_vars = {}
 
     if len(sandboxes_request) == 0:
         return "ERROR: At least one sandbox is required in the sandboxes request"
@@ -150,28 +141,111 @@ def validate_sandboxes_request(sandboxes_request):
 
         kind = req['kind']
 
-        if kind not in mainFound:
-            mainFound[kind] = False
+        if kind not in main_found:
+            main_found[kind] = False
 
         var = req.get('var', False)
         if var:
-            if var in vars:
+            if var in target_vars:
                 return "ERROR: Variable '" + var + "' is duplicated"
-            vars[var] = True
+            target_vars[var] = True
         else:
-            if mainFound.get(kind, False):
+            if main_found.get(kind, False):
                 return "ERROR: missing 'var' key for second sandbox of kind " + kind
 
-            mainFound[kind] = True
+            main_found[kind] = True
 
-    if len(mainFound) == 0:
+    if len(main_found) == 0:
         return "ERROR: At least one main sandbox is required in the sandboxes request"
 
-    for kind in mainFound:
-        if not mainFound[kind]:
+    for kind in main_found:
+        if not main_found[kind]:
             return "ERROR: Main sandbox is missing for kind " + kind
 
     return "OK"
+
+def extract_sandboxes_vars(response):
+    """Extract the sandbox vars and credentials from the Sandbox API placement response
+
+    Returns: dict to be merged with job vars
+    """
+
+    sandboxes_vars = {}
+
+
+    for sandbox in response.get('resources', []):
+        kind = sandbox.get('kind', 'none')
+
+        match kind:
+            case 'AwsSandbox':
+                sandbox_name = sandbox.get('name', 'unknown')
+                sandbox_hosted_zone_id = sandbox.get('hosted_zone_id', 'unknown')
+                sandbox_account_id = sandbox.get('account_id', 'unknown')
+                sandbox_zone = sandbox.get('zone', 'unknown')
+
+                for cred in  sandbox.get('credentials', []):
+                    # Get the first AWS IAM key found
+                    if cred.get('kind', 'none') == 'aws_iam_key':
+                        sandbox_aws_access_key_id = cred.get('aws_access_key_id', 'unknown')
+                        sandbox_aws_secret_access_key = cred.get('aws_secret_access_key', 'unknown')
+                        break
+
+
+                to_merge = {
+                    'sandbox_name': sandbox_name,
+                    'sandbox_hosted_zone_id': sandbox_hosted_zone_id,
+                    'HostedZoneId': sandbox_hosted_zone_id,
+                    'sandbox_account': sandbox_account_id,
+                    'sandbox_account_id': sandbox_account_id,
+                    'sandbox_zone': sandbox_zone,
+                    'sandbox_credentials': sandbox.get('credentials', []),
+                    'subdomain_base_suffix': '.' + sandbox_zone,
+                    'sandbox_aws_access_key_id': sandbox_aws_access_key_id,
+                    'sandbox_aws_secret_access_key': sandbox_aws_secret_access_key,
+                    'aws_access_key_id': sandbox_aws_access_key_id,
+                    'aws_secret_access_key': sandbox_aws_secret_access_key,
+                }
+
+                var = sandbox.get('annotations', {}).get('var', 'main')
+                if var == 'main':
+                    sandboxes_vars.update(to_merge)
+                else:
+                    sandboxes_vars[var] = to_merge
+
+            case 'OcpSandbox':
+                sandbox_openshift_cluster = sandbox.get('ocp_cluster', 'unknown')
+                sandbox_openshift_api_url = sandbox.get('api_url', 'unknown')
+                sandbox_openshift_apps_domain = sandbox.get('ingress_domain', 'unknown')
+                sandbox_openshift_name = sandbox.get('name', 'unknown')
+                sandbox_openshift_api_key = 'unknown'
+
+                for creds in sandbox.get('credentials', []):
+                    if creds.get('kind', 'none') == 'ServiceAccount':
+                        sandbox_openshift_api_key = creds.get('token', 'unknown')
+                        break
+
+                to_merge = {
+                    'sandbox_openshift_name': sandbox_openshift_name,
+                    'sandbox_openshift_api_key': sandbox_openshift_api_key,
+                    'sandbox_openshift_cluster': sandbox_openshift_cluster,
+                    'sandbox_openshift_api_url': sandbox_openshift_api_url,
+                    'sandbox_openshift_apps_domain': sandbox_openshift_apps_domain,
+                    'sandbox_openshift_credentials': sandbox.get('credentials', []),
+                    'openshift_api_key': sandbox_openshift_api_key,
+                    'openshift_cluster': sandbox_openshift_cluster,
+                    'openshift_api_url': sandbox_openshift_api_url,
+                    'openshift_apps_domain': sandbox_openshift_apps_domain,
+                }
+
+                var = sandbox.get('annotations', {}).get('var', 'main')
+                if var == 'main':
+                    sandboxes_vars.update(to_merge)
+                else:
+                    sandboxes_vars[var] = to_merge
+
+    return sandboxes_vars
+
+
 
 # ---- Ansible filters ----
 class FilterModule(object):
@@ -186,4 +260,5 @@ class FilterModule(object):
             'filter_main_sandbox': filter_main_sandbox,
             'inject_var_annotations': inject_var_annotations,
             'validate_sandboxes_request': validate_sandboxes_request,
+            'extract_sandboxes_vars': extract_sandboxes_vars,
         }
