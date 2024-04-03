@@ -211,6 +211,10 @@ sandbox_api_destroy_catch_all: >-
   {{ __meta__.sandbox_api.actions.destroy.catch_all
   | default(true) }}
 
+sandbox_api_resources_default:
+- kind: AwsSandbox
+  count: 1
+
 # Kind of resources to book
 sandbox_api_resources: >-
   {{ __meta__.sandboxes
