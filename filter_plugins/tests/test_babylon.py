@@ -123,6 +123,55 @@ def test_validate_sandboxes_request():
             ],
             'expected': "ERROR: Variable 'sandbox2' is duplicated",
         },
+        {
+            'request': [
+                {'kind': 'AwsSandbox', 'var':'sandbox2'},
+                {'kind': 'AwsSandbox'},
+                {
+                    'kind': 'OcpSandbox',
+                    'annotations': {
+                        'purpose': 'ocp'
+                    },
+                    'cloud_selector': {
+                        'virt': 'enable',
+                    },
+                },
+            ],
+            'expected': "OK",
+        },
+        {
+            'request': [
+                {'kind': 'AwsSandbox', 'var':'sandbox2'},
+                {'kind': 'AwsSandbox'},
+                {
+                    'kind': 'OcpSandbox',
+                    'annotations': {
+                        'purpose': 'ocp'
+                    },
+                    'cloud_selector': {
+                        'virt': {
+                            'will': 'fail',
+                        }
+                    },
+                },
+            ],
+            'expected': "ERROR: cloud_selector values should be strings for sandbox of kind OcpSandbox",
+        },
+        {
+            'request': [
+                {'kind': 'AwsSandbox', 'var':'sandbox2'},
+                {'kind': 'AwsSandbox'},
+                {
+                    'kind': 'OcpSandbox',
+                    'annotations': {
+                        'purpose': {
+                            'will': 'fail'
+                        }
+                    },
+                },
+            ],
+            'expected': "ERROR: Annotations values should be strings for sandbox of kind OcpSandbox",
+        },
     ]
 
     for testcase in testcases:

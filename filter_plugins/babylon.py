@@ -155,6 +155,24 @@ def validate_sandboxes_request(sandboxes_request):
 
             main_found[kind] = True
 
+        # Ensure annotations is a dict of string
+        if 'annotations' in req:
+            if not isinstance(req['annotations'], dict):
+                return "ERROR: Annotations should be a dict for sandbox of kind " + kind
+
+            for key in req['annotations']:
+                if not isinstance(req['annotations'][key], str):
+                    return "ERROR: Annotations values should be strings for sandbox of kind " + kind
+
+        # Ensure cloud_selector is a dict of string
+        if 'cloud_selector' in req:
+            if not isinstance(req['cloud_selector'], dict):
+                return "ERROR: cloud_selector should be a dict for sandbox of kind " + kind
+
+            for key in req['cloud_selector']:
+                if not isinstance(req['cloud_selector'][key], str):
+                    return "ERROR: cloud_selector values should be strings for sandbox of kind " + kind
+
     if len(main_found) == 0:
         return "ERROR: At least one main sandbox is required in the sandboxes request"
 
