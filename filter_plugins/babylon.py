@@ -194,72 +194,71 @@ def extract_sandboxes_vars(response):
     for sandbox in response.get('resources', []):
         kind = sandbox.get('kind', 'none')
 
-        match kind:
-            case 'AwsSandbox':
-                sandbox_name = sandbox.get('name', 'unknown')
-                sandbox_hosted_zone_id = sandbox.get('hosted_zone_id', 'unknown')
-                sandbox_account_id = sandbox.get('account_id', 'unknown')
-                sandbox_zone = sandbox.get('zone', 'unknown')
+        if kind == 'AwsSandbox':
+            sandbox_name = sandbox.get('name', 'unknown')
+            sandbox_hosted_zone_id = sandbox.get('hosted_zone_id', 'unknown')
+            sandbox_account_id = sandbox.get('account_id', 'unknown')
+            sandbox_zone = sandbox.get('zone', 'unknown')
 
-                for cred in  sandbox.get('credentials', []):
-                    # Get the first AWS IAM key found
-                    if cred.get('kind', 'none') == 'aws_iam_key':
-                        sandbox_aws_access_key_id = cred.get('aws_access_key_id', 'unknown')
-                        sandbox_aws_secret_access_key = cred.get('aws_secret_access_key', 'unknown')
-                        break
+            for cred in  sandbox.get('credentials', []):
+                # Get the first AWS IAM key found
+                if cred.get('kind', 'none') == 'aws_iam_key':
+                    sandbox_aws_access_key_id = cred.get('aws_access_key_id', 'unknown')
+                    sandbox_aws_secret_access_key = cred.get('aws_secret_access_key', 'unknown')
+                    break
 
 
-                to_merge = {
-                    'sandbox_name': sandbox_name,
-                    'sandbox_hosted_zone_id': sandbox_hosted_zone_id,
-                    'HostedZoneId': sandbox_hosted_zone_id,
-                    'sandbox_account': sandbox_account_id,
-                    'sandbox_account_id': sandbox_account_id,
-                    'sandbox_zone': sandbox_zone,
-                    'sandbox_credentials': sandbox.get('credentials', []),
-                    'subdomain_base_suffix': '.' + sandbox_zone,
-                    'sandbox_aws_access_key_id': sandbox_aws_access_key_id,
-                    'sandbox_aws_secret_access_key': sandbox_aws_secret_access_key,
-                    'aws_access_key_id': sandbox_aws_access_key_id,
-                    'aws_secret_access_key': sandbox_aws_secret_access_key,
-                }
+            to_merge = {
+                'sandbox_name': sandbox_name,
+                'sandbox_hosted_zone_id': sandbox_hosted_zone_id,
+                'HostedZoneId': sandbox_hosted_zone_id,
+                'sandbox_account': sandbox_account_id,
+                'sandbox_account_id': sandbox_account_id,
+                'sandbox_zone': sandbox_zone,
+                'sandbox_credentials': sandbox.get('credentials', []),
+                'subdomain_base_suffix': '.' + sandbox_zone,
+                'sandbox_aws_access_key_id': sandbox_aws_access_key_id,
+                'sandbox_aws_secret_access_key': sandbox_aws_secret_access_key,
+                'aws_access_key_id': sandbox_aws_access_key_id,
+                'aws_secret_access_key': sandbox_aws_secret_access_key,
+            }
 
-                var = sandbox.get('annotations', {}).get('var', 'main')
-                if var == 'main':
-                    sandboxes_vars.update(to_merge)
-                else:
-                    sandboxes_vars[var] = to_merge
+            var = sandbox.get('annotations', {}).get('var', 'main')
+            if var == 'main':
+                sandboxes_vars.update(to_merge)
+            else:
+                sandboxes_vars[var] = to_merge
 
-            case 'OcpSandbox':
-                sandbox_openshift_cluster = sandbox.get('ocp_cluster', 'unknown')
-                sandbox_openshift_api_url = sandbox.get('api_url', 'unknown')
-                sandbox_openshift_apps_domain = sandbox.get('ingress_domain', 'unknown')
-                sandbox_openshift_name = sandbox.get('name', 'unknown')
-                sandbox_openshift_api_key = 'unknown'
+        elif kind == 'OcpSandbox':
+            sandbox_openshift_cluster = sandbox.get('ocp_cluster', 'unknown')
+            sandbox_openshift_api_url = sandbox.get('api_url', 'unknown')
+            sandbox_openshift_apps_domain = sandbox.get('ingress_domain', 'unknown')
+            sandbox_openshift_name = sandbox.get('name', 'unknown')
+            sandbox_openshift_api_key = 'unknown'
 
-                for creds in sandbox.get('credentials', []):
-                    if creds.get('kind', 'none') == 'ServiceAccount':
-                        sandbox_openshift_api_key = creds.get('token', 'unknown')
-                        break
+            for creds in sandbox.get('credentials', []):
+                if creds.get('kind', 'none') == 'ServiceAccount':
+                    sandbox_openshift_api_key = creds.get('token', 'unknown')
+                    break
 
-                to_merge = {
-                    'sandbox_openshift_name': sandbox_openshift_name,
-                    'sandbox_openshift_api_key': sandbox_openshift_api_key,
-                    'sandbox_openshift_cluster': sandbox_openshift_cluster,
-                    'sandbox_openshift_api_url': sandbox_openshift_api_url,
-                    'sandbox_openshift_apps_domain': sandbox_openshift_apps_domain,
-                    'sandbox_openshift_credentials': sandbox.get('credentials', []),
-                    'openshift_api_key': sandbox_openshift_api_key,
-                    'openshift_cluster': sandbox_openshift_cluster,
-                    'openshift_api_url': sandbox_openshift_api_url,
-                    'openshift_apps_domain': sandbox_openshift_apps_domain,
-                }
+            to_merge = {
+                'sandbox_openshift_name': sandbox_openshift_name,
+                'sandbox_openshift_api_key': sandbox_openshift_api_key,
+                'sandbox_openshift_cluster': sandbox_openshift_cluster,
+                'sandbox_openshift_api_url': sandbox_openshift_api_url,
+                'sandbox_openshift_apps_domain': sandbox_openshift_apps_domain,
+                'sandbox_openshift_credentials': sandbox.get('credentials', []),
+                'openshift_api_key': sandbox_openshift_api_key,
+                'openshift_cluster': sandbox_openshift_cluster,
+                'openshift_api_url': sandbox_openshift_api_url,
+                'openshift_apps_domain': sandbox_openshift_apps_domain,
+            }
 
-                var = sandbox.get('annotations', {}).get('var', 'main')
-                if var == 'main':
-                    sandboxes_vars.update(to_merge)
-                else:
-                    sandboxes_vars[var] = to_merge
+            var = sandbox.get('annotations', {}).get('var', 'main')
+            if var == 'main':
+                sandboxes_vars.update(to_merge)
+            else:
+                sandboxes_vars[var] = to_merge
 
     return sandboxes_vars
 
