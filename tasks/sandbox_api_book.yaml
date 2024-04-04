@@ -63,7 +63,7 @@
   register: r_placement
   retries: "{{ sandbox_api_retries }}"
   delay: "{{ sandbox_api_delay }}"
-  until: r_placement.json.status == 'ready' or r_placement.json.status == 'error'
+  until: r_placement.json.status == 'success' or r_placement.json.status == 'error'
   changed_when: false
   failed_when: false
 
