@@ -182,7 +182,7 @@ def validate_sandboxes_request(sandboxes_request):
 
     return "OK"
 
-def extract_sandboxes_vars(response):
+def extract_sandboxes_vars(response, creds=True):
     """Extract the sandbox vars and credentials from the Sandbox API placement response
 
     Returns: dict to be merged with job vars
@@ -200,14 +200,6 @@ def extract_sandboxes_vars(response):
             sandbox_account_id = sandbox.get('account_id', 'unknown')
             sandbox_zone = sandbox.get('zone', 'unknown')
 
-            for cred in  sandbox.get('credentials', []):
-                # Get the first AWS IAM key found
-                if cred.get('kind', 'none') == 'aws_iam_key':
-                    sandbox_aws_access_key_id = cred.get('aws_access_key_id', 'unknown')
-                    sandbox_aws_secret_access_key = cred.get('aws_secret_access_key', 'unknown')
-                    break
-
-
             to_merge = {
                 'sandbox_name': sandbox_name,
                 'sandbox_hosted_zone_id': sandbox_hosted_zone_id,
@@ -215,13 +207,18 @@ def extract_sandboxes_vars(response):
                 'sandbox_account': sandbox_account_id,
                 'sandbox_account_id': sandbox_account_id,
                 'sandbox_zone': sandbox_zone,
-                'sandbox_credentials': sandbox.get('credentials', []),
                 'subdomain_base_suffix': '.' + sandbox_zone,
-                'sandbox_aws_access_key_id': sandbox_aws_access_key_id,
-                'sandbox_aws_secret_access_key': sandbox_aws_secret_access_key,
-                'aws_access_key_id': sandbox_aws_access_key_id,
-                'aws_secret_access_key': sandbox_aws_secret_access_key,
             }
+            if creds:
+                for cred in sandbox.get('credentials', []):
+                    # Get the first AWS IAM key found
+                    if cred.get('kind', 'none') == 'aws_iam_key':
+                        to_merge['sandbox_aws_access_key_id'] = cred.get('aws_access_key_id', 'unknown')
+                        to_merge['aws_access_key_id'] = cred.get('aws_access_key_id', 'unknown')
+                        to_merge['sandbox_aws_secret_access_key'] = cred.get('aws_secret_access_key', 'unknown')
+                        to_merge['aws_secret_access_key'] = cred.get('aws_secret_access_key', 'unknown')
+                        to_merge['sandbox_credentials'] = sandbox.get('credentials', [])
+                        break
 
             var = sandbox.get('annotations', {}).get('var', 'main')
             if var == 'main':
@@ -234,25 +231,25 @@ def extract_sandboxes_vars(response):
             sandbox_openshift_api_url = sandbox.get('api_url', 'unknown')
             sandbox_openshift_apps_domain = sandbox.get('ingress_domain', 'unknown')
             sandbox_openshift_name = sandbox.get('name', 'unknown')
-            sandbox_openshift_api_key = 'unknown'
-
-            for creds in sandbox.get('credentials', []):
-                if creds.get('kind', 'none') == 'ServiceAccount':
-                    sandbox_openshift_api_key = creds.get('token', 'unknown')
-                    break
 
             to_merge = {
                 'sandbox_openshift_name': sandbox_openshift_name,
-                'sandbox_openshift_api_key': sandbox_openshift_api_key,
                 'sandbox_openshift_cluster': sandbox_openshift_cluster,
                 'sandbox_openshift_api_url': sandbox_openshift_api_url,
                 'sandbox_openshift_apps_domain': sandbox_openshift_apps_domain,
-                'sandbox_openshift_credentials': sandbox.get('credentials', []),
-                'openshift_api_key': sandbox_openshift_api_key,
                 'openshift_cluster': sandbox_openshift_cluster,
                 'openshift_api_url': sandbox_openshift_api_url,
                 'openshift_apps_domain': sandbox_openshift_apps_domain,
             }
+
+            if creds:
+                for creds in sandbox.get('credentials', []):
+                    if creds.get('kind', 'none') == 'ServiceAccount':
+                        to_merge['sandbox_openshift_api_key'] = creds.get('token', 'unknown')
+                        to_merge['openshift_api_key'] = creds.get('token', 'unknown')
+                        to_merge['sandbox_openshift_credentials'] = sandbox.get('credentials', [])
+                        break
+
 
             var = sandbox.get('annotations', {}).get('var', 'main')
             if var == 'main':

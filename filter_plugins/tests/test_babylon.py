@@ -182,6 +182,7 @@ def test_validate_sandboxes_request():
 def test_extract_sandboxes_vars():
     testcases = [
         {
+            'creds': True,
             'input': {
                 'id': 3,
                 "created_at": "2024-04-02T10:44:18.241437+02:00",
@@ -312,6 +313,7 @@ def test_extract_sandboxes_vars():
             }
         },
         {
+            'creds': True,
             'input': {
                 'id': 3,
                 "created_at": "2024-04-02T10:44:18.241437+02:00",
@@ -446,8 +448,118 @@ def test_extract_sandboxes_vars():
                     "aws_secret_access_key": "foobarSecret"
                 }
             }
-        }
+        },
+        {
+            'creds': False,
+            'input': {
+                'id': 3,
+                "created_at": "2024-04-02T10:44:18.241437+02:00",
+                "updated_at": "2024-04-02T10:44:18.241437+02:00",
+                "service_uuid": "d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                "resources": [
+                    {
+                        "created_at": "0001-01-01T00:00:00Z",
+                        "updated_at": "1970-01-01T01:00:00+01:00",
+                        "service_uuid": "d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "available": False,
+                        "to_cleanup": False,
+                        "annotations": {
+                            "env_type": "ocp4-cluster-blablablabla",
+                            "guid": "testg-1",
+                            "purpose": "aws"
+                        },
+                        "kind": "AwsSandbox",
+                        "name": "sandbox3153",
+                        "account_id": "accountNumber",
+                        "zone": "sandbox3153.domain.com",
+                        "hosted_zone_id": "foobar",
+                        "conan_timestamp": "0001-01-01T00:00:00Z",
+                        "credentials": [
+                            {
+                                "kind": "aws_iam_key",
+                                "name": "admin-key",
+                                "aws_access_key_id": "foobarKey",
+                                "aws_secret_access_key": "foobarSecret"
+                            }
+                        ]
+                    },
+                    {
+                        "id": 7,
+                        "created_at": "2024-04-02T10:44:10.597366+02:00",
+                        "updated_at": "2024-04-02T10:44:18.251974+02:00",
+                        "available": False,
+                        "to_cleanup": False,
+                        "name": "testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "kind": "OcpSandbox",
+                        "service_uuid": "d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "ocp_cluster": "cluster",
+                        "api_url": "https://cluster.domain.io:6443",
+                        "ingress_domain": "apps.cluster.domain.io",
+                        "annotations": {
+                            "env_type": "ocp4-cluster-blablablabla",
+                            "guid": "testg-1",
+                            "purpose": "ocp"
+                        },
+                        "status": "success",
+                        "cleanup_count": 0,
+                        "namespace": "sandbox-testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "credentials": [
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "sandbox-testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                                "token": "foobarToken"
+                            }
+                        ]
+                    }
+                ],
+                "annotations": {
+                    "env_type": "ocp4-cluster-blablablabla",
+                    "guid": "testg-1"
+                },
+                "request": {
+                    "annotations": {
+                        "env_type": "ocp4-cluster-blablablabla",
+                        "guid": "testg-1"
+                    },
+                    "resources": [
+                        {
+                            "annotations": {
+                                "purpose": "ocp"
+                            },
+                            "count": 1,
+                            "kind": "OcpSandbox"
+                        },
+                        {
+                            "annotations": {
+                                "purpose": "aws"
+                            },
+                            "count": 1,
+                            "kind": "AwsSandbox"
+                        }
+                    ],
+                    "service_uuid": "d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf"
+                }
+            },
+            "expected": {
+                # OCP
+                "sandbox_openshift_name": "testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                "sandbox_openshift_apps_domain": "apps.cluster.domain.io",
+                "sandbox_openshift_api_url": "https://cluster.domain.io:6443",
+                "sandbox_openshift_cluster": "cluster",
+                "openshift_cluster": "cluster",
+                "openshift_api_url": "https://cluster.domain.io:6443",
+                "openshift_apps_domain": "apps.cluster.domain.io",
+                # AWS
+                "sandbox_name": "sandbox3153",
+                "sandbox_hosted_zone_id": "foobar",
+                "HostedZoneId": "foobar",
+                "sandbox_account": "accountNumber",
+                "sandbox_account_id": "accountNumber",
+                "sandbox_zone": "sandbox3153.domain.com",
+                "subdomain_base_suffix": ".sandbox3153.domain.com",
+            }
+        },
     ]
 
     for tc in testcases:
-        assert babylon.extract_sandboxes_vars(tc['input']) == tc['expected']
+        assert babylon.extract_sandboxes_vars(tc['input'], tc['creds']) == tc['expected']
