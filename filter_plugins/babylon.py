@@ -6,6 +6,7 @@ __metaclass__ = type
 
 import random
 import string
+import re
 from copy import deepcopy
 from ansible.utils.display import Display
 
@@ -260,6 +261,34 @@ def extract_sandboxes_vars(response, creds=True):
     return sandboxes_vars
 
 
+def extract_sandboxes_labels(response):
+    # Get the sandbox names
+    resources = response.get('resources', [])
+    if len(resources) == 0:
+        return {}
+
+    if len(resources) == 1:
+        kind = re.sub(r'[^a-zA-Z0-9]', '', resources[0].get('kind', 'none'))
+        return {
+            "sandbox": resources[0].get('name', 'unknown'),
+            kind: resources[0].get('name', 'unknown')
+        }
+
+    ret = {}
+    increment = 2
+    for sandbox in resources:
+        kind = re.sub(r'[^a-zA-Z0-9]', '', sandbox.get('kind', 'none'))
+
+        if not ret.get('sandbox', False):
+            ret['sandbox'] = sandbox.get('name', 'unknown')
+
+        if ret.get(kind, False):
+            ret[kind + str(increment)] = sandbox.get('name', 'unknown')
+            increment += 1
+        else:
+            ret[kind] = sandbox.get('name', 'unknown')
+
+    return ret
 
 # ---- Ansible filters ----
 class FilterModule(object):
@@ -275,4 +304,5 @@ class FilterModule(object):
             'inject_var_annotations': inject_var_annotations,
             'validate_sandboxes_request': validate_sandboxes_request,
             'extract_sandboxes_vars': extract_sandboxes_vars,
+            'extract_sandboxes_labels': extract_sandboxes_labels,
         }

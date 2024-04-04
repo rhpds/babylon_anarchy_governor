@@ -26,3 +26,12 @@
           {{ vars.dynamic_job_vars
           | default({})
           | combine(r_get_placement.json | extract_sandboxes_vars, recursive=True) }}
+
+    - name: Set sandbox for {{ anarchy_subject_name }}
+      anarchy_subject_update:
+        skip_update_processing: true
+        metadata:
+          labels: "{{ r_get_placement.json | extract_sandboxes_labels }}"
+        spec:
+          vars:
+            job_vars: "{{ r_get_placement.json | extract_sandboxes_vars(creds=False) }}"
