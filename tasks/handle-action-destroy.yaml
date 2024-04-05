@@ -14,7 +14,7 @@
         {{ current_state }}, Use sandbox API to cleanup {{ anarchy_subject_name }}
         and delete + remove finalizers
 
-  - include_tasks: aws_sandbox_cleanup.yml
+  - include_tasks: sandbox_cleanup.yml
 
   # The following proceed with the deletion of the anarchy subject if the Placement
   # is deleted, even if the tower job failed.

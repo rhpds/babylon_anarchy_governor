@@ -171,9 +171,9 @@ static_credentials: >-
 ################################
 sandbox_api_in_use: >-
   {{
-    vars.anarchy_governor.vars.job_vars.__meta__.aws_sandboxed | default(false)
+    __meta__.aws_sandboxed | default(false)
     or
-    vars.anarchy_governor.vars.job_vars.__meta__.sandboxes
+    __meta__.sandboxes
     | default([])
     | length > 0
   }}
@@ -201,14 +201,14 @@ pool_manager_vault_password: "{{ aws_sandbox_manager.pool_manager_vault_password
 
 # Reservation
 sandbox_api_reservation: >-
-  {{ vars.anarchy_governor.vars.job_vars.__meta__.sandbox_api.reservation
+  {{ __meta__.sandbox_api.reservation
   | default("") }}
 
 # Control wether the Sandbox API is enough to cleanup everything. By default, it's true.
 # It means if the deployer fails in AAP, it'll be ignored and the sandbox API will cleanup everything after and the AnarchySubject will be deleted
 # If the Controller job must succeed for a service to be considered delete, turn this to false in agnosticv __meta__.sandbox_api.destroy_catch_all
 sandbox_api_destroy_catch_all: >-
-  {{ vars.anarchy_governor.vars.job_vars.__meta__.sandbox_api.actions.destroy.catch_all
+  {{ __meta__.sandbox_api.actions.destroy.catch_all
   | default(true) }}
 
 sandbox_api_resources_default:
@@ -217,5 +217,5 @@ sandbox_api_resources_default:
 
 # Kind of resources to book
 sandbox_api_resources: >-
-  {{ vars.anarchy_governor.vars.job_vars.__meta__.sandboxes
+  {{ __meta__.sandboxes
   | default(sandbox_api_resources_default) }}

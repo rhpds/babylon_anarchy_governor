@@ -20,23 +20,18 @@
       set_fact:
         placement: "{{ r_get_placement.json }}"
 
-    - name: Save sandbox variables
+    - name: Inject vars into dynamic_job_vars
       set_fact:
-        sandbox_name: "{{ placement.resources[0].name }}"
-        sandbox_zone: "{{ placement.resources[0].zone }}"
-        sandbox_hosted_zone_id: "{{ placement.resources[0].hosted_zone_id }}"
-        sandbox_account: "{{ placement.resources[0].account_id }}"
-        sandbox_account_id: "{{ placement.resources[0].account_id }}"
-        sandbox_aws_access_key_id: >-
-          {{ (placement.resources[0].credentials
-          | selectattr('kind', 'equalto', 'aws_iam_key')
-          | selectattr('name', 'equalto', 'admin-key')
-          | first
-          ).get('aws_access_key_id') }}
-        sandbox_aws_secret_access_key: >-
-          {{ (placement.resources[0].credentials
-          | selectattr('kind', 'equalto', 'aws_iam_key')
-          | selectattr('name', 'equalto', 'admin-key')
-          | first).get('aws_secret_access_key') }}
+        dynamic_job_vars: >-
+          {{ vars.dynamic_job_vars
+          | default({})
+          | combine(r_get_placement.json | extract_sandboxes_vars, recursive=True) }}
 
-    - include_tasks: set_aws_sandbox.yaml
+    - name: Set sandbox for {{ anarchy_subject_name }}
+      anarchy_subject_update:
+        skip_update_processing: true
+        metadata:
+          labels: "{{ r_get_placement.json | extract_sandboxes_labels }}"
+        spec:
+          vars:
+            job_vars: "{{ r_get_placement.json | extract_sandboxes_vars(creds=False) }}"
