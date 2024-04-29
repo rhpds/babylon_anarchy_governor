@@ -123,42 +123,36 @@ deployer_entry_points:
   destroy: >-
     {{ __meta__.deployer.actions.destroy.disable | default(false) | bool | ternary('',
      __meta__.deployer.actions.destroy.entry_point
-     | default(__meta__.deployer.entry_points.destroy)
      | default(__meta__.deployer.entry_point)
      | default('ansible/destroy.yml')
     )}}
   # Note, provision entry point cannot be disabled.
   provision: >-
     {{ __meta__.deployer.actions.provision.entry_point
-     | default(__meta__.deployer.entry_points.provision)
      | default(__meta__.deployer.entry_point)
      | default('ansible/main.yml')
     }}
   start: >-
     {{ __meta__.deployer.actions.start.disable | default(false) | bool | ternary('',
      __meta__.deployer.actions.start.entry_point
-     | default(__meta__.deployer.entry_points.start)
      | default(__meta__.deployer.entry_point)
      | default('ansible/lifecycle_entry_point.yml')
     )}}
   status: >-
     {{ __meta__.deployer.actions.status.disable | default(false) | bool | ternary('',
      __meta__.deployer.actions.status.entry_point
-     | default(__meta__.deployer.entry_points.status)
      | default(__meta__.deployer.entry_point)
      | default('ansible/lifecycle_entry_point.yml')
     )}}
   stop: >-
     {{ __meta__.deployer.actions.stop.disable | default(false) | bool | ternary('',
      __meta__.deployer.actions.stop.entry_point
-     | default(__meta__.deployer.entry_points.stop)
      | default(__meta__.deployer.entry_point)
      | default('ansible/lifecycle_entry_point.yml')
     )}}
   update: >-
     {{ __meta__.deployer.actions['update'].disable | default(false) | bool | ternary('',
      __meta__.deployer.actions['update'].entry_point
-     | default(__meta__.deployer.entry_points['update'])
      | default(__meta__.deployer.entry_point)
      | default('ansible/update.yml')
     )}}
