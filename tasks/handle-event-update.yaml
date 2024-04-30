@@ -1,4 +1,26 @@
 ---
+- debug:
+    msg: |
+      _action = {{ _action }}
+      _current_state = {{ _current_state }}
+      _desired_state = {{ _desired_state }}
+      _current_job_vars = {{ _current_job_vars }}
+      _previous_job_vars = {{ _previous_job_vars }}
+      _action in vars.anarchy_governor.spec.actions = {{ _action in vars.anarchy_governor.spec.actions }}
+
+  vars:
+    _current_state: "{{ current_state | default('unknown') }}"
+    _desired_state: "{{ desired_state | default('unknown') }}"
+    _current_job_vars: "{{ vars.anarchy_subject.spec.vars.job_vars | default('unknown') }}"
+    _previous_job_vars: "{{ vars.anarchy_subject_previous_state.spec.vars.job_vars | default(_current_job_vars) }}"
+    _action: >-
+      {{
+        'update' if _current_job_vars != _previous_job_vars else
+        'start' if (_current_state == 'stopped' and _desired_state == 'started') else
+        'stop' if (_current_state == 'started' and _desired_state == 'stopped') else
+        'no action'
+      }}
+
 - name: Schedule action based on current_state and desired_state
   vars:
     _current_state: "{{ current_state | default('unknown') }}"
