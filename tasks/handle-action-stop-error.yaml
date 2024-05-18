@@ -1,4 +1,16 @@
 ---
+# In case of deployer stop error,
+# Stop instances using the sandbox API to save costs
+- when: >-
+    and sandbox_api_in_use | bool
+    and __meta__.sandbox_api.actions.stop.enable | default(true)
+  block:
+  - include_tasks: sandbox_api_login.yaml
+  - vars:
+      # We keep state
+      new_subject_state: stop-error
+    include_tasks: sandbox_api_stop.yaml
+
 - name: Set current state to stop-error for {{ anarchy_subject_name }}
   anarchy_subject_update:
     skip_update_processing: true

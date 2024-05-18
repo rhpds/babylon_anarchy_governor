@@ -1,26 +1,28 @@
 ---
-# Get sandbox to get the credential and perform deployer job
-- when: sandbox_api_in_use | bool
-  include_tasks: sandbox_get.yaml
+- when: not __meta__.deployer.actions.status.disable | default(false)
+  block:
+  # Get sandbox to get the credential and perform deployer job
+  - when: sandbox_api_in_use | bool
+    include_tasks: sandbox_get.yaml
 
-- name: Run deployer status {{ anarchy_subject_name }}
-  vars:
-    new_check_status_state: running
-    job_template_playbook: "{{ deployer_entry_points.status }}"
-    job_extra_vars: >-
-      {{ vars.anarchy_subject.vars.job_vars | default({})
-       | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
-       | combine(vars.dynamic_job_vars, recursive=True)
-       | combine(__meta__.deployer.actions.status.extra_vars | default({"ACTION": "status"}))
-       | combine({
-         callback_url_var: anarchy_action_callback_url,
-         callback_token_var: anarchy_action_callback_token,
-       }, recursive=True)
-      }}
-  include_tasks:
-    file: check-run-tower-job.yaml
+  - name: Run deployer status {{ anarchy_subject_name }}
+    vars:
+      new_check_status_state: running
+      job_template_playbook: "{{ deployer_entry_points.status }}"
+      job_extra_vars: >-
+        {{ vars.anarchy_subject.vars.job_vars | default({})
+         | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
+         | combine(vars.dynamic_job_vars, recursive=True)
+         | combine(__meta__.deployer.actions.status.extra_vars | default({"ACTION": "status"}))
+         | combine({
+           callback_url_var: anarchy_action_callback_url,
+           callback_token_var: anarchy_action_callback_token,
+         }, recursive=True)
+        }}
+    include_tasks:
+      file: check-run-tower-job.yaml
 
-- name: Schedule check for status of {{ anarchy_subject_name }}
-  anarchy_continue_action:
-    after: "{{ job_check_interval }}"
+  - name: Schedule check for status of {{ anarchy_subject_name }}
+    anarchy_continue_action:
+      after: "{{ job_check_interval }}"
 ...

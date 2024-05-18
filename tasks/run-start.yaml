@@ -1,26 +1,45 @@
 ---
-# Get sandbox to get the credential and perform deployer job
-- when: sandbox_api_in_use | bool
-  include_tasks: sandbox_get.yaml
+- when: >-
+    sandbox_api_in_use | bool
+    and __meta__.sandbox_api.actions.start.enable | default(true)
+  # Before running deployer start action, run sandbox API start action.
+  # That will start all the instances in all regions.
+  block:
+  - include_tasks: sandbox_api_login.yaml
 
-- name: Run deployer start {{ anarchy_subject_name }}
-  vars:
-    new_subject_state: starting
-    job_template_playbook: "{{ deployer_entry_points.start }}"
-    job_extra_vars: >-
-      {{ vars.anarchy_subject.vars.job_vars | default({})
-       | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
-       | combine(vars.dynamic_job_vars, recursive=True)
-       | combine(__meta__.deployer.actions.start.extra_vars | default({"ACTION": "start"}))
-       | combine({
-         callback_url_var: anarchy_action_callback_url,
-         callback_token_var: anarchy_action_callback_token,
-       }, recursive=True)
-      }}
-  include_tasks:
-    file: check-run-tower-job.yaml
+  - vars:
+      # If deployer action is disable, state == 'started'
+      # if not, keep it as 'starting'
+      new_subject_state: >-
+        {{  __meta__.deployer.actions.start.disable | default(false)
+        | ternary('started', 'starting')
+    include_tasks: sandbox_api_start.yaml
 
-- name: Schedule check for start of {{ anarchy_subject_name }}
-  anarchy_continue_action:
-    after: "{{ job_check_interval }}"
+- when: not __meta__.deployer.actions.start.disable | default(false)
+  block:
+
+  - when: sandbox_api_in_use | bool
+    # Get sandbox to get the sandbox credentials for the deployer job
+    include_tasks: sandbox_get.yaml
+
+  - name: Run deployer start {{ anarchy_subject_name }}
+    vars:
+      new_subject_state: starting
+      job_template_playbook: "{{ deployer_entry_points.start }}"
+      job_extra_vars: >-
+        {{ vars.anarchy_subject.vars.job_vars | default({})
+         | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
+         | combine(vars.dynamic_job_vars, recursive=True)
+         | combine(__meta__.deployer.actions.start.extra_vars | default({"ACTION": "start"}))
+         | combine({
+           callback_url_var: anarchy_action_callback_url,
+           callback_token_var: anarchy_action_callback_token,
+         }, recursive=True)
+        }}
+    include_tasks:
+      file: check-run-tower-job.yaml
+
+  - name: Schedule check for start of {{ anarchy_subject_name }}
+    anarchy_continue_action:
+      after: "{{ job_check_interval }}"
 ...

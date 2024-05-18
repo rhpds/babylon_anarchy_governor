@@ -1,23 +1,12 @@
 ---
-# Use the sandbox API to stop environments if
-# __meta__.sandbox_api.actions.stop is non empty
-- name: Stop {{ anarchy_subject_name }} with Sandbox API
-  when: >-
-    __meta__.sandbox_api.actions.stop | default({}) | length > 0
-    and current_state != "stopping"
-    and sandbox_api_login_token | default("") != ""
-  block:
-    - include_tasks: sandbox_api_login.yaml
-    - include_tasks: sandbox_api_stop.yaml
-
 - name: Stop {{ anarchy_subject_name }}
-  when: >-
-    __meta__.sandbox_api.actions.stop | default({}) | length == 0
-    and current_state != "stopping"
+  when: current_state != "stopping"
   include_tasks: run-stop.yaml
 
 - name: Check stop of {{ anarchy_subject_name }}
-  when: current_state == "stopping"
+  when: >-
+    current_state == "stopping"
+    and not __meta__.deployer.actions.stop.disable | default(false)
   vars:
     job_action: stop
     job_info: "{{ vars.anarchy_subject.status.towerJobs.stop }}"
