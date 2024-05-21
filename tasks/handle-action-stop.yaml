@@ -6,7 +6,7 @@
 - name: Check stop of {{ anarchy_subject_name }}
   when: >-
     current_state == "stopping"
-    and not __meta__.deployer.actions.stop.disable | default(false)
+    and not __meta__.deployer.actions.stop.disable | default(false) | bool
   vars:
     job_action: stop
     job_info: "{{ vars.anarchy_subject.status.towerJobs.stop }}"

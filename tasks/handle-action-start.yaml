@@ -6,7 +6,7 @@
 - name: Check start of {{ anarchy_subject_name }}
   when: >-
     current_state == "starting"
-    and not __meta__.deployer.actions.start.disable | default(false)
+    and not __meta__.deployer.actions.start.disable | default(false) | bool
   vars:
     job_action: start
     job_info: "{{ vars.anarchy_subject.status.towerJobs.start }}"

@@ -1,5 +1,5 @@
 ---
-- when: not __meta__.deployer.actions.stop.disable | default(false)
+- when: not __meta__.deployer.actions.stop.disable | default(false) | bool
   block:
   # Get sandbox to get the credential and perform deployer job
   - when: sandbox_api_in_use | bool
@@ -30,8 +30,8 @@
 # In case it's enabled, run sandbox API stop in handler-action-stop-*
 - when: >-
     and sandbox_api_in_use | bool
-    and __meta__.sandbox_api.actions.stop.enable | default(true)
-    and __meta__.deployer.actions.stop.disable | default(false)
+    and __meta__.sandbox_api.actions.stop.enable | default(true) | bool
+    and __meta__.deployer.actions.stop.disable | default(false) | bool
   block:
   - include_tasks: sandbox_api_login.yaml
   - include_tasks: sandbox_api_stop.yaml

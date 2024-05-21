@@ -1,7 +1,7 @@
 ---
 - when: >-
     sandbox_api_in_use | bool
-    and __meta__.sandbox_api.actions.start.enable | default(true)
+    and __meta__.sandbox_api.actions.start.enable | default(true) | bool
   # Before running deployer start action, run sandbox API start action.
   # That will start all the instances in all regions.
   block:
@@ -11,11 +11,11 @@
       # If deployer action is disable, state == 'started'
       # if not, keep it as 'starting'
       new_subject_state: >-
-        {{  __meta__.deployer.actions.start.disable | default(false)
+        {{  __meta__.deployer.actions.start.disable | default(false) | bool
         | ternary('started', 'starting')
     include_tasks: sandbox_api_start.yaml
 
-- when: not __meta__.deployer.actions.start.disable | default(false)
+- when: not __meta__.deployer.actions.start.disable | default(false) | bool
   block:
 
   - when: sandbox_api_in_use | bool
