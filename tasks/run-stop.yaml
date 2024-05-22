@@ -29,7 +29,7 @@
 # Run sandbox API stop action here only if deployer stop is disabled
 # In case it's enabled, run sandbox API stop in handler-action-stop-*
 - when: >-
-    and sandbox_api_in_use | bool
+    sandbox_api_in_use | bool
     and __meta__.sandbox_api.actions.stop.enable | default(true) | bool
     and __meta__.deployer.actions.stop.disable | default(false) | bool
   block:

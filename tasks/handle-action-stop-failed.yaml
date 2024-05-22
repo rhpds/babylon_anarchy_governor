@@ -2,7 +2,7 @@
 # In case of deployer stop failure,
 # Stop instances using the sandbox API to save costs
 - when: >-
-    and sandbox_api_in_use | bool
+    sandbox_api_in_use | bool
     and __meta__.sandbox_api.actions.stop.enable | default(true) | bool
   block:
   - include_tasks: sandbox_api_login.yaml
