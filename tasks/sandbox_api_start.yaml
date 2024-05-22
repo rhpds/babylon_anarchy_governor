@@ -65,7 +65,7 @@
               httpStatus: "{{ r_request.status }}"
 
     - name: Report action successful
-      when: new_subject_state == 'started'
+      when: new_subject_state | default(current_state) == 'started'
       anarchy_finish_action:
         state: successful
 
@@ -87,7 +87,7 @@
               httpStatus: "{{ r_request.status }}"
 
     - name: Report action failure
-      when: new_subject_state == 'started'
+      when: new_subject_state | default(current_state) == 'started'
       anarchy_finish_action:
         state: error
 
@@ -119,7 +119,7 @@
               }}
 
   - name: Report action failure
-    when: new_subject_state == 'started'
+    when: new_subject_state | default(current_state) == 'started'
     anarchy_finish_action:
       state: error
 ...

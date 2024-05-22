@@ -12,7 +12,7 @@
       # if not, keep it as 'starting'
       new_subject_state: >-
         {{  __meta__.deployer.actions.start.disable | default(false) | bool
-        | ternary('started', 'starting')
+        | ternary('started', 'starting') }}
     include_tasks: sandbox_api_start.yaml
 
 - when: not __meta__.deployer.actions.start.disable | default(false) | bool
