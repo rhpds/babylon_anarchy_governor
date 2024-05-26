@@ -54,10 +54,10 @@
       anarchy_subject_update:
         metadata:
           labels:
-            state: stopped
+            state: "{{ new_subject_state | default('stopped') }}"
         spec:
           vars:
-            current_state: stopped
+            current_state: "{{ new_subject_state | default('stopped') }}"
         status:
           sandboxAPIJobs:
             stop:
@@ -66,6 +66,7 @@
               httpStatus: "{{ r_request.status }}"
 
     - name: Report action successful
+      when: new_subject_state | default('stopped') == 'stopped'
       anarchy_finish_action:
         state: successful
 
@@ -87,6 +88,7 @@
               httpStatus: "{{ r_request.status }}"
 
     - name: Report action failure
+      when: new_subject_state | default('stopped') == 'stopped'
       anarchy_finish_action:
         state: error
 
@@ -118,6 +120,7 @@
               }}
 
   - name: Report action failure
+    when: new_subject_state | default('stopped') == 'stopped'
     anarchy_finish_action:
       state: error
 ...

@@ -4,7 +4,9 @@
   include_tasks: run-status.yaml
 
 - name: Check provision of {{ anarchy_subject_name }}
-  when: check_status_state == "running"
+  when: >-
+    check_status_state == "running"
+    and not __meta__.deployer.actions.status.disable | default(false) | bool
   vars:
     job_action: status
     job_info: "{{ vars.anarchy_subject.status.towerJobs.status }}"

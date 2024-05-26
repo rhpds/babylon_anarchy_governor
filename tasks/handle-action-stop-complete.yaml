@@ -1,17 +1,27 @@
 ---
 - name: Set state stopped for {{ anarchy_subject_name }}
   anarchy_subject_update:
+    status:
+      towerJobs:
+        stop:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          jobStatus: successful
+
+- when: >-
+    sandbox_api_in_use | bool
+    and __meta__.sandbox_api.actions.stop.enable | default(true) | bool
+  block:
+  - include_tasks: sandbox_api_login.yaml
+  - include_tasks: sandbox_api_stop.yaml
+
+- name: Set state stopped for {{ anarchy_subject_name }}
+  anarchy_subject_update:
     metadata:
       labels:
         state: stopped
     spec:
       vars:
         current_state: stopped
-    status:
-      towerJobs:
-        stop:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
-          jobStatus: successful
 
 - name: Report action successful
   anarchy_finish_action:
