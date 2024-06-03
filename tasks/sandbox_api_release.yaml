@@ -5,7 +5,7 @@
       Authorization: Bearer {{ access_token }}
     url: "{{ sandbox_api_url }}/api/v1/placements/{{ uuid }}"
     method: DELETE
-    status_code: [200, 404]
+    status_code: [200, 202, 404]
   register: r_del
   retries: "{{ sandbox_api_retries }}"
   delay: "{{ sandbox_api_delay }}"
