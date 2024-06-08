@@ -116,6 +116,9 @@ def inject_var_annotations(sandboxes_request):
         if req.get('var', False):
             req['annotations'] = req.get('annotations', {})
             req['annotations']['var'] = req['var']
+        if req.get('namespace_suffix', False):
+            req['annotations'] = req.get('annotations', {})
+            req['annotations']['namespace_suffix'] = req['namespace_suffix']
 
     return sandboxes_request
 
