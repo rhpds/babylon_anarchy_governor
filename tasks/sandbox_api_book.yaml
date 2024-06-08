@@ -36,6 +36,14 @@
       Authorization: Bearer {{ access_token }}
     url: "{{ sandbox_api_url }}/api/v1/placements"
     method: POST
+    # Acceptable status, don't retry:
+    # 200 - OK
+    # 400 - Bad Request
+    # 401 - Unauthorized
+    # 404 - Not Found
+    # 409 - Conflict  (placement already exists)
+    # 507 - Insufficient Storage  ( not enough sandboxes )
+    status_code: [200, 400, 401, 404, 409, 507]
     body_format: json
     body:
       service_uuid: "{{ uuid }}"
@@ -52,6 +60,18 @@
   delay: "{{ sandbox_api_delay }}"
   until: r_new_placement is succeeded
   changed_when: true
+
+- when: r_new_placement.status not in [200, "200"]
+  block:
+  - name: Debug placement error
+    debug:
+      var: r_new_placement
+
+  - name: Finish action {{ anarchy_action_name }} as failed
+    include_tasks:
+      file: handle-action-{{ anarchy_action_config_name }}-error.yaml
+
+  - meta: end_play
 
 - name: Wait for the resources of the placement to be ready
   uri:
