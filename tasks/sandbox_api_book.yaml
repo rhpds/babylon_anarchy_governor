@@ -71,8 +71,9 @@
   # TODO: ensure it's the right way to finish, question for JK
   when: r_placement.json.status == 'error'
   block:
-    - anarchy_finish_action:
-        state: failed
+    - name: Finish action {{ anarchy_action_name }} as failed
+      include_tasks:
+        file: handle-action-{{ anarchy_action_config_name }}-error.yaml
 
     - meta: end_play
 
