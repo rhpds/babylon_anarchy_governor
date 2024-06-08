@@ -26,8 +26,8 @@
       }}{% endif %}
 
 - debug:
-    msg: |
-      controller_host: {{ controller_host }}
-      controller_user: {{ controller_user }}
-      controller_password: {{ controller_password }}
+    msg:
+    - controller_host: {{ controller_host }}
+    - controller_user: {{ controller_user }}
+    - sha256(controller_password): {{ controller_password | hash('sha256') }}
 ...
