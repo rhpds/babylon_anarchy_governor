@@ -243,17 +243,12 @@ def extract_sandboxes_vars(response, creds=True):
                 'sandbox_openshift_cluster': sandbox_openshift_cluster,
                 'sandbox_openshift_api_url': sandbox_openshift_api_url,
                 'sandbox_openshift_apps_domain': sandbox_openshift_apps_domain,
-                'openshift_cluster': sandbox_openshift_cluster,
-                'openshift_api_url': sandbox_openshift_api_url,
-                'openshift_apps_domain': sandbox_openshift_apps_domain,
-                'openshift_namespace': sandbox_openshift_namespace,
             }
 
             if creds:
                 for creds in sandbox.get('credentials', []):
                     if creds.get('kind', 'none') == 'ServiceAccount':
                         to_merge['sandbox_openshift_api_key'] = creds.get('token', 'unknown')
-                        to_merge['openshift_api_key'] = creds.get('token', 'unknown')
                         to_merge['sandbox_openshift_credentials'] = sandbox.get('credentials', [])
                         break
 
