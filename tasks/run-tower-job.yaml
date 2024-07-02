@@ -55,7 +55,7 @@
     scm_url: "{{ __meta__.deployer.scm_url }}"
     scm_branch: "{{ __project_scm_ref }}"
     scm_update_on_launch: >-
-      {{ __project_scm_ref is not search('\d\.\d') }}
+      {{ __project_scm_ref is not search('\d+\.\d+$') }}
     scm_update_cache_timeout: >-
       {{ __meta__.deployer.scm_update_cache_timeout | default(30) }}
     scm_clean: >-
