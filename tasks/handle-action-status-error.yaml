@@ -6,6 +6,11 @@
     spec:
       vars:
         check_status_state: error
+    status:
+      towerJobs:
+        status:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          jobStatus: error
 
 - name: Finish action {{ anarchy_action_name }} as error
   anarchy_finish_action:

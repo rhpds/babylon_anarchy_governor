@@ -8,6 +8,12 @@
     spec:
       vars:
         current_state: destroy-error
+    status:
+      towerJobs:
+        destroy:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          jobStatus: error
+
 
 - name: Schedule destroy retry for {{ anarchy_subject_name }}
   anarchy_continue_action:

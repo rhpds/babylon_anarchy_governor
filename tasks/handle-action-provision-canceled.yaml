@@ -19,6 +19,11 @@
       vars:
         current_state: provision-canceled
         healthy: false
+    status:
+      towerJobs:
+        provision:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          jobStatus: canceled
 
 - name: Finish action {{ anarchy_action_name }} as canceled
   anarchy_finish_action:

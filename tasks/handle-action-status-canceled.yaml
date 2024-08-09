@@ -6,6 +6,11 @@
     spec:
       vars:
         check_status_state: canceled
+    status:
+      towerJobs:
+        status:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          jobStatus: canceled
 
 - name: Finish action {{ anarchy_action_name }} as canceled
   anarchy_finish_action:
