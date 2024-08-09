@@ -9,6 +9,11 @@
       vars:
         current_state: start-failed
         healthy: false
+    status:
+      towerJobs:
+        start:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          jobStatus: failed
 
 - name: Schedule start retry for {{ anarchy_subject_name }}
   when: desired_state == 'started' and vars.anarchy_subject.metadata.deletionTimestamp is not defined

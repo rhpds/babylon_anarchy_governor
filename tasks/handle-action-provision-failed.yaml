@@ -19,6 +19,11 @@
       vars:
         current_state: provision-failed
         healthy: false
+    status:
+      towerJobs:
+        provision:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          jobStatus: failed
 
 - name: Finish action {{ anarchy_action_name }} as failed
   anarchy_finish_action:
