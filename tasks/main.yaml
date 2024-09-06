@@ -1,14 +1,7 @@
 ---
-- name: Sanity checks
+- name: Check anarchy varables
   assert:
-    that: "{{ check.that }}"
-    fail_msg: "{{ check.msg }}"
-    quiet: true
-  loop_control:
-    loop_var: check
-    label: "{{ check.msg }}"
-  loop:
-  - msg: anarchy variables must be defined, are we running in Anarchy?
+    fail_msg: "anarchy variables must be defined, are we running in Anarchy?"
     that:
     # Check for anarchy_governor and anarchy_subject, but be careful not to trigger template
     # evaluation. These often will contain variable references that cannot be resolved by
@@ -30,12 +23,7 @@
     # start time. This is useful anarchy does not gather facts and so ansible_date_time is not
     # available.
     - anarchy_run_timestamp is defined
-  - msg: babylon_tower must be defined and include hostname, user, and password
-    that:
-    - babylon_tower is defined
-    - babylon_tower.hostname is defined
-    - babylon_tower.user is defined
-    - babylon_tower.password is defined
+    quiet: true
 
 - name: Handle action or event for {{ anarchy_subject_name }}
   include_tasks: >-

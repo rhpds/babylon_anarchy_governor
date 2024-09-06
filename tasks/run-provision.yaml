@@ -23,3 +23,4 @@
 - name: Schedule check for provision of {{ anarchy_subject_name }}
   anarchy_continue_action:
     after: "{{ job_check_interval }}"
+...

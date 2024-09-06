@@ -1,4 +1,14 @@
 ---
+# List of controllers from which to select place to run job
+ansible_controllers: >-
+  {{ __meta__.ansible_controllers
+  | default([babylon_tower] if babylon_tower is defined else []) }}
+
+# Support "balance" or "first-available"
+ansible_controller_select_mode: >-
+  {{ __meta__.ansible_controller_select_mode
+  | default('random') }}
+
 # Variables from Anarchy Subject
 guid: "{{ vars.anarchy_subject.vars.job_vars.guid | default(None) }}"
 
