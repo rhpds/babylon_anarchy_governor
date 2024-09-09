@@ -13,11 +13,9 @@
           cloud_provider: >-
             {{ vars.anarchy_governor.spec.vars.job_vars.cloud_provider | default('none') }}
           platform: >-
-            {{ vars.anarchy_governor.spec.vars.job_vars.datasource | default('RHPDS') }}
+            {{ vars.anarchy_governor.spec.vars.job_vars.datasource | default('rhpds') }}
           uuid: >-
             {{ vars.anarchy_subject.spec.vars.job_vars.uuid | default((2**127) | random | to_uuid) }}
-          workload_shared_deployment: >-
-            {{ vars.anarchy_governor.spec.vars.job_vars.shared_deployment | default('false') }}
 
 - name: Schedule provision for {{ anarchy_subject_name }}
   anarchy_schedule_action:
