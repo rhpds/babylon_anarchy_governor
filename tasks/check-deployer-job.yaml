@@ -3,57 +3,65 @@
   include_tasks:
     file: controller-access-facts.yaml
 
-- name: Get deployer job for {{ job_action }} {{ anarchy_subject_name }}
-  # The awx.awx collection does not have a job_info module
-  uri:
-    url: https://{{ controller_host }}/api/v2/jobs/{{ job_info.deployerJob }}/
-    url_username: "{{ controller_user }}"
-    url_password: "{{ controller_password }}"
-    force_basic_auth: true
-    # FIXME - Should validate certs
-    validate_certs: false
-    return_content: true
-  timeout: 600
-  register: r_api_response
-  #no_log: true
-
-- name: Handle tower job failed or canceled
-  vars:
-    __job_status: "{{ r_api_response.json.status }}"
-  when: __job_status in ['canceled', 'error', 'failed']
-  include_tasks:
-    file: handle-action-{{ anarchy_action_config_name }}-{{ __job_status }}.yaml
-
-- name: Handle tower job success when no callback received
-  vars:
-    __job_status: "{{ r_api_response.json.status }}"
-    __job_name: "{{ r_api_response.json.name | default('UNKNOWN') }}"
-  when: __job_status in ['successful']
+- name: Check job and remove oauthtoken
   block:
-    - name: Report callback not received for {{ anarchy_action_name }}
-      debug:
-        msg:
-          - "No callback received for successful job: {{ __job_name }}"
+  - name: Get deployer job for {{ job_action }} {{ anarchy_subject_name }}
+    # The awx.awx collection does not have a job_info module
+    uri:
+      url: https://{{ controller.hostname }}/api/v2/jobs/{{ job_info.deployerJob }}/
+      headers:
+        Authorization: Bearer {{ controller.oauthtoken.token }}
+      # FIXME - Should validate certs
+      validate_certs: false
+      return_content: true
+    timeout: 600
+    register: r_api_response
+    #no_log: true
 
-    - name: Get provision info
-      get_deployer_job_provision_info:
-        host: "{{ controller_host }}"
-        job_id: "{{ job_info.deployerJob }}"
-        user: "{{ controller_user }}"
-        password: "{{ controller_password }}"
-        # FIXME - Should validate certs
-        validate_certs: false
-      register: r_get_provision_info
+  - name: Handle tower job failed or canceled
+    vars:
+      __job_status: "{{ r_api_response.json.status }}"
+    when: __job_status in ['canceled', 'error', 'failed']
+    include_tasks:
+      file: handle-action-{{ anarchy_action_config_name }}-{{ __job_status }}.yaml
 
-    - name: Handle action complete for {{ anarchy_subject_name }}
-      include_tasks: >-
-        {%- if anarchy_action_config_name is defined -%}
-        handle-action-{{ anarchy_action_config_name }}-complete.yaml
-        {%- endif -%}
-      vars:
-        action_provision_data: "{{ r_get_provision_info.provision_data | default({}) }}"
-        action_provision_message_body: "{{ r_get_provision_info.provision_message_body | default([]) }}"
-        action_provision_messages: "{{ r_get_provision_info.provision_messages | default([]) }}"
+  - name: Handle tower job success when no callback received
+    vars:
+      __job_status: "{{ r_api_response.json.status }}"
+      __job_name: "{{ r_api_response.json.name | default('UNKNOWN') }}"
+    when: __job_status in ['successful']
+    block:
+      - name: Report callback not received for {{ anarchy_action_name }}
+        debug:
+          msg:
+            - "No callback received for successful job: {{ __job_name }}"
+
+      - name: Get provision info
+        get_deployer_job_provision_info:
+          host: "{{ controller.hostname }}"
+          job_id: "{{ job_info.deployerJob }}"
+          oauthtoken: "{{ controller.oauthtoken.token }}"
+          # FIXME - Should validate certs
+          validate_certs: false
+        register: r_get_provision_info
+
+      - name: Handle action complete for {{ anarchy_subject_name }}
+        include_tasks: >-
+          {%- if anarchy_action_config_name is defined -%}
+          handle-action-{{ anarchy_action_config_name }}-complete.yaml
+          {%- endif -%}
+        vars:
+          action_provision_data: "{{ r_get_provision_info.provision_data | default({}) }}"
+          action_provision_message_body: "{{ r_get_provision_info.provision_message_body | default([]) }}"
+          action_provision_messages: "{{ r_get_provision_info.provision_messages | default([]) }}"
+  always:
+  - name: Remove oauthtoken
+    awx.awx.token:
+      controller_host: "{{ controller.hostname }}"
+      controller_oauthtoken: "{{ controller.oauthtoken }}"
+      existing_token: "{{ controller.oauthtoken }}"
+      state: absent
+    ignore_errors: true
 
 - name: Schedule next check for {{ job_action }} {{ anarchy_subject_name }}
   vars:

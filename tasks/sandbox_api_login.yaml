@@ -13,3 +13,4 @@
 - name: Save access token
   set_fact:
     access_token: "{{ r_login.json.access_token }}"
+...

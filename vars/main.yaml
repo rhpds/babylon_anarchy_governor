@@ -1,4 +1,7 @@
 ---
+# Initial empty list for available ansible controllers
+available_controllers: []
+
 # Variables for poolboy integration
 poolboy_resource_index: >-
   {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-index'] | default('') }}

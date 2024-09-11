@@ -15,9 +15,8 @@
   - "'deployerJob' in vars.anarchy_subject.status.towerJobs.provision | default({})"
   - "'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision"
   awx.awx.job_cancel:
-    controller_host: "https://{{ controller_host }}/"
-    controller_username: "{{ controller_user }}"
-    controller_password: "{{ controller_password }}"
+    controller_host: "https://{{ controller.hostname }}/"
+    controller_oauthtoken: "{{ controller.oauthtoken }}"
     job_id: "{{ vars.anarchy_subject.status.towerJobs.provision.deployerJob }}"
     fail_if_not_running: false
     validate_certs: false

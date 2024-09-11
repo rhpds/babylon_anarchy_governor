@@ -1,0 +1,75 @@
+---
+- name: Get secret for Ansible Controller {{ __controller.hostname }}
+  when: >-
+    ansible_controller_select_mode != "first-available" or
+    available_controllers | length == 0
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    namespace: "{{ anarchy_namespace }}"
+    label_selectors:
+    - babylon.gpte.redhat.com/ansible-control-plane={{ __controller.hostname }}
+  ignore_errors: true
+  register: r_get_secret
+  failed_when: r_get_secret.resources | length < 1
+
+- name: Attempt login to {{ __controller.hostname }}
+  when:
+  - r_get_secret is successful
+  - not r_get_secret is skipped
+  vars:
+    __secret: "{{ r_get_secret.resources[0] }}"
+    __user: "{{ __secret.data.user | b64decode | from_yaml }}"
+    __password: "{{ __secret.data.password | b64decode | from_yaml }}"
+  awx.awx.token:
+    scope: write
+    controller_host: "https://{{ __controller.hostname }}/"
+    controller_username: "{{ __user }}"
+    controller_password: "{{ __password }}"
+  register: r_get_token
+
+- name: Get job count and add to available_controllers
+  when:
+  - r_get_token is successful
+  - not r_get_token is skipped
+  vars:
+    __oauthtoken: "{{ r_get_token.ansible_facts.controller_token }}"
+  block:
+  - name: Get number of running jobs on {{ __controller.hostname }}
+    uri:
+      url: https://{{ __controller.hostname }}/api/v2/jobs/?or__status=running&or__status=pending&or__status=waiting&page_size=1
+      headers:
+        Authorization: Bearer {{ __oauthtoken.token }}
+      # FIXME - Should validate certs
+      validate_certs: false
+      return_content: true
+    ignore_errors: true
+    timeout: 600
+    register: r_get_jobs
+
+  - name: Alert if concurrency exceeded for {{ __controller.hostname }}
+    when:
+    - r_get_jobs is successful
+    - r_get_jobs.json.count | int >= maximum_job_count | int
+    fail:
+      msg: >-
+        Maximum concurrency of {{ maximum_job_count }} exceeded.
+        {{ r_get_jobs.json.count }} active jobs.
+    ignore_errors: true
+
+  - name: Add {{ __controller.hostname }} to available_controllers
+    when:
+    - r_get_jobs is successful
+    - r_get_jobs.json.count | int < maximum_job_count | int
+    vars:
+      __secret: "{{ r_get_secret.resources[0] }}"
+    set_fact:
+      available_controllers: >-
+        {{
+          available_controllers + [{
+            "hostname": __controller.hostname,
+            "oauthtoken": __oauthtoken,
+            "job_count": r_get_jobs.json.count | int,
+          }]
+        }}
+...

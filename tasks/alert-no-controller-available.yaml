@@ -2,6 +2,6 @@
 - name: Report concurrency exceeded
   debug:
     msg: >-
-      Maximum concurrency of {{ maximum_job_count }} exceeded.
-      {{ active_job_count }} active jobs.
+      No controller is available.
       Will try to again in {{ job_check_interval }}.
+...

@@ -116,3 +116,4 @@
     spec:
       vars:
         job_vars: "{{ r_placement.json | extract_sandboxes_vars(creds=False) }}"
+...

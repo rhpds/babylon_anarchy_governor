@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# 
+#
 # Copyright: (c) 2020, Johnathan Kupferer <jkupfere@redhat.com>
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 #
@@ -44,7 +44,7 @@ class ActionModule(ActionBase):
     '''Print statements during execution and save user info to file'''
 
     TRANSFERS_FILES = False
-    _VALID_ARGS = frozenset(('host','job_id','user','page_size','password','validate_certs'))
+    _VALID_ARGS = frozenset(('host','job_id','oauthtoken','page_size','validate_certs'))
 
     def run(self, tmp=None, task_vars=None):
         self._supports_check_mode = True
@@ -56,7 +56,7 @@ class ActionModule(ActionBase):
         result['_ansible_verbose_always'] = True
         del tmp # tmp no longer has any effect
 
-        for required_arg in ('host', 'job_id', 'user', 'password'):
+        for required_arg in ('host', 'job_id', 'oauthtoken'):
             if not required_arg in self._task.args:
                 result['failed'] = True
                 result['error'] = required_arg + " is required"
@@ -64,8 +64,7 @@ class ActionModule(ActionBase):
 
         job_id = self._task.args.get('job_id')
         host = self._task.args.get('host')
-        user = self._task.args.get('user')
-        password = self._task.args.get('password')
+        oauthtoken = self._task.args.get('oauthtoken')
         page_size = self._task.args.get('page_size', 100)
         validate_certs = boolean(self._task.args.get('validate_certs', True), strict=False)
 
@@ -76,7 +75,7 @@ class ActionModule(ActionBase):
         provision_messages = []
 
         while True:
-          resp = requests_session.get(url, auth = (user, password), verify = validate_certs)
+          resp = requests_session.get(url, headers={"Authorization": f"Bearer {oauthtoken}"}, verify=validate_certs)
           resp_data = resp.json()
           for result in resp_data.get('results', []):
               event_data = result.get('event_data', {})
