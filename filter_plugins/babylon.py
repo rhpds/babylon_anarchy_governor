@@ -252,6 +252,12 @@ def extract_sandboxes_vars(response, creds=True):
                         to_merge['sandbox_openshift_credentials'] = sandbox.get('credentials', [])
                         break
 
+            sandbox_additional_vars = sandbox.get('additional_vars', {}).get('deployer', {})
+
+            # Additional vars set in the OcpSharedClusterConfiguration
+            # are merged with the sandbox vars
+            for key, value in sandbox_additional_vars.items():
+                to_merge[key] = value
 
             var = sandbox.get('annotations', {}).get('var', 'main')
             if var == 'main':
