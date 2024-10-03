@@ -1,9 +1,11 @@
 ---
 # When destroy is disable and if it's a sandbox + destroy_catch_all is true,
 # then delete placement from the sandbox API
-- when: >-
-    sandbox_api_in_use | bool
-    and sandbox_api_destroy_catch_all | bool
+# unless create was never handled an no uuid was ever assigned.
+- when:
+  - sandbox_api_in_use | bool
+  - sandbox_api_destroy_catch_all | bool
+  - vars.anarchy_subject.vars.job_vars.uuid | default('') != ''
   include_tasks: sandbox_cleanup.yml
 
 - name: Update state to destroyed for {{ anarchy_subject_name }} with no destroy action
