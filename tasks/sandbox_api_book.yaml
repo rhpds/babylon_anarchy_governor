@@ -30,6 +30,12 @@
     ocp_console_url: >-
       {{ r_ocp_console_public.resources[0].data.consoleURL | default('') }}
 
+- debug:
+    var: __sandbox_api_resources
+  vars:
+    __sandbox_api_resources: >-
+      {{ sandbox_api_resources | inject_var_annotations }}
+
 - name: Get a placement, book sandbox(es)
   uri:
     headers:
