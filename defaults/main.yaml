@@ -221,6 +221,6 @@ sandbox_api_resources_default:
 
 # Kind of resources to book
 sandbox_api_resources: >-
-  {{ lookup('templated_var', __meta__.sandboxes)
+  {{ lookup('templated_var', __meta__.sandboxes | to_json | from_json)
   if __meta__.sandboxes is defined else
   sandbox_api_resources_default }}
