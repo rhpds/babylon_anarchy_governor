@@ -9,7 +9,7 @@
   retries: "{{ sandbox_api_retries }}"
   delay: "{{ sandbox_api_delay }}"
   register: r_get_placement
-  until: r_get_placement is succeeded and r_get_placement.json.status|default("") == "success"
+  until: r_get_placement.json.status | default('unknown') in ['success', 'error']
 
 # Placement found
 - when: >-
