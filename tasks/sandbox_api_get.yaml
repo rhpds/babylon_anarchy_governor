@@ -9,7 +9,20 @@
   retries: "{{ sandbox_api_retries }}"
   delay: "{{ sandbox_api_delay }}"
   register: r_get_placement
-  until: r_get_placement is succeeded
+  until: r_get_placement.json.status | default('unknown') in ['success', 'error']
+
+- name: Finish action {{ anarchy_action_name }} as failed
+  when: r_get_placement.json.status == 'error'
+  block:
+  - name: Debug placement error
+    debug:
+      var: r_get_placement
+      
+  - name: Finish action {{ anarchy_action_name }} as failed
+    include_tasks:
+      file: handle-action-{{ anarchy_action_config_name }}-error.yaml
+
+  - meta: end_play
 
 # Placement found
 - when: >-
