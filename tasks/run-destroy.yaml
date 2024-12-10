@@ -4,6 +4,8 @@
   include_tasks: sandbox_get.yaml
 
 - name: Set Ansible controller access facts
+  when: >-
+    not __meta__.deployer.actions.destroy.disable | default(false) | bool
   vars:
     job_info: >-
       {{ vars.anarchy_subject.status.towerJobs.provision | default({}) }}
@@ -14,6 +16,7 @@
   when:
   - "'deployerJob' in vars.anarchy_subject.status.towerJobs.provision | default({})"
   - "'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision"
+  - not __meta__.deployer.actions.destroy.disable | default(false) | bool
   awx.awx.job_cancel:
     controller_host: "https://{{ controller.hostname }}/"
     controller_oauthtoken: "{{ controller.oauthtoken }}"
@@ -24,6 +27,8 @@
   failed_when: r_job_cancel.failed and 'Unable to find job with id ' not in r_job_cancel.msg
 
 - name: Run deployer destroy {{ anarchy_subject_name }}
+  when: >-
+    not __meta__.deployer.actions.destroy.disable | default(false) | bool
   vars:
     new_subject_state: destroying
     job_template_playbook: "{{ deployer_entry_points.destroy }}"
