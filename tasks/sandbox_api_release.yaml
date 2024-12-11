@@ -1,13 +1,41 @@
 ---
-- name: Release placement
-  uri:
-    headers:
-      Authorization: Bearer {{ access_token }}
-    url: "{{ sandbox_api_url }}/api/v1/placements/{{ uuid }}"
-    method: DELETE
-    status_code: [200, 202, 404]
-  register: r_del
-  retries: "{{ sandbox_api_retries }}"
-  delay: "{{ sandbox_api_delay }}"
-  until: r_del is succeeded
+- block:
+  - name: Release placement
+    uri:
+      headers:
+        Authorization: Bearer {{ access_token }}
+      url: "{{ sandbox_api_url }}/api/v1/placements/{{ uuid }}"
+      method: DELETE
+      status_code: [200, 202, 404]
+    register: r_del
+    retries: "{{ sandbox_api_retries }}"
+    delay: "{{ sandbox_api_delay }}"
+    until: r_del is succeeded
+  rescue:
+  - name: Set state destroy-error for {{ anarchy_subject_name }}
+    anarchy_subject_update:
+      metadata:
+        labels:
+          state: destroy-error
+      spec:
+        vars:
+          current_state: destroy-error
+          healthy: false
+      status:
+        sandboxAPIJobs:
+          delete:
+            completeTimestamp: "{{ now_time_utc }}"
+            jobStatus: error
+            httpStatus: >-
+              {{ r_del.status
+              | default(r_del.status)
+              }}
+            message: >-
+              {{ r_del.json.message
+              | default(r_del.msg, true)
+              | default("something bad happened")
+              }}
+  - name: Report action failure
+    anarchy_finish_action:
+      state: destroy-error
 ...
