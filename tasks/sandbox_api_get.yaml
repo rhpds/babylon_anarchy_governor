@@ -14,7 +14,7 @@
     or r_get_placement.json.http_code == 404
 
 - name: Finish action {{ anarchy_action_name }} as failed
-  when: r_get_placement.json.status == 'error'
+  when: r_get_placement.json.status | default('unknown') == 'error'
   block:
   - name: Debug placement error
     debug:
