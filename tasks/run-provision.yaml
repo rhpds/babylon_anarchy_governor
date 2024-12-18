@@ -4,6 +4,8 @@
   include_tasks: sandbox_get.yaml
 
 - name: Run deployer provision {{ anarchy_subject_name }}
+  when: >-
+    not __meta__.deployer.actions.provision.disable | default(false) | bool
   vars:
     new_subject_state: provisioning
     job_template_playbook: "{{ deployer_entry_points.provision }}"
