@@ -34,5 +34,5 @@
     __meta__.deployer.actions.provision.disable | default(false) | bool
   include_tasks: handle-action-provision-complete.yaml
   vars:
-    action_provision_data: "{{ dynamic_job_vars | extract_sandboxes_vars | default({}) }}"
+    action_provision_data: "{{ extracted_sandboxes_vars | default({}) }}"
 ...
