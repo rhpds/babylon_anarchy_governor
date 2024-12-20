@@ -1,10 +1,14 @@
 ---
 - name: Provision {{ anarchy_subject_name }}
-  when: current_state == "provision-pending"
+  when: >-
+    current_state == "provision-pending"
   include_tasks: run-provision.yaml
 
 - name: Check provision of {{ anarchy_subject_name }}
-  when: current_state == "provisioning"
+  when: >-
+    current_state == "provisioning"
+    and
+    not __meta__.deployer.actions.provision.disable | default(false) | bool
   vars:
     job_action: provision
     job_info: "{{ vars.anarchy_subject.status.towerJobs.provision }}"

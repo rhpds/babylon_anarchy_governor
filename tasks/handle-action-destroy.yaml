@@ -5,7 +5,8 @@
     and (
         'destroy-error' == current_state | default('') or
         'destroy-failed' == current_state | default('') or
-        'destroy-canceled' == current_state | default('')
+        'destroy-canceled' == current_state | default('') or
+        __meta__.deployer.actions.destroy.disable | default(false) | bool
     )
 
   block:
@@ -26,11 +27,17 @@
   - meta: end_play
 
 - name: Destroying {{ anarchy_subject_name }}
-  when: current_state != "destroying"
+  when: >-
+    current_state != "destroying"
+    and
+    not __meta__.deployer.actions.destroy.disable | default(false) | bool
   include_tasks: run-destroy.yaml
 
 - name: Check destroy of {{ anarchy_subject_name }}
-  when: current_state == "destroying"
+  when: >-
+    current_state == "destroying"
+    and
+    not __meta__.deployer.actions.destroy.disable | default(false) | bool
   vars:
     job_action: destroy
     job_info: "{{ vars.anarchy_subject.status.towerJobs.destroy }}"
