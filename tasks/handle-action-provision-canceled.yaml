@@ -20,6 +20,10 @@
         current_state: provision-canceled
         healthy: false
     status:
+      actions:
+        provision:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          state: canceled
       towerJobs:
         provision:
           completeTimestamp: '{{ anarchy_run_timestamp }}'

@@ -10,6 +10,10 @@
         current_state: update-canceled
         healthy: false
     status:
+      actions:
+        update:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          state: canceled
       towerJobs:
         update:
           completeTimestamp: '{{ anarchy_run_timestamp }}'

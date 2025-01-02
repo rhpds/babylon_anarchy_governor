@@ -45,6 +45,11 @@
           current_state: started
           healthy: true
           provision_data: '{{ action_provision_data | default(omit, true) }}'
+      status:
+        actions:
+          provision:
+            completeTimestamp: '{{ anarchy_run_timestamp }}'
+            status: successful
 
   - name: Report action successful when deployer is disabled
     anarchy_finish_action:

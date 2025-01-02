@@ -7,6 +7,10 @@
       vars:
         check_status_state: failed
     status:
+      actions:
+        status:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          state: failed
       towerJobs:
         status:
           completeTimestamp: '{{ anarchy_run_timestamp }}'

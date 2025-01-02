@@ -20,6 +20,10 @@
         current_state: provision-error
         healthy: false
     status:
+      actions:
+        provision:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          state: error
       towerJobs:
         provision:
           completeTimestamp: '{{ anarchy_run_timestamp }}'

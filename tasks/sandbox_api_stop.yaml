@@ -46,7 +46,7 @@
       or r_request.json.status | default('unknown') == 'error'
     until: >-
       r_request is succeeded
-      and r_request.json.status in ["success", "error"]
+      and r_request.json.status | default('unknown') in ["success", "error"]
 
   - when: r_request.json.status == "success"
     block:
@@ -81,6 +81,10 @@
           vars:
             current_state: stop-error
         status:
+          actions:
+            stop:
+              completeTimestamp: '{{ anarchy_run_timestamp }}'
+              state: error
           sandboxAPIJobs:
             stop:
               completeTimestamp: "{{ now_time_utc }}"
@@ -103,6 +107,10 @@
           current_state: stop-error
           healthy: false
       status:
+        actions:
+          stop:
+            completeTimestamp: '{{ anarchy_run_timestamp }}'
+            state: error
         sandboxAPIJobs:
           stop:
             completeTimestamp: "{{ now_time_utc }}"

@@ -8,6 +8,10 @@
       vars:
         current_state: started
     status:
+      actions:
+        start:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          state: successful
       towerJobs:
         start:
           completeTimestamp: '{{ anarchy_run_timestamp }}'

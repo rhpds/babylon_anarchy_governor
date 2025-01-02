@@ -7,6 +7,10 @@
       vars:
         check_status_state: canceled
     status:
+      actions:
+        status:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          state: canceled
       towerJobs:
         status:
           completeTimestamp: '{{ anarchy_run_timestamp }}'

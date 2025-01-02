@@ -10,6 +10,10 @@
         current_state: start-error
         healthy: false
     status:
+      actions:
+        start:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          state: error
       towerJobs:
         start:
           completeTimestamp: '{{ anarchy_run_timestamp }}'

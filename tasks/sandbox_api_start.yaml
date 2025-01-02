@@ -45,7 +45,7 @@
       or r_request.json.status | default('unknown') == 'error'
     until: >-
       r_request is succeeded
-      and r_request.json.status in ["success", "error"]
+      and r_request.json.status | default('unknown')  in ["success", "error"]
 
   - when: r_request.json.status == "success"
     block:

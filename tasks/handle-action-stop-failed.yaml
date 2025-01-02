@@ -22,6 +22,10 @@
         current_state: stop-failed
         healthy: false
     status:
+      actions:
+        stop:
+          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          state: failed
       towerJobs:
         stop:
           completeTimestamp: '{{ anarchy_run_timestamp }}'
