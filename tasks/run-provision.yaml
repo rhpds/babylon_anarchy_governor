@@ -32,7 +32,23 @@
   when: >-
     sandbox_api_in_use | bool and
     __meta__.deployer.actions.provision.disable | default(false) | bool
-  include_tasks: handle-action-provision-complete.yaml
-  vars:
-    action_provision_data: "{{ extracted_sandboxes_vars | default({}) }}"
+  block:
+  - name: Set state started for {{ anarchy_subject_name }} when deployer is disabled
+    vars:
+      action_provision_data: "{{ extracted_sandboxes_vars | default({}) }}"
+    anarchy_subject_update:
+      metadata:
+        labels:
+          state: started
+      spec:
+        vars:
+          current_state: started
+          healthy: true
+          provision_data: '{{ action_provision_data | default(omit, true) }}'
+          provision_message_body: '{{ action_provision_message_body | default(omit, true) }}'
+          provision_messages: '{{ action_provision_messages | default(omit, true) }}'
+
+  - name: Report action successful when deployer is disabled
+    anarchy_finish_action:
+      state: successful
 ...
