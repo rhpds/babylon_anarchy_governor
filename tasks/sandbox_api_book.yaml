@@ -119,8 +119,12 @@
       vars:
         job_vars: "{{ r_placement.json | extract_sandboxes_vars(creds=False) }}"
     status:
+      actions:
+        provision:
+          startTimestamp: '{{ anarchy_run_timestamp }}'
       sandboxAPIJobs:
         provision:
           provisionTimestamp: "{{ now_time_utc }}"
+
           httpStatus: "{{ r_placement.status }}"
 ...
