@@ -14,11 +14,11 @@
     status:
       actions:
         provision:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           state: successful
       towerJobs:
         provision:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: successful
 
 - name: Report action successful

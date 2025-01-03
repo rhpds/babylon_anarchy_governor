@@ -22,11 +22,11 @@
     status:
       actions:
         provision:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           state: canceled
       towerJobs:
         provision:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: canceled
 
 - name: Finish action {{ anarchy_action_name }} as canceled

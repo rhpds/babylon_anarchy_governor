@@ -48,7 +48,7 @@
       status:
         actions:
           provision:
-            completeTimestamp: '{{ anarchy_run_timestamp }}'
+            completeTimestamp: "{{ now_time_utc }}"
             status: successful
 
   - name: Report action successful when deployer is disabled

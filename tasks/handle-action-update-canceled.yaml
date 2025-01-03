@@ -12,11 +12,11 @@
     status:
       actions:
         update:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           state: canceled
       towerJobs:
         update:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: canceled
 
 - name: Schedule update retry for {{ anarchy_subject_name }}

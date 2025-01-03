@@ -9,11 +9,11 @@
     status:
       actions:
         status:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           state: error
       towerJobs:
         status:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: error
 
 - name: Finish action {{ anarchy_action_name }} as error

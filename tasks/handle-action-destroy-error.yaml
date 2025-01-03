@@ -11,11 +11,11 @@
     status:
       actions:
         destroy:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           state: error
       towerJobs:
         destroy:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: error
 
 - name: Schedule destroy retry for {{ anarchy_subject_name }}

@@ -83,7 +83,7 @@
         status:
           actions:
             stop:
-              completeTimestamp: '{{ anarchy_run_timestamp }}'
+              completeTimestamp: '{{ now_time_utc }}'
               state: error
           sandboxAPIJobs:
             stop:
@@ -109,7 +109,7 @@
       status:
         actions:
           stop:
-            completeTimestamp: '{{ anarchy_run_timestamp }}'
+            completeTimestamp: '{{ now_time_utc }}'
             state: error
         sandboxAPIJobs:
           stop:
