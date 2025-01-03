@@ -124,7 +124,6 @@
           startTimestamp: '{{ anarchy_run_timestamp }}'
       sandboxAPIJobs:
         provision:
-          provisionTimestamp: "{{ now_time_utc }}"
-
+          startTimestamp: "{{ now_time_utc }}"
           httpStatus: "{{ r_placement.status }}"
 ...
