@@ -194,7 +194,7 @@ sandbox_api_url: >-
 sandbox_api_retries: 40
 sandbox_api_delay: 5
 
-now_time_utc: "{{ now(utc=true, fmt='%Y-%m-%dT%H:%M:%S') }}"
+now_time_utc: "{{ now(utc=true, fmt='%FT%TZ') }}"
 
 # Variables from secret via the aws_sandbox_manager variable
 dynamodb_pool_table: "{{ aws_sandbox_manager.pool_table | default('accounts') }}"
