@@ -12,9 +12,13 @@
       vars:
         current_state: destroy-complete
     status:
+      actions:
+        destroy:
+          completeTimestamp: '{{ now_time_utc }}'
+          state: successful
       towerJobs:
         destroy:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: successful
 
 - name: Complete AnarchySubject deletion

@@ -7,9 +7,13 @@
         status_data: '{{ action_provision_data | default(omit, true) }}'
         status_messages: '{{ action_provision_messages | default(omit, true) }}'
     status:
+      actions:
+        status:
+          completeTimestamp: '{{ now_time_utc }}'
+          state: successful
       towerJobs:
         status:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: successful
 
 - name: Report action successful

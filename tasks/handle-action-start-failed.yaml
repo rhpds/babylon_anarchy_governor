@@ -10,9 +10,13 @@
         current_state: start-failed
         healthy: false
     status:
+      actions:
+        start:
+          completeTimestamp: '{{ now_time_utc }}'
+          state: failed
       towerJobs:
         start:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: failed
 
 - name: Schedule start retry for {{ anarchy_subject_name }}

@@ -12,9 +12,13 @@
         provision_message_body: '{{ action_provision_message_body | default(omit, true) }}'
         provision_messages: '{{ action_provision_messages | default(omit, true) }}'
     status:
+      actions:
+        provision:
+          completeTimestamp: '{{ now_time_utc }}'
+          state: successful
       towerJobs:
         provision:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: successful
 
 - name: Report action successful

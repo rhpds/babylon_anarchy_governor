@@ -22,9 +22,13 @@
         current_state: stop-failed
         healthy: false
     status:
+      actions:
+        stop:
+          completeTimestamp: '{{ now_time_utc }}'
+          state: failed
       towerJobs:
         stop:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: failed
 
 - name: Schedule stop retry for {{ anarchy_subject_name }}

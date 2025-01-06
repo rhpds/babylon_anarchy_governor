@@ -2,9 +2,13 @@
 - name: Set state stopped for {{ anarchy_subject_name }}
   anarchy_subject_update:
     status:
+      actions:
+        stop:
+          completeTimestamp: '{{ now_time_utc }}'
+          state: successful
       towerJobs:
         stop:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: successful
 
 - when: >-

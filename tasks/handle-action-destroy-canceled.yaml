@@ -9,9 +9,13 @@
       vars:
         current_state: destroy-canceled
     status:
+      actions:
+        destroy:
+          completeTimestamp: '{{ now_time_utc }}'
+          state: canceled
       towerJobs:
         destroy:
-          completeTimestamp: '{{ anarchy_run_timestamp }}'
+          completeTimestamp: '{{ now_time_utc }}'
           jobStatus: canceled
 
 - name: Schedule destroy retry for {{ anarchy_subject_name }}

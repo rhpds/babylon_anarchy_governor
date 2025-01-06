@@ -4,6 +4,8 @@
   include_tasks: sandbox_get.yaml
 
 - name: Run deployer provision {{ anarchy_subject_name }}
+  when: >-
+    not __meta__.deployer.actions.provision.disable | default(false) | bool
   vars:
     new_subject_state: provisioning
     job_template_playbook: "{{ deployer_entry_points.provision }}"
@@ -21,6 +23,35 @@
     file: check-run-tower-job.yaml
 
 - name: Schedule check for provision of {{ anarchy_subject_name }}
+  when: >-
+    not __meta__.deployer.actions.provision.disable | default(false) | bool
   anarchy_continue_action:
     after: "{{ job_check_interval }}"
+
+- name: Handle action complete for {{ anarchy_subject_name }} when deployer is disabled
+  when: >-
+    sandbox_api_in_use | bool and
+    __meta__.deployer.actions.provision.disable | default(false) | bool
+  block:
+  - name: Set state started for {{ anarchy_subject_name }} when deployer is disabled
+    vars:
+      action_provision_data: "{{ extracted_sandboxes_vars | default({}) }}"
+    anarchy_subject_update:
+      metadata:
+        labels:
+          state: started
+      spec:
+        vars:
+          current_state: started
+          healthy: true
+          provision_data: '{{ action_provision_data | default(omit, true) }}'
+      status:
+        actions:
+          provision:
+            completeTimestamp: "{{ now_time_utc }}"
+            status: successful
+
+  - name: Report action successful when deployer is disabled
+    anarchy_finish_action:
+      state: successful
 ...

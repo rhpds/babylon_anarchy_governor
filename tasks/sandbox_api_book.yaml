@@ -107,6 +107,8 @@
       {{ vars.dynamic_job_vars
       | default({})
       | combine(r_placement.json | extract_sandboxes_vars, recursive=True) }}
+    extracted_sandboxes_vars: >-
+      {{ r_placement.json | extract_sandboxes_vars }}
 
 - name: Set sandbox for {{ anarchy_subject_name }}
   anarchy_subject_update:
@@ -116,4 +118,12 @@
     spec:
       vars:
         job_vars: "{{ r_placement.json | extract_sandboxes_vars(creds=False) }}"
+    status:
+      actions:
+        provision:
+          startTimestamp: '{{ anarchy_run_timestamp }}'
+      sandboxAPIJobs:
+        provision:
+          startTimestamp: "{{ now_time_utc }}"
+          httpStatus: "{{ r_placement.status }}"
 ...
