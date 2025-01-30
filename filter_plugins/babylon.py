@@ -267,8 +267,8 @@ def extract_sandboxes_vars(response, creds=True):
         elif kind == 'IBMResourceGroupSandbox':
             to_merge = {}
             if creds:
-                sandbox_ibm_resource_group_apikey = sandbox.get('credentials', []).get('apikey', 'unknown')
-                sandbox_ibm_resource_group_name = sandbox.get('credentials', []).get('name', 'unknown')
+                sandbox_ibm_resource_group_apikey = sandbox.get('credentials', {}).get('apikey', 'unknown')
+                sandbox_ibm_resource_group_name = sandbox.get('credentials', {}).get('name', 'unknown')
                 to_merge = {
                     'ibmcloud_api_key': sandbox_ibm_resource_group_apikey,
                     'ibmcloud_resource_group_name': sandbox_ibm_resource_group_name,
