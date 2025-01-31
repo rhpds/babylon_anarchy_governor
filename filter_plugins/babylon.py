@@ -264,6 +264,29 @@ def extract_sandboxes_vars(response, creds=True):
                 sandboxes_vars.update(to_merge)
             else:
                 sandboxes_vars[var] = to_merge
+        elif kind == 'IBMResourceGroupSandbox':
+            to_merge = {}
+            if creds:
+                sandbox_ibm_resource_group_apikey = sandbox.get('credentials', {}).get('apikey', 'unknown')
+                sandbox_ibm_resource_group_name = sandbox.get('credentials', {}).get('name', 'unknown')
+                to_merge = {
+                    'ibmcloud_api_key': sandbox_ibm_resource_group_apikey,
+                    'ibmcloud_resource_group_name': sandbox_ibm_resource_group_name,
+                }
+
+            deployer_additional_vars = sandbox.get('deployer_additional_vars', {}).get('deployer', {})
+
+            # Additional vars set in the IBMResourceGroupSandbox
+            # are merged with the sandbox vars
+            for key, value in sandbox_additional_vars.items():
+                to_merge[key] = value
+
+            var = sandbox.get('annotations', {}).get('var', 'main')
+            if var == 'main':
+                sandboxes_vars.update(to_merge)
+            else:
+                sandboxes_vars[var] = to_merge
+
 
     return sandboxes_vars
 
