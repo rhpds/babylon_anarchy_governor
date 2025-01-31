@@ -282,7 +282,7 @@ def extract_sandboxes_vars(response, creds=True):
 
             # Additional vars set in the IBMResourceGroupSandbox
             # are merged with the sandbox vars
-            for key, value in sandbox_additional_vars.items():
+            for key, value in deployer_additional_vars.items():
                 to_merge[key] = value
 
             var = sandbox.get('annotations', {}).get('var', 'main')
