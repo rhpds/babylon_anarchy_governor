@@ -311,7 +311,7 @@ def extract_sandboxes_vars(response, creds=True):
 
             additional_vars = sandbox.get('additional_vars', {}).get('deployer', {})
 
-            # Additional vars set in the IBMResourceGroupSandbox
+            # Additional vars set in the DNSSandbox
             # are merged with the sandbox vars
             for key, value in additional_vars.items():
                 to_merge[key] = value
