@@ -303,7 +303,7 @@ def extract_sandboxes_vars(response, creds=True):
                         break
 
                 to_merge = {
-                    'cluster_dns_zone': zone,
+                    'base_domain': zone,
                     'route53_aws_zone_id': hosted_zone_id,
                     'route53_aws_access_key_id': aws_access_key_id,
                     'route53_aws_secret_access_key': aws_secret_access_key
