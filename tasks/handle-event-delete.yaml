@@ -2,7 +2,7 @@
 
 - name: Cancel tower jobs for {{ anarchy_subject_name }}
   loop: >-
-    {{ vars.anarchy_subject.status.TowerJobs | default({}) | dict2items
+    {{ vars.anarchy_subject.status.towerJobs | default({}) | dict2items
      | json_query('[?value.deployerJob && value.completeTimestamp==null]')
     }}
   loop_control:
