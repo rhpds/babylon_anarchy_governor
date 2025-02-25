@@ -291,6 +291,36 @@ def extract_sandboxes_vars(response, creds=True):
             else:
                 sandboxes_vars[var] = to_merge
 
+        elif kind == 'DNSSandbox':
+            to_merge = {}
+            if creds:
+                for creds in sandbox.get('credentials', []):
+                    if creds.get('aws_access_key_id', '') != '':
+                        aws_access_key_id = sandbox.get('credentials', [{}])[0].get('aws_access_key_id', 'unknown')
+                        aws_secret_access_key = sandbox.get('credentials', [{}])[0].get('aws_secret_access_key', 'unknown')
+                        hosted_zone_id = sandbox.get('credentials', [{}])[0].get('hosted_zone_id', 'unknown')
+                        zone = sandbox.get('credentials', [{}])[0].get('zone', 'unknown')
+                        break
+
+                to_merge = {
+                    'base_domain': zone,
+                    'route53_aws_zone_id': hosted_zone_id,
+                    'route53_aws_access_key_id': aws_access_key_id,
+                    'route53_aws_secret_access_key': aws_secret_access_key
+                }
+
+            additional_vars = sandbox.get('additional_vars', {}).get('deployer', {})
+
+            # Additional vars set in the DNSSandbox
+            # are merged with the sandbox vars
+            for key, value in additional_vars.items():
+                to_merge[key] = value
+
+            var = sandbox.get('annotations', {}).get('var', 'main')
+            if var == 'main':
+                sandboxes_vars.update(to_merge)
+            else:
+                sandboxes_vars[var] = to_merge
 
     return sandboxes_vars
 
