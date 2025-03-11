@@ -1,15 +1,4 @@
 ---
-- when: >-
-    'startTimestamp' not in vars.anarchy_subject.status.actions.provision | default({}, true)
-    and
-    current_state == "provision-pending"
-  name: Set startTimestamp to status.actions.provision for {{ anarchy_subject_name }}
-  anarchy_subject_update:
-    skip_update_processing: true
-    status:
-      actions:
-        provision:
-          startTimestamp: '{{ now_time_utc }}'
 - name: Provision {{ anarchy_subject_name }}
   when: >-
     current_state == "provision-pending"
