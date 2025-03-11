@@ -1,5 +1,17 @@
 ---
 - when: >-
+    'startTimestamp' not in vars.anarchy_subject.status.actions.destroy | default({}, true)
+    and
+    current_state == "destroy-pending"
+  name: Set startTimestamp to status.actions.destroy for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    skip_update_processing: true
+    status:
+      actions:
+        destroy:
+          startTimestamp: '{{ now_time_utc }}'
+
+- when: >-
     sandbox_api_in_use | bool
     and sandbox_api_destroy_catch_all | bool
     and (
