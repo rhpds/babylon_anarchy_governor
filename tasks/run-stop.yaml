@@ -1,4 +1,12 @@
 ---
+- name: Set startTimestamp to status.actions.stop for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    skip_update_processing: true
+    status:
+      actions:
+        stop:
+          startTimestamp: '{{ now_time_utc }}'
+
 - when: not __meta__.deployer.actions.stop.disable | default(false) | bool
   block:
   # Get sandbox to get the credential and perform deployer job

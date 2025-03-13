@@ -1,4 +1,12 @@
 ---
+- name: Set startTimestamp to status.actions.start for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    skip_update_processing: true
+    status:
+      actions:
+        start:
+          startTimestamp: '{{ now_time_utc }}'
+
 - when: >-
     sandbox_api_in_use | bool
     and __meta__.sandbox_api.actions.start.enable | default(true) | bool
