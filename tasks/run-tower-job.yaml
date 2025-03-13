@@ -192,9 +192,6 @@
         current_state: "{{ new_subject_state | default(current_state) }}"
         check_status_state: "{{ new_check_status_state | default(check_status_state) }}"
     status:
-      actions:
-        provision:
-          startTimestamp: '{{ anarchy_run_timestamp }}'
       towerJobs: >-
         {{ {
            anarchy_action_config_name: {
