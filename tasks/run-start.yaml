@@ -23,6 +23,15 @@
         | ternary('started', 'starting') }}
     include_tasks: sandbox_api_start.yaml
 
+  - when: __meta__.deployer.actions.start.disable | default(false) | bool
+    name: Set complete to status.actions.start for {{ anarchy_subject_name }} (deployer disabled)
+    anarchy_subject_update:
+      skip_update_processing: true
+      status:
+        actions:
+          start:
+            completedTimestamp: '{{ now_time_utc }}'
+
 - when: not __meta__.deployer.actions.start.disable | default(false) | bool
   block:
 
