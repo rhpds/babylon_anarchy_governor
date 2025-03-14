@@ -59,6 +59,9 @@
           vars:
             current_state: "{{ new_subject_state | default('stopped') }}"
         status:
+          actions:
+            stop:
+              completeTimestamp: '{{ now_time_utc }}'
           sandboxAPIJobs:
             stop:
               completeTimestamp: "{{ now_time_utc }}"

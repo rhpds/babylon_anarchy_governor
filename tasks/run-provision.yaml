@@ -1,4 +1,13 @@
 ---
+- when: >-
+    'startTimestamp' not in vars.anarchy_subject.status.actions.provision | default({}, true)
+  name: Set startTimestamp to status.actions.provision for {{ anarchy_subject_name }}
+  anarchy_subject_update:
+    skip_update_processing: true
+    status:
+      actions:
+        provision:
+          startTimestamp: '{{ now_time_utc }}'
 # Get sandbox to get the credential and perform deployer job
 - when: sandbox_api_in_use | bool
   include_tasks: sandbox_get.yaml
