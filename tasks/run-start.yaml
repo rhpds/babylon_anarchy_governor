@@ -30,7 +30,7 @@
       status:
         actions:
           start:
-            completedTimestamp: '{{ now_time_utc }}'
+            completeTimestamp: '{{ now_time_utc }}'
 
 - when: not __meta__.deployer.actions.start.disable | default(false) | bool
   block:
