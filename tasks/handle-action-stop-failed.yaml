@@ -21,6 +21,8 @@
       vars:
         current_state: stop-failed
         healthy: false
+        job_vars:
+          agnosticd_collect_forensics: true
     status:
       actions:
         stop:
