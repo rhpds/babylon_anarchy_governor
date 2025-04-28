@@ -212,6 +212,7 @@ def extract_sandboxes_vars(response, creds=True):
                 'sandbox_account_id': sandbox_account_id,
                 'sandbox_zone': sandbox_zone,
                 'subdomain_base_suffix': '.' + sandbox_zone,
+                'base_domain': sandbox_zone
             }
             if creds:
                 for cred in sandbox.get('credentials', []):
