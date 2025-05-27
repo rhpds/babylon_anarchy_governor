@@ -22,6 +22,7 @@
       {{ vars.anarchy_subject.vars.job_vars | default({})
        | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
        | combine(vars.dynamic_job_vars, recursive=True)
+       | ansible.utils.remove_keys(target=['__meta__'])
        | combine(__meta__.deployer.actions.provision.extra_vars | default({"ACTION": "provision"}))
        | combine({
          callback_url_var: anarchy_action_callback_url,
