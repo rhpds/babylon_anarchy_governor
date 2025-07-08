@@ -249,6 +249,7 @@ def extract_sandboxes_vars(response, creds=True):
                 for creds in sandbox.get('credentials', []):
                     if creds.get('kind', 'none') == 'ServiceAccount':
                         to_merge['sandbox_openshift_api_key'] = creds.get('token', 'unknown')
+                        to_merge['sandbox_openshift_api_token'] = creds.get('token', 'unknown')
                         to_merge['sandbox_openshift_credentials'] = sandbox.get('credentials', [])
                         continue
                     if creds.get('kind', 'none') == 'KeycloakUser':
