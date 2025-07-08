@@ -250,7 +250,11 @@ def extract_sandboxes_vars(response, creds=True):
                     if creds.get('kind', 'none') == 'ServiceAccount':
                         to_merge['sandbox_openshift_api_key'] = creds.get('token', 'unknown')
                         to_merge['sandbox_openshift_credentials'] = sandbox.get('credentials', [])
-                        break
+                        continue
+                    if creds.get('kind', 'none') == 'KeycloakUser':
+                        to_merge['sandbox_openshift_user'] = creds.get('username', 'unknown')
+                        to_merge['sandbox_openshift_password'] = creds.get('password', 'unknown')
+                        continue
 
             sandbox_additional_vars = sandbox.get('cluster_additional_vars', {}).get('deployer', {})
 
