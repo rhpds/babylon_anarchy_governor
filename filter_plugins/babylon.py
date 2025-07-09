@@ -236,6 +236,7 @@ def extract_sandboxes_vars(response, creds=True):
             sandbox_openshift_apps_domain = sandbox.get('ingress_domain', 'unknown')
             sandbox_openshift_name = sandbox.get('name', 'unknown')
             sandbox_openshift_namespace = sandbox.get('namespace', 'unknown')
+            sandbox_openshift_console_url = sandbox.get('console_url', 'unknown')
 
             to_merge = {
                 'sandbox_openshift_name': sandbox_openshift_name,
@@ -243,6 +244,7 @@ def extract_sandboxes_vars(response, creds=True):
                 'sandbox_openshift_cluster': sandbox_openshift_cluster,
                 'sandbox_openshift_api_url': sandbox_openshift_api_url,
                 'sandbox_openshift_apps_domain': sandbox_openshift_apps_domain,
+                'sandbox_openshift_console_url': sandbox_openshift_console_url,
             }
 
             if creds:
