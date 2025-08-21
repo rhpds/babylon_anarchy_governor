@@ -38,7 +38,7 @@
 - name: Set __project_scm_ref
   set_fact:
     __project_scm_ref: >-
-      {{ __meta__.deployer.scm_ref | default(
+      {{ deployer_scm_ref | default(
         lookup('git_tag_prefix', __meta__.deployer.git_tag_prefix, git_repo=__meta__.deployer.scm_url)
         if __meta__.deployer.git_tag_prefix is defined else 'main'
       ) }}
@@ -109,7 +109,7 @@
         {{ job_extra_vars
          | insert_unvault_string
          | combine(set_output_dir | bool | ternary({"output_dir": __output_dir}, {}))
-         | combine({__meta__.deployer.scm_ref_var: __project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
+         | combine({deployer_scm_ref_var: __project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
         }}
       playbook: "{{ job_template_playbook }}"
       project: "{{ __project_name }}"
@@ -140,7 +140,7 @@
         {{ job_extra_vars
          | insert_unvault_string
          | combine(set_output_dir | bool | ternary({"output_dir": __output_dir}, {}))
-         | combine({__meta__.deployer.scm_ref_var: __project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
+         | combine({deployer_scm_ref_var: __project_scm_ref} if __meta__.deployer.scm_ref_var is defined else {})
         }}
       playbook: "{{ job_template_playbook }}"
       project: "{{ __project_name }}"
