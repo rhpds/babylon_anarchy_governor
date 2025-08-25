@@ -177,13 +177,6 @@ def validate_sandboxes_request(sandboxes_request):
                 if not isinstance(req['cloud_selector'][key], str):
                     return "ERROR: cloud_selector values should be strings for sandbox of kind " + kind
 
-    if len(main_found) == 0:
-        return "ERROR: At least one main sandbox is required in the sandboxes request"
-
-    for kind in main_found:
-        if not main_found[kind]:
-            return "ERROR: Main sandbox is missing for kind " + kind
-
     return "OK"
 
 def extract_sandboxes_vars(response, creds=True):

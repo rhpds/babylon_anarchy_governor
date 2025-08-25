@@ -113,7 +113,7 @@ def test_validate_sandboxes_request():
                 {'kind': 'AwsSandbox', 'var':'sandbox1'},
                 {'kind': 'OcpSandbox'},
             ],
-            'expected': "ERROR: Main sandbox is missing for kind AwsSandbox",
+            'expected': "OK",
         },
         {
             'request': [
