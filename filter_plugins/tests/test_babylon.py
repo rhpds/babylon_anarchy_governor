@@ -226,6 +226,7 @@ def test_extract_sandboxes_vars():
                         "service_uuid": "d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
                         "ocp_cluster": "cluster",
                         "api_url": "https://cluster.domain.io:6443",
+                        "console_url": "https://console.cluster.domain.io",
                         "ingress_domain": "apps.cluster.domain.io",
                         "annotations": {
                             "env_type": "ocp4-cluster-blablablabla",
@@ -278,7 +279,10 @@ def test_extract_sandboxes_vars():
                 "sandbox_openshift_apps_domain": "apps.cluster.domain.io",
                 "sandbox_openshift_api_url": "https://cluster.domain.io:6443",
                 "sandbox_openshift_api_key": "foobarToken",
+                "sandbox_openshift_api_token": "foobarToken",
                 "sandbox_openshift_cluster": "cluster",
+                "sandbox_openshift_console_url": "https://console.cluster.domain.io",
+                "sandbox_openshift_namespace": "sandbox-testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
                 "sandbox_openshift_credentials": [
                     {
                         "kind": "ServiceAccount",
@@ -286,10 +290,6 @@ def test_extract_sandboxes_vars():
                         "token": "foobarToken"
                     }
                 ],
-                "openshift_cluster": "cluster",
-                "openshift_api_key": "foobarToken",
-                "openshift_api_url": "https://cluster.domain.io:6443",
-                "openshift_apps_domain": "apps.cluster.domain.io",
                 # AWS
                 "sandbox_name": "sandbox3153",
                 "sandbox_hosted_zone_id": "foobar",
@@ -359,6 +359,7 @@ def test_extract_sandboxes_vars():
                         "ocp_cluster": "cluster",
                         "api_url": "https://cluster.domain.io:6443",
                         "ingress_domain": "apps.cluster.domain.io",
+                        "console_url": "https://console.cluster.domain.io",
                         "annotations": {
                             "env_type": "ocp4-cluster-blablablabla",
                             "guid": "testg-1",
@@ -412,6 +413,9 @@ def test_extract_sandboxes_vars():
                     "sandbox_openshift_apps_domain": "apps.cluster.domain.io",
                     "sandbox_openshift_api_url": "https://cluster.domain.io:6443",
                     "sandbox_openshift_api_key": "foobarToken",
+                    "sandbox_openshift_api_token": "foobarToken",
+                    "sandbox_openshift_namespace": "sandbox-testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                    "sandbox_openshift_console_url": "https://console.cluster.domain.io",
                     "sandbox_openshift_cluster": "cluster",
                     "sandbox_openshift_credentials": [
                         {
@@ -420,10 +424,6 @@ def test_extract_sandboxes_vars():
                             "token": "foobarToken"
                         }
                     ],
-                    "openshift_cluster": "cluster",
-                    "openshift_api_key": "foobarToken",
-                    "openshift_api_url": "https://cluster.domain.io:6443",
-                    "openshift_apps_domain": "apps.cluster.domain.io",
                 },
                 # AWS
                 "sandbox1": {
@@ -495,6 +495,7 @@ def test_extract_sandboxes_vars():
                         "ocp_cluster": "cluster",
                         "api_url": "https://cluster.domain.io:6443",
                         "ingress_domain": "apps.cluster.domain.io",
+                        "console_url": "https://console.cluster.domain.io",
                         "annotations": {
                             "env_type": "ocp4-cluster-blablablabla",
                             "guid": "testg-1",
@@ -546,9 +547,8 @@ def test_extract_sandboxes_vars():
                 "sandbox_openshift_apps_domain": "apps.cluster.domain.io",
                 "sandbox_openshift_api_url": "https://cluster.domain.io:6443",
                 "sandbox_openshift_cluster": "cluster",
-                "openshift_cluster": "cluster",
-                "openshift_api_url": "https://cluster.domain.io:6443",
-                "openshift_apps_domain": "apps.cluster.domain.io",
+                "sandbox_openshift_console_url": "https://console.cluster.domain.io",
+                "sandbox_openshift_namespace": "sandbox-testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
                 # AWS
                 "sandbox_name": "sandbox3153",
                 "sandbox_hosted_zone_id": "foobar",
