@@ -3,18 +3,10 @@
   vars:
     error_request: >-
        {{ sandbox_api_resources | validate_sandboxes_request }}
-
-  when: error_request != "OK"
-  block:
-    - fail:
-        msg: "{{ error_request }}"
-      ignore_errors: true
-
-    - name: Finish action {{ anarchy_action_name }} as failed
-      anarchy_finish_action:
-        state: failed
-
-    - meta: end_play
+  ansible.builtin.assert:
+    that:
+    - error_request == "OK"
+    fail_msg: "{{ error_request }}"
 
 - name: Get the cluster console
   k8s_info:
@@ -43,7 +35,7 @@
     # 404 - Not Found
     # 409 - Conflict  (placement already exists)
     # 507 - Insufficient Storage  ( not enough sandboxes )
-    status_code: [200, 400, 401, 404, 409, 507]
+    status_code: [200]
     body_format: json
     body:
       service_uuid: "{{ uuid }}"
@@ -58,20 +50,8 @@
   register: r_new_placement
   retries: "{{ sandbox_api_retries }}"
   delay: "{{ sandbox_api_delay }}"
-  until: r_new_placement is succeeded
+  until: r_new_placement is ansible.builtin.success
   changed_when: true
-
-- when: r_new_placement.status not in [200, "200"]
-  block:
-  - name: Debug placement error
-    debug:
-      var: r_new_placement
-
-  - name: Finish action {{ anarchy_action_name }} as failed
-    include_tasks:
-      file: handle-action-{{ anarchy_action_config_name }}-error.yaml
-
-  - meta: end_play
 
 - name: Wait for the resources of the placement to be ready
   uri:
@@ -79,27 +59,12 @@
       Authorization: Bearer {{ access_token }}
     url: "{{ sandbox_api_url }}/api/v1/placements/{{ uuid }}"
     method: GET
-
   register: r_placement
+  until: r_placement.json.status | default('unknown') in ['success', 'error']
   retries: "{{ sandbox_api_retries }}"
   delay: "{{ sandbox_api_delay }}"
-  until: r_placement.json.status | default('unknown') in ['success', 'error']
   changed_when: false
-  failed_when: false
-
-- name: Finish action {{ anarchy_action_name }} as failed
-  # TODO: ensure it's the right way to finish, question for JK
-  when: r_placement.json.status == 'error'
-  block:
-  - name: Debug placement error
-    debug:
-      var: r_placement
-
-  - name: Finish action {{ anarchy_action_name }} as failed
-    include_tasks:
-      file: handle-action-{{ anarchy_action_config_name }}-error.yaml
-
-  - meta: end_play
+  failed_when: r_placement.json.status | default('unknown') != 'success'
 
 - name: Inject vars into dynamic_job_vars
   set_fact:
