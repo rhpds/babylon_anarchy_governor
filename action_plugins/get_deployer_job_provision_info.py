@@ -81,7 +81,7 @@ class ActionModule(ActionBase):
               event_data = result.get('event_data', {})
               task_action = event_data.get('task_action')
               event_res = event_data.get('res', {})
-              if task_action == 'agnosticd_user_info':
+              if task_action == 'agnosticd_user_info' or task_action is not None and task_action.endswith('.agnosticd_user_info'):
                   data = event_res.get('data')
                   msg = event_res.get('msg')
                   user_name = event_res.get('user')
