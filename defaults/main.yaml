@@ -18,7 +18,9 @@ uuid: "{{ vars.anarchy_subject.vars.job_vars.uuid | default(None) }}"
 # Variables from either Governor or Subject
 env_type: >-
   {{ vars.anarchy_governor.vars.job_vars.env_type
+  | default(vars.anarchy_governor.vars.job_vars.config)
   | default(vars.anarchy_subject.vars.job_vars.env_type)
+  | default(vars.anarchy_subject.vars.job_vars.config)
   | default(None) }}
 
 requester_email: >-
