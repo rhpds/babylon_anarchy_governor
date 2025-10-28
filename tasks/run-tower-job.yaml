@@ -96,7 +96,7 @@
       [].key.join(' ', [`{{ organization_name | to_json }}`, @])
     __dynamic_credentials: >-
       {{ vault_credentials | default({}) | dict2items | to_json | from_json | json_query(__dynamic_credentials_query) }}
-    __output_dir: /tmp/output-{{ vars.anarchy_subject.vars.job_vars.uuid }}
+    __output_dir: /tmp/output-{{ uuid }}
   block:
   - name: AWX Job Template {{ job_template_name }}
     awx.awx.job_template:

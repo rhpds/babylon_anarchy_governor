@@ -13,9 +13,9 @@
           ":a":
             BOOL: false
           ":g":
-            S: "{{ vars.anarchy_subject.vars.job_vars.guid }}"
+            S: "{{ guid }}"
           ":u":
-            S: "{{ vars.anarchy_subject.vars.job_vars.uuid }}"
+            S: "{{ uuid }}"
       command: >-
         aws
         --region "{{ dynamodb_pool_region }}"
@@ -34,8 +34,8 @@
       block:
         - debug:
             msg: >-
-              guid={{ vars.anarchy_subject.vars.job_vars.guid }}
-              uuid={{ vars.anarchy_subject.vars.job_vars.uuid }}
+              guid={{ guid }}
+              uuid={{ uuid }}
               {{ query1.Items[0].name.S }} found
 
         - name: Save sandbox variables
@@ -52,9 +52,9 @@
               ":av":
                 BOOL: false
               ":g":
-                S: "{{ vars.anarchy_subject.vars.job_vars.guid }}"
+                S: "{{ guid }}"
               ":u":
-                S: "{{ vars.anarchy_subject.vars.job_vars.uuid }}"
+                S: "{{ uuid }}"
           command: >-
             aws
             --region "{{ dynamodb_pool_region }}"
@@ -92,7 +92,7 @@
     - when: query1.Count == 0
       debug:
         msg: >-
-          guid={{ vars.anarchy_subject.vars.job_vars.guid }}
-          uuid={{ vars.anarchy_subject.vars.job_vars.uuid }}
+          guid={{ guid }}
+          uuid={{ uuid }}
           sandbox not found
 ...

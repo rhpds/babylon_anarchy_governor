@@ -17,14 +17,10 @@
         - vars.anarchy_subject is defined
 
     - msg: Variable guid is not defined
-      that: >-
-        vars.anarchy_subject.vars.job_vars.guid is defined
-        and vars.anarchy_subject.vars.job_vars.guid != ''
+      that: guid is defined and guid != ''
 
     - msg: Variable uuid is not defined
-      that: >-
-        vars.anarchy_subject.vars.job_vars.uuid is defined
-        and vars.anarchy_subject.vars.job_vars.uuid != ''
+      that: uuid is defined and uuid != ''
 
 - when: sandbox_api_login_token | default("") != ""
   block:

@@ -18,9 +18,9 @@
       new_subject_state: stopping
       job_template_playbook: "{{ deployer_entry_points.stop }}"
       job_extra_vars: >-
-        {{ vars.anarchy_subject.vars.job_vars | default({})
-         | combine(vars.anarchy_governor.vars.job_vars, recursive=True)
-         | combine(vars.dynamic_job_vars, recursive=True)
+        {{ anarchy_subject_job_vars | default({})
+         | combine(anarchy_governor_job_vars, recursive=True)
+         | combine(dynamic_job_vars, recursive=True)
          | ansible.utils.remove_keys(target=['__meta__'])
          | combine(__meta__.deployer.actions.stop.extra_vars | default({"ACTION": "stop"}))
          | combine({

@@ -9,30 +9,39 @@ ansible_controller_select_mode: >-
   {{ __meta__.ansible_controller_select_mode
   | default('random') }}
 
-# Variables from Anarchy Subject
-guid: "{{ vars.anarchy_subject.vars.job_vars.guid | default(None) }}"
+anarchy_governor_job_vars: >-
+  {{ lookup('unsafe_var', 'anarchy_governor.spec.vars.job_vars') }}
+
+anarchy_subject_job_vars: >-
+  {{ lookup('unsafe_var', 'anarchy_subject.spec.vars.job_vars') }}
+
+anarchy_subject_previous_state_job_vars: >-
+  {{ lookup('unsafe_var', 'anarchy_subject_previous_state.spec.vars.job_vars') }}
 
 # Variables from Anarchy Subject
-uuid: "{{ vars.anarchy_subject.vars.job_vars.uuid | default(None) }}"
+guid: "{{ anarchy_subject_job_vars.guid | default(None) }}"
+
+# Variables from Anarchy Subject
+uuid: "{{ anarchy_subject_job_vars.uuid | default(None) }}"
 
 # Variables from either Governor or Subject
 env_type: >-
-  {{ vars.anarchy_governor.vars.job_vars.env_type
-  | default(vars.anarchy_governor.vars.job_vars.config)
-  | default(vars.anarchy_subject.vars.job_vars.env_type)
-  | default(vars.anarchy_subject.vars.job_vars.config)
+  {{ anarchy_governor_job_vars.env_type
+  | default(anarchy_governor_job_vars.config)
+  | default(anarchy_subject_job_vars.env_type)
+  | default(anarchy_subject_job_vars.config)
   | default(None) }}
 
 requester_email: >-
   {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-requester-email']
-  | default(vars.anarchy_subject.vars.job_vars.requester_email)
-  | default(vars.anarchy_subject.vars.job_vars.email)
+  | default(anarchy_subject_job_vars.requester_email)
+  | default(anarchy_subject_job_vars.email)
   | default(None) }}
 
 requester_user: >-
   {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-requester-user']
-  | default(vars.anarchy_subject.vars.job_vars.requester_username)
-  | default(vars.anarchy_subject.vars.job_vars.student_name)
+  | default(anarchy_subject_job_vars.requester_username)
+  | default(anarchy_subject_job_vars.student_name)
   | default('babylon', true) }}
 
 delete_on_failure: true
@@ -76,7 +85,7 @@ preserve_job_vars:
 job_check_interval: 5m
 
 # AnarchyGovernor controls __meta__ settings.
-__meta__: "{{ vars.anarchy_governor.vars.job_vars.__meta__ }}"
+__meta__: "{{ anarchy_governor_job_vars.__meta__ }}"
 
 # Name of variables to set in job vars for the deployer to callback to Anarchy
 # to notify status change, currently just on successful completion.
@@ -100,7 +109,7 @@ organization_name: >-
 inventory_name: >-
   {{ organization_name }} {{ __meta__.tower.inventory | default('default') }}
 job_template_name: >-
-  {{ organization_name }} {{ anarchy_action_name }} {{ vars.anarchy_subject.vars.job_vars.uuid }}
+  {{ organization_name }} {{ anarchy_action_name }} {{ uuid }}
 job_template_timeout: >-
   {{ __meta__.tower.timeout | default(10800) }}
 job_template_custom_virtualenv: >-
