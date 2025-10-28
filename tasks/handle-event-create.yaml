@@ -15,7 +15,7 @@
           platform: >-
             {{ anarchy_governor_job_vars.platform | default('RHPDS') }}
           uuid: >-
-            {{ uuid | default((2**127) | random | to_uuid) }}
+            {{ uuid | default((2**127) | random | to_uuid, true) }}
 
 - name: Schedule provision for {{ anarchy_subject_name }}
   anarchy_schedule_action:
