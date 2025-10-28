@@ -5,7 +5,7 @@
 - when:
   - sandbox_api_in_use | bool
   - sandbox_api_destroy_catch_all | bool
-  - vars.anarchy_subject.vars.job_vars.uuid | default('') != ''
+  - uuid | default('') != ''
   include_tasks: sandbox_cleanup.yml
 
 - name: Update state to destroyed for {{ anarchy_subject_name }} with no destroy action

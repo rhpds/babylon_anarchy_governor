@@ -104,7 +104,7 @@
 - name: Inject vars into dynamic_job_vars
   set_fact:
     dynamic_job_vars: >-
-      {{ vars.dynamic_job_vars
+      {{ dynamic_job_vars
       | default({})
       | combine(r_placement.json | extract_sandboxes_vars, recursive=True) }}
     extracted_sandboxes_vars: >-

@@ -11,11 +11,11 @@
         current_state: provision-pending
         job_vars:
           cloud_provider: >-
-            {{ vars.anarchy_governor.spec.vars.job_vars.cloud_provider | default('none') }}
+            {{ anarchy_governor_job_vars.cloud_provider | default('none') }}
           platform: >-
-            {{ vars.anarchy_governor.spec.vars.job_vars.platform | default('RHPDS') }}
+            {{ anarchy_governor_job_vars.platform | default('RHPDS') }}
           uuid: >-
-            {{ vars.anarchy_subject.spec.vars.job_vars.uuid | default((2**127) | random | to_uuid) }}
+            {{ uuid | default((2**127) | random | to_uuid, true) }}
 
 - name: Schedule provision for {{ anarchy_subject_name }}
   anarchy_schedule_action:
