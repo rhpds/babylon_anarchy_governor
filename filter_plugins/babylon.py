@@ -241,15 +241,15 @@ def extract_sandboxes_vars(response, creds=True):
             }
 
             if creds:
-                for creds in sandbox.get('credentials', []):
-                    if creds.get('kind', 'none') == 'ServiceAccount':
-                        to_merge['sandbox_openshift_api_key'] = creds.get('token', 'unknown')
-                        to_merge['sandbox_openshift_api_token'] = creds.get('token', 'unknown')
+                for cred in sandbox.get('credentials', []):
+                    if cred.get('kind', 'none') == 'ServiceAccount':
+                        to_merge['sandbox_openshift_api_key'] = cred.get('token', 'unknown')
+                        to_merge['sandbox_openshift_api_token'] = cred.get('token', 'unknown')
                         to_merge['sandbox_openshift_credentials'] = sandbox.get('credentials', [])
                         continue
-                    if creds.get('kind', 'none') == 'KeycloakUser':
-                        to_merge['sandbox_openshift_user'] = creds.get('username', 'unknown')
-                        to_merge['sandbox_openshift_password'] = creds.get('password', 'unknown')
+                    if cred.get('kind', 'none') == 'KeycloakUser':
+                        to_merge['sandbox_openshift_user'] = cred.get('username', 'unknown')
+                        to_merge['sandbox_openshift_password'] = cred.get('password', 'unknown')
                         continue
 
             sandbox_additional_vars = sandbox.get('cluster_additional_vars', sandbox.get('additional_vars', {})).get('deployer', {})
@@ -267,8 +267,8 @@ def extract_sandboxes_vars(response, creds=True):
         elif kind == 'IBMResourceGroupSandbox':
             to_merge = {}
             if creds:
-                for creds in sandbox.get('credentials', []):
-                    if creds.get('apikey', '') != '':
+                for cred in sandbox.get('credentials', []):
+                    if cred.get('apikey', '') != '':
                         sandbox_ibm_resource_group_apikey = sandbox.get('credentials', [{}])[0].get('apikey', 'unknown')
                         sandbox_ibm_resource_group_name = sandbox.get('credentials', [{}])[0].get('name', 'unknown')
                         break
@@ -294,8 +294,8 @@ def extract_sandboxes_vars(response, creds=True):
         elif kind == 'DNSSandbox':
             to_merge = {}
             if creds:
-                for creds in sandbox.get('credentials', []):
-                    if creds.get('aws_access_key_id', '') != '':
+                for cred in sandbox.get('credentials', []):
+                    if cred.get('aws_access_key_id', '') != '':
                         aws_access_key_id = sandbox.get('credentials', [{}])[0].get('aws_access_key_id', 'unknown')
                         aws_secret_access_key = sandbox.get('credentials', [{}])[0].get('aws_secret_access_key', 'unknown')
                         hosted_zone_id = sandbox.get('credentials', [{}])[0].get('hosted_zone_id', 'unknown')
@@ -322,6 +322,12 @@ def extract_sandboxes_vars(response, creds=True):
                 sandboxes_vars.update(to_merge)
             else:
                 sandboxes_vars[var] = to_merge
+
+    # Add the full sandboxes response for more complex downstream use cases.
+    # That allows the deployer to loop over the raw output.
+    # It's used in the  compatibility ansible role.
+    if creds:
+        sandboxes_vars['sandboxes'] = deepcopy(response.get('resources', []))
 
     return sandboxes_vars
 
