@@ -309,7 +309,64 @@ def test_extract_sandboxes_vars():
                 "sandbox_aws_access_key_id": "foobarKey",
                 "sandbox_aws_secret_access_key": "foobarSecret",
                 "aws_access_key_id": "foobarKey",
-                "aws_secret_access_key": "foobarSecret"
+                "aws_secret_access_key": "foobarSecret",
+                "sandboxes": [
+                    {
+                        "created_at": "0001-01-01T00:00:00Z",
+                        "updated_at": "1970-01-01T01:00:00+01:00",
+                        "service_uuid": "d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "available": False,
+                        "to_cleanup": False,
+                        "annotations": {
+                            "env_type": "ocp4-cluster-blablablabla",
+                            "guid": "testg-1",
+                            "purpose": "aws"
+                        },
+                        "kind": "AwsSandbox",
+                        "name": "sandbox3153",
+                        "account_id": "accountNumber",
+                        "zone": "sandbox3153.domain.com",
+                        "hosted_zone_id": "foobar",
+                        "conan_timestamp": "0001-01-01T00:00:00Z",
+                        "credentials": [
+                            {
+                                "kind": "aws_iam_key",
+                                "name": "admin-key",
+                                "aws_access_key_id": "foobarKey",
+                                "aws_secret_access_key": "foobarSecret"
+                            }
+                        ]
+                    },
+                    {
+                        "id": 7,
+                        "created_at": "2024-04-02T10:44:10.597366+02:00",
+                        "updated_at": "2024-04-02T10:44:18.251974+02:00",
+                        "available": False,
+                        "to_cleanup": False,
+                        "name": "testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "kind": "OcpSandbox",
+                        "service_uuid": "d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "ocp_cluster": "cluster",
+                        "api_url": "https://cluster.domain.io:6443",
+                        "console_url": "https://console.cluster.domain.io",
+                        "ingress_domain": "apps.cluster.domain.io",
+                        "annotations": {
+                            "env_type": "ocp4-cluster-blablablabla",
+                            "guid": "testg-1",
+                            "purpose": "ocp"
+                        },
+                        "status": "success",
+                        "cleanup_count": 0,
+                        "namespace": "sandbox-testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "credentials": [
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "sandbox-testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                                "token": "foobarToken"
+                            }
+                        ]
+                    }
+                ]
             }
         },
         {
@@ -446,7 +503,66 @@ def test_extract_sandboxes_vars():
                     "sandbox_aws_secret_access_key": "foobarSecret",
                     "aws_access_key_id": "foobarKey",
                     "aws_secret_access_key": "foobarSecret"
-                }
+                },
+                "sandboxes": [
+                    {
+                        "created_at": "0001-01-01T00:00:00Z",
+                        "updated_at": "1970-01-01T01:00:00+01:00",
+                        "service_uuid": "d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "available": False,
+                        "to_cleanup": False,
+                        "annotations": {
+                            "env_type": "ocp4-cluster-blablablabla",
+                            "guid": "testg-1",
+                            "purpose": "aws",
+                            "var": "sandbox1"
+                        },
+                        "kind": "AwsSandbox",
+                        "name": "sandbox3153",
+                        "account_id": "accountNumber",
+                        "zone": "sandbox3153.domain.com",
+                        "hosted_zone_id": "foobar",
+                        "conan_timestamp": "0001-01-01T00:00:00Z",
+                        "credentials": [
+                            {
+                                "kind": "aws_iam_key",
+                                "name": "admin-key",
+                                "aws_access_key_id": "foobarKey",
+                                "aws_secret_access_key": "foobarSecret"
+                            }
+                        ]
+                    },
+                    {
+                        "id": 7,
+                        "created_at": "2024-04-02T10:44:10.597366+02:00",
+                        "updated_at": "2024-04-02T10:44:18.251974+02:00",
+                        "available": False,
+                        "to_cleanup": False,
+                        "name": "testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "kind": "OcpSandbox",
+                        "service_uuid": "d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "ocp_cluster": "cluster",
+                        "api_url": "https://cluster.domain.io:6443",
+                        "ingress_domain": "apps.cluster.domain.io",
+                        "console_url": "https://console.cluster.domain.io",
+                        "annotations": {
+                            "env_type": "ocp4-cluster-blablablabla",
+                            "guid": "testg-1",
+                            "purpose": "ocp",
+                            "var": "sandbox2",
+                        },
+                        "status": "success",
+                        "cleanup_count": 0,
+                        "namespace": "sandbox-testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                        "credentials": [
+                            {
+                                "kind": "ServiceAccount",
+                                "name": "sandbox-testg-1-d9c3a0bb-d3c3-4c05-822c-13eac4b17bcf",
+                                "token": "foobarToken"
+                            }
+                        ]
+                    }
+                ]
             }
         },
         {
