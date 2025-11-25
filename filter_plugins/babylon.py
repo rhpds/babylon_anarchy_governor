@@ -323,11 +323,6 @@ def extract_sandboxes_vars(response, creds=True):
             else:
                 sandboxes_vars[var] = to_merge
 
-    # Add the full sandboxes response for more complex downstream use cases.
-    # That allows the deployer to loop over the raw output.
-    # It's used in the sandbox_ctl compatibility ansible role.
-    sandboxes_vars['sandboxes'] = deepcopy(response.get('resources', []))
-
     return sandboxes_vars
 
 
