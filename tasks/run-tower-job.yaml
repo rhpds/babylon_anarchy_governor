@@ -105,6 +105,7 @@
       credentials: "{{ __dynamic_credentials + static_credentials }}"
       custom_virtualenv: "{{ job_template_custom_virtualenv | default(omit, true) }}"
       execution_environment: "{{ execution_environment_name | default(omit, true) }}"
+      instance_groups: "{{ job_template_instance_groups | default(omit, true) }}"
       extra_vars: >-
         {{ job_extra_vars
          | insert_unvault_string
@@ -136,6 +137,7 @@
       credentials: "{{ __dynamic_credentials + static_credentials }}"
       custom_virtualenv: "{{ job_template_custom_virtualenv | default(omit, true) }}"
       execution_environment: "{{ execution_environment_name | default(omit, true) }}"
+      instance_groups: "{{ job_template_instance_groups | default(omit, true) }}"
       extra_vars: >-
         {{ job_extra_vars
          | insert_unvault_string
