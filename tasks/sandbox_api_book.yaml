@@ -38,12 +38,13 @@
     method: POST
     # Acceptable status, don't retry:
     # 200 - OK
+    # 202 - Accepted
     # 400 - Bad Request
     # 401 - Unauthorized
     # 404 - Not Found
     # 409 - Conflict  (placement already exists)
     # 507 - Insufficient Storage  ( not enough sandboxes )
-    status_code: [200, 400, 401, 404, 409, 507]
+    status_code: [200, 202, 400, 401, 404, 409, 507]
     body_format: json
     body:
       service_uuid: "{{ uuid }}"
@@ -61,7 +62,7 @@
   until: r_new_placement is succeeded
   changed_when: true
 
-- when: r_new_placement.status not in [200, "200"]
+- when: r_new_placement.status not in [200, "200", 202, "202"]
   block:
   - name: Debug placement error
     debug:
