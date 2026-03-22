@@ -4,6 +4,11 @@
     current_state == "provision-pending"
   include_tasks: run-provision.yaml
 
+- name: Check queued provision of {{ anarchy_subject_name }}
+  when: >-
+    current_state == "provision-queued"
+  include_tasks: check-provision-queue.yaml
+
 - name: Check provision of {{ anarchy_subject_name }}
   when: >-
     current_state == "provisioning"

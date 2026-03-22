@@ -208,6 +208,7 @@ sandbox_api_url: >-
   | default('http://sandbox-api.babylon-sandbox-api.svc.cluster.local:8080') }}
 sandbox_api_retries: 40
 sandbox_api_delay: 5
+sandbox_api_queue_check_interval: 30s
 
 now_time_utc: "{{ now(utc=true, fmt='%FT%TZ') }}"
 
