@@ -1,0 +1,86 @@
+---
+- include_tasks: sandbox_api_login.yaml
+
+- name: Check placement status for queued {{ anarchy_subject_name }}
+  uri:
+    headers:
+      Authorization: Bearer {{ access_token }}
+    url: "{{ sandbox_api_url }}/api/v1/placements/{{ uuid }}"
+    method: GET
+    status_code: [200, 404]
+  register: r_check_placement
+  retries: "{{ sandbox_api_retries }}"
+  delay: "{{ sandbox_api_delay }}"
+  until: >-
+    r_check_placement.json.status | default('unknown') in ['success', 'error', 'queued']
+    or r_check_placement.json.http_code == 404
+  changed_when: false
+
+- name: Handle placement error for {{ anarchy_subject_name }}
+  when: >-
+    r_check_placement.json.status | default('unknown') == 'error'
+    or r_check_placement.status | default(0) == 404
+  block:
+  - name: Debug placement error
+    debug:
+      var: r_check_placement
+
+  - name: Finish action {{ anarchy_action_name }} as failed
+    include_tasks:
+      file: handle-action-provision-error.yaml
+
+  - meta: end_play
+
+- name: Handle placement still queued for {{ anarchy_subject_name }}
+  when: r_check_placement.json.status | default('unknown') == 'queued'
+  block:
+  - name: Update queue status for {{ anarchy_subject_name }}
+    anarchy_subject_update:
+      skip_update_processing: true
+      status:
+        sandboxAPIJobs:
+          provision:
+            placementStatus: queued
+            lastCheckTimestamp: "{{ now_time_utc }}"
+
+  - name: Schedule re-check for queued placement {{ anarchy_subject_name }}
+    anarchy_continue_action:
+      after: "{{ sandbox_api_queue_check_interval }}"
+
+  - meta: end_play
+
+# Placement is ready (status == 'success'), proceed with normal provisioning
+- name: Resume provisioning for {{ anarchy_subject_name }}
+  when: r_check_placement.json.status | default('unknown') == 'success'
+  block:
+  - name: Inject vars from dequeued placement into dynamic_job_vars for {{ anarchy_subject_name }}
+    when: r_check_placement.json.resources | default([]) | length > 0
+    set_fact:
+      dynamic_job_vars: >-
+        {{ dynamic_job_vars
+        | default({})
+        | combine(r_check_placement.json | extract_sandboxes_vars, recursive=True) }}
+      extracted_sandboxes_vars: >-
+        {{ r_check_placement.json | extract_sandboxes_vars }}
+
+  - name: Set sandbox and state provision-pending for {{ anarchy_subject_name }}
+    anarchy_subject_update:
+      skip_update_processing: true
+      metadata:
+        labels: >-
+          {{ r_check_placement.json | extract_sandboxes_labels
+          | combine({'state': 'provision-pending'}) }}
+      spec:
+        vars:
+          current_state: provision-pending
+          job_vars: "{{ r_check_placement.json | extract_sandboxes_vars(creds=False) }}"
+      status:
+        sandboxAPIJobs:
+          provision:
+            placementStatus: success
+            dequeuedTimestamp: "{{ now_time_utc }}"
+            httpStatus: "{{ r_check_placement.status }}"
+
+  - name: Run provisioning for dequeued {{ anarchy_subject_name }}
+    include_tasks: run-provision.yaml
+...

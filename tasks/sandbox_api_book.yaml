@@ -74,6 +74,31 @@
 
   - meta: end_play
 
+- name: Handle queued placement for {{ anarchy_subject_name }}
+  when: r_new_placement.json.status | default('') == 'queued'
+  block:
+  - name: Set state provision-queued for {{ anarchy_subject_name }}
+    anarchy_subject_update:
+      skip_update_processing: true
+      metadata:
+        labels:
+          state: provision-queued
+      spec:
+        vars:
+          current_state: provision-queued
+      status:
+        sandboxAPIJobs:
+          provision:
+            startTimestamp: "{{ now_time_utc }}"
+            httpStatus: "{{ r_new_placement.status }}"
+            placementStatus: queued
+
+  - name: Schedule re-check for queued placement {{ anarchy_subject_name }}
+    anarchy_continue_action:
+      after: "{{ sandbox_api_queue_check_interval }}"
+
+  - meta: end_play
+
 - name: Wait for the resources of the placement to be ready
   uri:
     headers:
@@ -84,9 +109,34 @@
   register: r_placement
   retries: "{{ sandbox_api_retries }}"
   delay: "{{ sandbox_api_delay }}"
-  until: r_placement.json.status | default('unknown') in ['success', 'error']
+  until: r_placement.json.status | default('unknown') in ['success', 'error', 'queued']
   changed_when: false
   failed_when: false
+
+- name: Handle late-detected queued placement for {{ anarchy_subject_name }}
+  when: r_placement.json.status | default('unknown') == 'queued'
+  block:
+  - name: Set state provision-queued for {{ anarchy_subject_name }}
+    anarchy_subject_update:
+      skip_update_processing: true
+      metadata:
+        labels:
+          state: provision-queued
+      spec:
+        vars:
+          current_state: provision-queued
+      status:
+        sandboxAPIJobs:
+          provision:
+            startTimestamp: "{{ now_time_utc }}"
+            httpStatus: "{{ r_new_placement.status }}"
+            placementStatus: queued
+
+  - name: Schedule re-check for queued placement {{ anarchy_subject_name }}
+    anarchy_continue_action:
+      after: "{{ sandbox_api_queue_check_interval }}"
+
+  - meta: end_play
 
 - name: Finish action {{ anarchy_action_name }} as failed
   # TODO: ensure it's the right way to finish, question for JK
