@@ -76,6 +76,31 @@ def test_inject_var_annotations():
         assert babylon.inject_var_annotations(testcase['resources']) == testcase['expected']
 
 
+def test_inject_var_annotations_normalizes_cloud_selector_booleans():
+    """cloud_selector boolean values should be converted to yes/no strings."""
+    resources = [
+        {
+            'kind': 'OcpSandbox',
+            'cloud_selector': {
+                'keycloak': True,
+                'hcp': False,
+                'purpose': 'dev',
+            },
+        },
+    ]
+    result = babylon.inject_var_annotations(resources)
+    assert result[0]['cloud_selector']['keycloak'] == 'yes'
+    assert result[0]['cloud_selector']['hcp'] == 'no'
+    assert result[0]['cloud_selector']['purpose'] == 'dev'
+
+
+def test_inject_var_annotations_no_cloud_selector():
+    """Requests without cloud_selector should pass through unchanged."""
+    resources = [{'kind': 'AwsSandbox'}]
+    result = babylon.inject_var_annotations(resources)
+    assert result == [{'kind': 'AwsSandbox'}]
+
+
 def test_validate_sandboxes_request():
     testcases = [
         {
@@ -171,6 +196,41 @@ def test_validate_sandboxes_request():
                 },
             ],
             'expected': "ERROR: Annotations values should be strings for sandbox of kind OcpSandbox",
+        },
+        {
+            'request': [
+                {
+                    'kind': 'OcpSandbox',
+                    'cloud_selector': {
+                        'keycloak': True,
+                        'hcp': False,
+                    },
+                },
+            ],
+            'expected': "OK",
+        },
+        {
+            'request': [
+                {
+                    'kind': 'OcpSandbox',
+                    'cloud_selector': {
+                        'keycloak': True,
+                        'purpose': 'dev',
+                    },
+                },
+            ],
+            'expected': "OK",
+        },
+        {
+            'request': [
+                {
+                    'kind': 'OcpSandbox',
+                    'cloud_selector': {
+                        'purpose': 123,
+                    },
+                },
+            ],
+            'expected': "ERROR: cloud_selector values should be strings for sandbox of kind OcpSandbox",
         },
     ]
 
