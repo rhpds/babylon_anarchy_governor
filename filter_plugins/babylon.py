@@ -106,6 +106,13 @@ def filter_main_sandbox(resources, kind='AwsSandbox'):
     return main_sandbox
 
 
+def _normalize_bool_to_string(value):
+    """Convert a boolean value to 'yes'/'no' string.
+    Non-boolean values are returned as-is."""
+    if isinstance(value, bool):
+        return 'yes' if value else 'no'
+    return value
+
 def inject_var_annotations(sandboxes_request):
     """
     Inject the var key in the annotations of the sandboxes to be able to reference them in the sandboxes_request
@@ -119,6 +126,14 @@ def inject_var_annotations(sandboxes_request):
         if req.get('namespace_suffix', False):
             req['annotations'] = req.get('annotations', {})
             req['annotations']['namespace_suffix'] = req['namespace_suffix']
+
+        # Normalize boolean values in cloud_selector and cloud_preference
+        # to "yes"/"no" strings. YAML parses unquoted true/false as Python
+        # booleans, but the API requires string values.
+        for field in ('cloud_selector', 'cloud_preference'):
+            if field in req:
+                for key in req[field]:
+                    req[field][key] = _normalize_bool_to_string(req[field][key])
 
     return sandboxes_request
 
@@ -168,14 +183,17 @@ def validate_sandboxes_request(sandboxes_request):
                 if not isinstance(req['annotations'][key], str):
                     return "ERROR: Annotations values should be strings for sandbox of kind " + kind
 
-        # Ensure cloud_selector is a dict of string
-        if 'cloud_selector' in req:
-            if not isinstance(req['cloud_selector'], dict):
-                return "ERROR: cloud_selector should be a dict for sandbox of kind " + kind
+        # Ensure cloud_selector and cloud_preference are dicts of string
+        # (booleans are also accepted and will be normalized to "yes"/"no"
+        # by inject_var_annotations)
+        for field in ('cloud_selector', 'cloud_preference'):
+            if field in req:
+                if not isinstance(req[field], dict):
+                    return "ERROR: " + field + " should be a dict for sandbox of kind " + kind
 
-            for key in req['cloud_selector']:
-                if not isinstance(req['cloud_selector'][key], str):
-                    return "ERROR: cloud_selector values should be strings for sandbox of kind " + kind
+                for key in req[field]:
+                    if not isinstance(req[field][key], (str, bool)):
+                        return "ERROR: " + field + " values should be strings for sandbox of kind " + kind
 
     return "OK"
 
