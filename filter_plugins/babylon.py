@@ -308,12 +308,22 @@ def extract_sandboxes_vars(response, creds=True):
                 sandboxes_vars.update(to_merge)
             else:
                 sandboxes_vars[var] = to_merge
+        else: # Any other sandbox will use raw data, keeping var for them
+            to_merge = {}
+            if creds:
+                to_merge['credentials'] = creds
+            var = sandbox.get('annotations', {}).get('var', 'main')
+            if var == 'main':
+                sandboxes_vars.update(to_merge)
+            else:
+                sandboxes_vars[var] = to_merge
 
     # Add the full sandboxes response for more complex downstream use cases.
     # That allows the deployer to loop over the raw output.
     # It's used in the  compatibility ansible role.
     if creds:
         sandboxes_vars['sandboxes'] = deepcopy(response.get('resources', []))
+        
 
     return sandboxes_vars
 
