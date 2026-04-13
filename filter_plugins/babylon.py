@@ -311,7 +311,7 @@ def extract_sandboxes_vars(response, creds=True):
         else: # Any other sandbox will use raw data, keeping var for them
             to_merge = {}
             if creds:
-                to_merge['credentials'] = creds
+                to_merge['credentials'] = sandbox.get('credentials', [{}])
             var = sandbox.get('annotations', {}).get('var', 'main')
             if var == 'main':
                 sandboxes_vars.update(to_merge)
