@@ -27,6 +27,7 @@
     controller_username: "{{ __user }}"
     controller_password: "{{ __password }}"
   register: r_get_token
+  ignore_errors: true
 
 - name: Get job count and add to available_controllers
   when:
