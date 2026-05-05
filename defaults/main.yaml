@@ -113,7 +113,7 @@ job_template_name: >-
 job_template_timeout: >-
   {{ __meta__.tower.timeout | default(10800) }}
 job_template_instance_groups: >-
-  {{ __meta__.deployer.actions[anarchy_action_name].ansible_control_plane.instance_groups
+  {{ __meta__.deployer.actions[anarchy_action_config_name].ansible_control_plane.instance_groups
   | default(__meta__.ansible_control_plane.instance_groups)
   | default([]) }}
 job_template_custom_virtualenv: >-
