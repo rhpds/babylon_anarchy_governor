@@ -308,6 +308,21 @@ def extract_sandboxes_vars(response, creds=True):
                 sandboxes_vars.update(to_merge)
             else:
                 sandboxes_vars[var] = to_merge
+        elif kind == 'RosaSandbox':
+            to_merge = {
+                'rosa_sandbox_name': sandbox.get('name', 'unknown'),
+                'rosa_aws_account_name': sandbox.get('aws_account_name', 'unknown'),
+            }
+            if creds:
+                to_merge['rosa_sa_client_id'] = sandbox.get('sa_client_id', 'unknown')
+                to_merge['rosa_sa_secret'] = sandbox.get('sa_secret', 'unknown')
+
+            var = sandbox.get('annotations', {}).get('var', 'main')
+            if var == 'main':
+                sandboxes_vars.update(to_merge)
+            else:
+                sandboxes_vars[var] = to_merge
+
         else: # Any other sandbox will use raw data, keeping var for them
             to_merge = {}
             if creds:
