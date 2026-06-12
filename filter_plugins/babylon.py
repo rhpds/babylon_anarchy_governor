@@ -314,9 +314,15 @@ def extract_sandboxes_vars(response, creds=True):
                 to_merge['credentials'] = sandbox.get('credentials', [])
             var = sandbox.get('annotations', {}).get('var', 'main')
             if var == 'main':
-                sandboxes_vars.update(to_merge)
+                if 'credentials' in sandboxes_vars and 'credentials' in to_merge: 
+                   sandboxes_vars['credentials'].extend(to_merge['credentials'])
+                else:
+                   sandboxes_vars.update(to_merge)
             else:
-                sandboxes_vars[var] = to_merge
+                if 'credentials' in sandboxes_vars[var] and 'credentials' in to_merge:
+                   sandboxes_vars[var]['credentials'].extend(to_merge['credentials'])
+                else:
+                   sandboxes_vars[var] = to_merge
 
     # Add the full sandboxes response for more complex downstream use cases.
     # That allows the deployer to loop over the raw output.
