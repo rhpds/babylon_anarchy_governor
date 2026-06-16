@@ -1,5 +1,10 @@
 ---
+- name: Select controller via controller-scheduler
+  when: controller_scheduler_url | default('') | length > 0
+  include_tasks: check-controller-scheduler.yaml
+
 - name: Check Available Ansible Controllers
+  when: controller is not defined
   loop: "{{ ansible_controllers }}"
   loop_control:
     loop_var: __controller
@@ -7,7 +12,9 @@
   include_tasks: check-ansible-controller.yaml
 
 - name: Set controller vars
-  when: available_controllers | length > 0
+  when:
+    - controller is not defined
+    - available_controllers | length > 0
   vars:
   set_fact:
     controller: >-

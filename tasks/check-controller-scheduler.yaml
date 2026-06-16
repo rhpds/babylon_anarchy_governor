@@ -1,0 +1,52 @@
+---
+- name: Call controller-scheduler evaluate API
+  uri:
+    url: "{{ controller_scheduler_url }}/api/v1/evaluate/controllers"
+    method: POST
+    headers:
+      X-API-Key: "{{ controller_scheduler_api_key }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      candidates: >-
+        {{ ansible_controllers | json_query('[].{domain: hostname}')
+           | default(omit, true) }}
+      require_labels: >-
+        {{ __meta__.controller_scheduler.require_labels | default(omit) }}
+      prefer_labels: >-
+        {{ __meta__.controller_scheduler.prefer_labels | default(omit) }}
+      instance_group: "{{ anarchy_action_config_name | default(omit) }}"
+    validate_certs: false
+    status_code: 200
+    timeout: 10
+  register: r_scheduler_response
+  retries: 2
+  delay: 3
+  until: r_scheduler_response is successful
+  ignore_errors: true
+
+- name: Setup scheduler-selected controller
+  when:
+    - r_scheduler_response is successful
+    - r_scheduler_response.json.ranked | default([]) | length > 0
+  vars:
+    job_info:
+      towerHost: "{{ r_scheduler_response.json.ranked[0].domain }}"
+  include_tasks: controller-access-facts.yaml
+
+- name: Add scheduler-selected controller to available_controllers for cleanup
+  when: controller is defined
+  set_fact:
+    available_controllers: >-
+      {{ available_controllers + [controller] }}
+
+- name: Log controller-scheduler result
+  debug:
+    msg: >-
+      {%- if controller is defined -%}
+      Controller-scheduler selected: {{ controller.hostname }}
+      (score: {{ r_scheduler_response.json.ranked[0].score }})
+      {%- else -%}
+      Controller-scheduler unavailable or failed.
+      Falling back to existing controller selection.
+      {%- endif -%}
