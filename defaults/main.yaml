@@ -13,7 +13,7 @@ controller_scheduler_url: >-
   {{ __meta__.controller_scheduler.url | default('') }}
 
 controller_scheduler_api_key: >-
-  {{ controller_scheduler_credentials.api_key | default('') }}
+  {{ controller_scheduler_credentials.cluster_scheduler_api_key_governor | default('') }}
 
 anarchy_governor_job_vars: >-
   {{ lookup('unsafe_var', 'anarchy_governor.spec.vars.job_vars') }}
