@@ -1,6 +1,6 @@
 ---
 - name: Select controller via controller-scheduler
-  when: controller_scheduler_url | default('') | length > 0
+  when: controller_scheduler_url | length > 0
   include_tasks: check-controller-scheduler.yaml
 
 - name: Check Available Ansible Controllers
