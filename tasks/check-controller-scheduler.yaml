@@ -8,9 +8,6 @@
       Content-Type: application/json
     body_format: json
     body:
-      candidates: >-
-        {{ ansible_controllers | json_query('[].{domain: hostname}')
-           | default(omit, true) }}
       require_labels: >-
         {{ __meta__.controller_scheduler.require_labels | default(omit) }}
       prefer_labels: >-
