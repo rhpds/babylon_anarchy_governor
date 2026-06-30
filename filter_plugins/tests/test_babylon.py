@@ -735,6 +735,137 @@ def test_extract_sandboxes_vars():
                 "subdomain_base_suffix": ".sandbox3153.domain.com",
             }
         },
+        {
+            'creds': True,
+            'input': {
+                'id': 19241,
+                "service_uuid": "791a8fb2-3820-41e1-95f2-f4142d1b7455",
+                "resources": [
+                    {
+                        "kind": "AwsSandbox",
+                        "name": "sandbox3104",
+                        "account_id": "202901899156",
+                        "zone": "sandbox3104.opentlc.com",
+                        "hosted_zone_id": "Z05256543CVIM6UZOSDUP",
+                        "credentials": [
+                            {
+                                "kind": "aws_iam_key",
+                                "name": "admin-key",
+                                "aws_access_key_id": "foobarKey",
+                                "aws_secret_access_key": "foobarSecret"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "RosaSandbox",
+                        "name": "rosa-sandbox-791a8fb2-3820-41e1-95f2-f4142d1b7455",
+                        "aws_account_name": "sandbox3104",
+                        "sa_id": "e2068e83-c2c9-4879-9960-3195c4cc453a",
+                        "sa_client_id": "e2068e83-c2c9-4879-9960-3195c4cc453a",
+                        "status": "success",
+                        "sa_secret": "foobarRosaSecret"
+                    }
+                ]
+            },
+            "expected": {
+                # AWS
+                "sandbox_name": "sandbox3104",
+                "sandbox_hosted_zone_id": "Z05256543CVIM6UZOSDUP",
+                "HostedZoneId": "Z05256543CVIM6UZOSDUP",
+                "sandbox_account": "202901899156",
+                "sandbox_account_id": "202901899156",
+                "sandbox_zone": "sandbox3104.opentlc.com",
+                "subdomain_base_suffix": ".sandbox3104.opentlc.com",
+                "sandbox_aws_access_key_id": "foobarKey",
+                "sandbox_aws_secret_access_key": "foobarSecret",
+                "aws_access_key_id": "foobarKey",
+                "aws_secret_access_key": "foobarSecret",
+                "sandbox_credentials": [
+                    {
+                        "kind": "aws_iam_key",
+                        "name": "admin-key",
+                        "aws_access_key_id": "foobarKey",
+                        "aws_secret_access_key": "foobarSecret"
+                    }
+                ],
+                # ROSA
+                "rosa_sandbox_name": "rosa-sandbox-791a8fb2-3820-41e1-95f2-f4142d1b7455",
+                "rosa_aws_account_name": "sandbox3104",
+                "rosa_sa_client_id": "e2068e83-c2c9-4879-9960-3195c4cc453a",
+                "rosa_sa_secret": "foobarRosaSecret",
+                "sandboxes": [
+                    {
+                        "kind": "AwsSandbox",
+                        "name": "sandbox3104",
+                        "account_id": "202901899156",
+                        "zone": "sandbox3104.opentlc.com",
+                        "hosted_zone_id": "Z05256543CVIM6UZOSDUP",
+                        "credentials": [
+                            {
+                                "kind": "aws_iam_key",
+                                "name": "admin-key",
+                                "aws_access_key_id": "foobarKey",
+                                "aws_secret_access_key": "foobarSecret"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "RosaSandbox",
+                        "name": "rosa-sandbox-791a8fb2-3820-41e1-95f2-f4142d1b7455",
+                        "aws_account_name": "sandbox3104",
+                        "sa_id": "e2068e83-c2c9-4879-9960-3195c4cc453a",
+                        "sa_client_id": "e2068e83-c2c9-4879-9960-3195c4cc453a",
+                        "status": "success",
+                        "sa_secret": "foobarRosaSecret"
+                    }
+                ]
+            }
+        },
+        {
+            'creds': False,
+            'input': {
+                'id': 19241,
+                "service_uuid": "791a8fb2-3820-41e1-95f2-f4142d1b7455",
+                "resources": [
+                    {
+                        "kind": "AwsSandbox",
+                        "name": "sandbox3104",
+                        "account_id": "202901899156",
+                        "zone": "sandbox3104.opentlc.com",
+                        "hosted_zone_id": "Z05256543CVIM6UZOSDUP",
+                        "credentials": [
+                            {
+                                "kind": "aws_iam_key",
+                                "name": "admin-key",
+                                "aws_access_key_id": "foobarKey",
+                                "aws_secret_access_key": "foobarSecret"
+                            }
+                        ]
+                    },
+                    {
+                        "kind": "RosaSandbox",
+                        "name": "rosa-sandbox-791a8fb2-3820-41e1-95f2-f4142d1b7455",
+                        "aws_account_name": "sandbox3104",
+                        "sa_client_id": "e2068e83-c2c9-4879-9960-3195c4cc453a",
+                        "status": "success",
+                        "sa_secret": "foobarRosaSecret"
+                    }
+                ]
+            },
+            "expected": {
+                # AWS (no creds)
+                "sandbox_name": "sandbox3104",
+                "sandbox_hosted_zone_id": "Z05256543CVIM6UZOSDUP",
+                "HostedZoneId": "Z05256543CVIM6UZOSDUP",
+                "sandbox_account": "202901899156",
+                "sandbox_account_id": "202901899156",
+                "sandbox_zone": "sandbox3104.opentlc.com",
+                "subdomain_base_suffix": ".sandbox3104.opentlc.com",
+                # ROSA (no creds)
+                "rosa_sandbox_name": "rosa-sandbox-791a8fb2-3820-41e1-95f2-f4142d1b7455",
+                "rosa_aws_account_name": "sandbox3104",
+            }
+        },
     ]
 
     for tc in testcases:
