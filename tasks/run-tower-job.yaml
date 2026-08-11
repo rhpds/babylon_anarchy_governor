@@ -38,7 +38,7 @@
 - name: Set __project_scm_ref
   set_fact:
     __project_scm_ref: >-
-      {{ __meta__.deployer.scm_ref | default(
+      {{ lookup('templated_var', __meta__.deployer.scm_ref) | default(
         lookup('git_tag_prefix', __meta__.deployer.git_tag_prefix, git_repo=__meta__.deployer.scm_url)
         if __meta__.deployer.git_tag_prefix is defined else 'main'
       ) }}
