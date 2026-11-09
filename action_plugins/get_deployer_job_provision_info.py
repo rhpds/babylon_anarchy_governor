@@ -19,6 +19,8 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+from base64 import b64decode
+
 import re
 import requests
 import yaml
@@ -39,6 +41,8 @@ requests_session.mount('https://', requests_adapter)
 user_body_regex = re.compile(r'^user\.body:\s*')
 user_data_regex = re.compile(r'^user\.data:\s*')
 user_info_regex = re.compile(r'^user\.info:\s*')
+user_data64_regex = re.compile(r'^user\.data64:\s*')
+user_info64_regex = re.compile(r'^user\.info64:\s*')
 
 class ActionModule(ActionBase):
     '''Print statements during execution and save user info to file'''
@@ -82,8 +86,14 @@ class ActionModule(ActionBase):
               task_action = event_data.get('task_action')
               event_res = event_data.get('res', {})
               if task_action == 'agnosticd_user_info' or task_action is not None and task_action.endswith('.agnosticd_user_info'):
-                  data = event_res.get('data')
-                  msg = event_res.get('msg')
+                  if 'data64' in event_res:
+                      data = yaml.safe_load(b64decode(event_res['data64']))
+                  else:
+                      data = event_res.get('data')
+                  if 'msg64' in event_res:
+                      msg = b64decode(event_res['msg']).decode('utf-8')
+                  else:
+                      msg = event_res.get('msg')
                   user_name = event_res.get('user')
                   if user_name:
                       if not 'users' in provision_data:
@@ -117,8 +127,12 @@ class ActionModule(ActionBase):
                                   provision_message_body.append(user_body_regex.sub('', message))
                               elif user_data_regex.search(message):
                                   provision_data.update(yaml.safe_load(user_data_regex.sub('', message)))
+                              elif user_data64_regex.search(message):
+                                  provision_data.update(yaml.safe_load(b64decode(user_data64_regex.sub('', message))))
                               elif user_info_regex.search(message):
                                   provision_messages.append(user_info_regex.sub('', message))
+                              elif user_info64_regex.search(message):
+                                  provision_messages.append(b64decode(user_info_regex.sub('', message)).decode('utf-8'))
 
           next_url_path = resp_data.get('next')
           if next_url_path:
