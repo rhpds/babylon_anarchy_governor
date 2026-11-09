@@ -91,7 +91,7 @@ class ActionModule(ActionBase):
                   else:
                       data = event_res.get('data')
                   if 'msg64' in event_res:
-                      msg = b64decode(event_res['msg']).decode('utf-8')
+                      msg = b64decode(event_res['msg64']).decode('utf-8')
                   else:
                       msg = event_res.get('msg')
                   user_name = event_res.get('user')
