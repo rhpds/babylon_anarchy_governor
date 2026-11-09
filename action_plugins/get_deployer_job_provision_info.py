@@ -132,7 +132,7 @@ class ActionModule(ActionBase):
                               elif user_info_regex.search(message):
                                   provision_messages.append(user_info_regex.sub('', message))
                               elif user_info64_regex.search(message):
-                                  provision_messages.append(b64decode(user_info_regex.sub('', message)).decode('utf-8'))
+                                  provision_messages.append(b64decode(user_info64_regex.sub('', message)).decode('utf-8'))
 
           next_url_path = resp_data.get('next')
           if next_url_path:
