@@ -1,6 +1,6 @@
 ---
 - when: >-
-    'startTimestamp' not in vars.anarchy_subject.status.actions.destroy | default({}, true)
+    'startTimestamp' not in anarchy_subject.status.actions.destroy | default({}, true)
     and
     current_state == "destroy-pending"
   name: Set startTimestamp to status.actions.destroy for {{ anarchy_subject_name }}
@@ -52,6 +52,6 @@
     not __meta__.deployer.actions.destroy.disable | default(false) | bool
   vars:
     job_action: destroy
-    job_info: "{{ vars.anarchy_subject.status.towerJobs.destroy }}"
+    job_info: "{{ anarchy_subject.status.towerJobs.destroy }}"
   include_tasks: check-deployer-job.yaml
 ...

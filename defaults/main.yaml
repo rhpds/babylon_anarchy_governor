@@ -39,13 +39,13 @@ env_type: >-
   | default(None) }}
 
 requester_email: >-
-  {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-requester-email']
+  {{ anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-requester-email']
   | default(anarchy_subject_job_vars.requester_email)
   | default(anarchy_subject_job_vars.email)
   | default(None) }}
 
 requester_user: >-
-  {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-requester-user']
+  {{ anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-requester-user']
   | default(anarchy_subject_job_vars.requester_username)
   | default(anarchy_subject_job_vars.student_name)
   | default('babylon', true) }}
@@ -78,7 +78,7 @@ current_state: unknown
 desired_state: unknown
 check_status_request_timestamp: ''
 last_check_status_request_timestamp: >-
-  {{ vars.anarchy_subject_previous_state.spec.vars.check_status_request_timestamp | default('') }}
+  {{ anarchy_subject_previous_state.spec.vars.check_status_request_timestamp | default('') }}
 check_status_state: null
 
 dynamic_job_vars: {}

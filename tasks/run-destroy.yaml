@@ -6,18 +6,18 @@
 - name: Set Ansible controller access facts
   vars:
     job_info: >-
-      {{ vars.anarchy_subject.status.towerJobs.provision | default({}) }}
+      {{ anarchy_subject.status.towerJobs.provision | default({}) }}
   include_tasks:
     file: controller-access-facts.yaml
 
 - name: Cancel provision tower job
   when:
-  - "'deployerJob' in vars.anarchy_subject.status.towerJobs.provision | default({})"
-  - "'completeTimestamp' not in vars.anarchy_subject.status.towerJobs.provision"
+  - "'deployerJob' in anarchy_subject.status.towerJobs.provision | default({})"
+  - "'completeTimestamp' not in anarchy_subject.status.towerJobs.provision"
   awx.awx.job_cancel:
     controller_host: "https://{{ controller.hostname }}/"
     controller_oauthtoken: "{{ controller.oauthtoken }}"
-    job_id: "{{ vars.anarchy_subject.status.towerJobs.provision.deployerJob }}"
+    job_id: "{{ anarchy_subject.status.towerJobs.provision.deployerJob }}"
     fail_if_not_running: false
     validate_certs: false
   register: r_job_cancel

@@ -13,8 +13,8 @@
         # Check for anarchy_governor and anarchy_subject, but be careful not to trigger template
         # evaluation. These often will contain variable references that cannot be resolved by
         # anarchy but will later be resolved within the deployer job.
-        - vars.anarchy_governor is defined
-        - vars.anarchy_subject is defined
+        - anarchy_governor is defined
+        - anarchy_subject is defined
 
     - msg: Variable guid is not defined
       that: guid is defined and guid != ''
