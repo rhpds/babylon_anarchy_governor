@@ -8,8 +8,7 @@ author: Johnathan Kupferer <jkupfere@redhat.com>
 version_added: "2.9"
 short_description: Resolve variable with internal template strings.
 description:
-- Referencing a variable with `vars.` prefix disables evaluation of internal template strings.
-- This lookup plugin enables selectively reenabling variable evaluation.
+- This lookup plugin enables selectively enabling variable evaluation.
 options:
   _terms:
     description: Input with internal variable references.

@@ -19,6 +19,8 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+from base64 import b64decode
+
 import re
 import requests
 import yaml
@@ -39,6 +41,8 @@ requests_session.mount('https://', requests_adapter)
 user_body_regex = re.compile(r'^user\.body:\s*')
 user_data_regex = re.compile(r'^user\.data:\s*')
 user_info_regex = re.compile(r'^user\.info:\s*')
+user_data64_regex = re.compile(r'^user\.data64:\s*')
+user_info64_regex = re.compile(r'^user\.info64:\s*')
 
 class ActionModule(ActionBase):
     '''Print statements during execution and save user info to file'''
@@ -50,7 +54,7 @@ class ActionModule(ActionBase):
         self._supports_check_mode = True
 
         if task_vars is None:
-            task_vars = dict()
+            task_vars = {}
 
         result = super(ActionModule, self).run(tmp, task_vars)
         result['_ansible_verbose_always'] = True
@@ -68,63 +72,72 @@ class ActionModule(ActionBase):
         page_size = self._task.args.get('page_size', 100)
         validate_certs = boolean(self._task.args.get('validate_certs', True), strict=False)
 
-        page = 1
         url = f"https://{host}/api/v2/jobs/{job_id}/job_events/?page_size={page_size}"
         provision_data = {}
         provision_message_body = []
         provision_messages = []
 
         while True:
-          resp = requests_session.get(url, headers={"Authorization": f"Bearer {oauthtoken}"}, verify=validate_certs)
-          resp_data = resp.json()
-          for result in resp_data.get('results', []):
-              event_data = result.get('event_data', {})
-              task_action = event_data.get('task_action')
-              event_res = event_data.get('res', {})
-              if task_action == 'agnosticd_user_info' or task_action is not None and task_action.endswith('.agnosticd_user_info'):
-                  data = event_res.get('data')
-                  msg = event_res.get('msg')
-                  user_name = event_res.get('user')
-                  if user_name:
-                      if not 'users' in provision_data:
-                          provision_data['users'] = {
-                            user_name: {}
-                          }
-                      if not user_name in provision_data['users']:
-                          provision_data['users'][user_name] = {}
-                      if msg:
-                          msg_string = msg if isinstance(msg, string_types) else "\n".join(msg)
-                          if 'msg' in provision_data['users'][user_name]:
-                              provision_data['users'][user_name]['msg'] += "\n{msg_string}"
-                          else:
-                              provision_data['users'][user_name]['msg'] = msg_string
-                      if data:
-                          provision_data['users'][user_name].update(data)
-                  else:
-                      if msg:
-                          messages = [msg] if isinstance(msg, string_types) else msg
-                          for message in messages:
-                              provision_messages.append(user_info_regex.sub('', message))
-                      if data:
-                          provision_data.update(data)
-              elif task_action == 'debug':
-                  msg = event_res.get('msg')
-                  if msg:
-                      messages = [msg] if isinstance(msg, string_types) else msg
-                      for message in messages:
-                          if isinstance(message, string_types):
-                              if user_body_regex.search(message):
-                                  provision_message_body.append(user_body_regex.sub('', message))
-                              elif user_data_regex.search(message):
-                                  provision_data.update(yaml.safe_load(user_data_regex.sub('', message)))
-                              elif user_info_regex.search(message):
-                                  provision_messages.append(user_info_regex.sub('', message))
+            resp = requests_session.get(url, headers={"Authorization": f"Bearer {oauthtoken}"}, verify=validate_certs)
+            resp_data = resp.json()
+            for result in resp_data.get('results', []):
+                event_data = result.get('event_data', {})
+                task_action = event_data.get('task_action')
+                event_res = event_data.get('res', {})
+                if task_action == 'agnosticd_user_info' or task_action is not None and task_action.endswith('.agnosticd_user_info'):
+                    if 'data64' in event_res:
+                        data = yaml.safe_load(b64decode(event_res['data64']))
+                    else:
+                        data = event_res.get('data')
+                    if 'msg64' in event_res:
+                        msg = b64decode(event_res['msg64']).decode('utf-8')
+                    else:
+                        msg = event_res.get('msg')
+                    user_name = event_res.get('user')
+                    if user_name:
+                        if 'users' not in provision_data:
+                            provision_data['users'] = {
+                              user_name: {}
+                            }
+                        if not user_name in provision_data['users']:
+                            provision_data['users'][user_name] = {}
+                        if msg:
+                            msg_string = msg if isinstance(msg, string_types) else "\n".join(msg)
+                            if 'msg' in provision_data['users'][user_name]:
+                                provision_data['users'][user_name]['msg'] += "\n{msg_string}"
+                            else:
+                                provision_data['users'][user_name]['msg'] = msg_string
+                        if data:
+                            provision_data['users'][user_name].update(data)
+                    else:
+                        if msg:
+                            messages = [msg] if isinstance(msg, string_types) else msg
+                            for message in messages:
+                                provision_messages.append(user_info_regex.sub('', message))
+                        if data:
+                            provision_data.update(data)
+                elif task_action == 'debug':
+                    msg = event_res.get('msg')
+                    if msg:
+                        messages = [msg] if isinstance(msg, string_types) else msg
+                        for message in messages:
+                            if isinstance(message, string_types):
+                                if user_body_regex.search(message):
+                                    provision_message_body.append(user_body_regex.sub('', message))
+                                elif user_data_regex.search(message):
+                                    provision_data.update(yaml.safe_load(user_data_regex.sub('', message)))
+                                elif user_data64_regex.search(message):
+                                    provision_data.update(yaml.safe_load(b64decode(user_data64_regex.sub('', message))))
+                                elif user_info_regex.search(message):
+                                    provision_messages.append(user_info_regex.sub('', message))
+                                elif user_info64_regex.search(message):
+                                    provision_messages.append(b64decode(user_info64_regex.sub('', message)).decode('utf-8'))
 
-          next_url_path = resp_data.get('next')
-          if next_url_path:
-              url = f"https://{host}{next_url_path}"
-          else:
-              break
+            next_url_path = resp_data.get('next')
+            if next_url_path:
+                url = f"https://{host}{next_url_path}"
+            else:
+                break
 
         return {
           "failed": False,

@@ -7,6 +7,7 @@
   when: current_state == "updating"
   vars:
     job_action: update
-    job_info: "{{ vars['anarchy_subject']['status']['towerJobs']['update'] }}"
+    # Use ...['update'] to avoid "update" method on dict
+    job_info: "{{ anarchy_subject.status.towerJobs['update'] }}"
   include_tasks: check-deployer-job.yaml
 ...

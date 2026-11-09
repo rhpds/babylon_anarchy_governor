@@ -6,8 +6,8 @@
     # Check for anarchy_governor and anarchy_subject, but be careful not to trigger template
     # evaluation. These often will contain variable references that cannot be resolved by
     # anarchy but will later be resolved within the deployer job.
-    - vars.anarchy_governor is defined
-    - vars.anarchy_subject is defined
+    - anarchy_governor is defined
+    - anarchy_subject is defined
     # The anarchy_subject_name should always be availble
     - anarchy_subject_name is defined
     # When processing an action the callback url and token must be defined
